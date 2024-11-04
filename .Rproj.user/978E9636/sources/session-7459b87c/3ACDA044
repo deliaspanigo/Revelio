@@ -1,0 +1,26 @@
+{
+    "id": "3ACDA044",
+    "path": "~/MyGitHub/Revelio/inst/extdata/pack03_summary_03_qc/report_summary_03_qc_file01_master_CODE.Rmd",
+    "project_path": "inst/extdata/pack03_summary_03_qc/report_summary_03_qc_file01_master_CODE.Rmd",
+    "type": "r_markdown",
+    "hash": "0",
+    "contents": "",
+    "dirty": false,
+    "created": 1730739442505.0,
+    "source_on_save": false,
+    "relative_order": 2,
+    "properties": {
+        "source_window_id": "",
+        "Source": "Source",
+        "cursorPosition": "37,0",
+        "scrollLine": "36"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 1730742381,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1730742381006,
+    "read_only": false,
+    "read_only_alternatives": []
+}

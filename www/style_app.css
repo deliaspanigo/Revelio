@@ -1,0 +1,87 @@
+/* Cambiar el color del fondo del box */
+.box {
+  background-color: #f5f5f5; /* Gris claro */
+}
+
+/* Cambiar el color del borde del box */
+.box.box-primary {
+  border-color: #ffa000; /* Amarillo */
+}
+
+/* Cambiar el color del texto del título del box */
+.box-title {
+  color: #333333; /* Negro */
+}
+
+/* Aumentar el tamaño del signo "+" */
+.box-header .fa.fa-plus:before {
+  font-size: 1.8em; /* Aumentar el tamaño del signo "+" a 1.8 veces el tamaño por defecto */
+}
+
+/* Aumentar el tamaño del signo "-" */
+.box-header .fa.fa-minus:before {
+  font-size: 1.8em; /* Aumentar el tamaño del signo "-" a 1.8 veces el tamaño por defecto */
+}
+
+/* Font del título del encabezado */
+.main-header .logo {
+  font-family: "Arial", sans-serif; /* Cambiar la fuente del título a Arial */
+  font-weight: bold; /* Se mantiene el peso de la fuente como negrita */
+  font-size: 28px; /* Aumentar el tamaño de la fuente del título a 28px */
+}
+
+/* Color de fondo del encabezado (parte del logo) */
+.skin-blue .main-header .logo {
+  background-color: #303f9f; /* Azul oscuro */
+}
+
+/* Color de fondo del logo al pasar el mouse */
+.skin-blue .main-header .logo:hover {
+  background-color: #3f51b5; /* Azul más claro */
+}
+
+/* Color de fondo para la parte restante del encabezado */
+.skin-blue .main-header .navbar {
+  background-color: #303f9f; /* Azul oscuro */
+}
+
+/* Botón de alternar al pasar el mouse */
+.skin-blue .main-header .navbar .sidebar-toggle:hover {
+  background-color: #3f51b5; /* Azul más claro */
+}
+
+/* Barra lateral principal */
+.skin-blue .main-sidebar {
+  background-color: #303f9f; /* Azul oscuro */
+}
+
+/* Elemento del menú lateral activo */
+.skin-blue .main-sidebar .sidebar .sidebar-menu .active a {
+  background-color: #ffffff; /* Blanco */
+  color: #303f9f; /* Azul oscuro */
+}
+
+/* Elementos del menú lateral al pasar el mouse */
+.skin-blue .main-sidebar .sidebar .sidebar-menu a:hover {
+  background-color: #3f51b5; /* Azul más claro */
+  color: #ffffff; /* Blanco */
+}
+
+/* Cuerpo */
+.content-wrapper, .right-side {
+  background-color: #ffffff; /* Blanco */
+}
+
+/* Encabezado de caja sólida */
+.box.box-solid.box-primary>.box-header {
+  background: #ffa000; /* Amarillo */
+}
+
+/* Caja sólida primaria */
+.box.box-solid.box-primary {
+  border-bottom-color: #ffa000; /* Amarillo */
+  border-left-color: #ffa000; /* Amarillo */
+  border-right-color: #ffa000; /* Amarillo */
+  border-top-color: #ffa000; /* Amarillo */
+}
+

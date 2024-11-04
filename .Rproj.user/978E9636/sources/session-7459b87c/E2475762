@@ -1,0 +1,27 @@
+{
+    "id": "E2475762",
+    "path": "~/MyGitHub/Revelio/R/module_pack002_import_s00_general.R",
+    "project_path": "R/module_pack002_import_s00_general.R",
+    "type": "r_source",
+    "hash": "0",
+    "contents": "",
+    "dirty": false,
+    "created": 1730743863545.0,
+    "source_on_save": false,
+    "relative_order": 7,
+    "properties": {
+        "tempName": "Untitled1",
+        "source_window_id": "",
+        "Source": "Source",
+        "cursorPosition": "137,0",
+        "scrollLine": "123"
+    },
+    "folds": "123|43|135|6|\n165|49|175|0|\n177|70|246|0|\n251|53|261|0|\n263|74|349|0|\n366|68|412|0|\n381|42|392|6|\n",
+    "lastKnownWriteTime": 1730745520,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1730745520052,
+    "read_only": false,
+    "read_only_alternatives": []
+}
