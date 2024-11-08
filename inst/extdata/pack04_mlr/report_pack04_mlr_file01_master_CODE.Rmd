@@ -1,0 +1,1042 @@
+---
+title: "Diplo - Semana 08 - ANOVA 1 Factor"
+author: "David Elias Panigo"
+date: "24-05-2024"
+output:
+  html_document:
+    df_print: paged
+---
+
+<br>
+<br>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  var title = document.querySelector('h1.title');
+  var author = document.querySelector('.author');
+  var date = document.querySelector('.date');
+  
+  title.style.display = 'none';
+  author.style.display = 'none';
+  date.style.display = 'none';
+});
+</script>
+
+<div class="image-container">
+  <img src="logo_01_unc_mod.png"      class="inline-image" width="200"  height="100">
+  <img src="logo_02_fcefyn_mod.png"   class="inline-image" width="200"  height="100">
+  <img src="logo_03_efadoc_mod.png"   class="inline-image" width="200"  height="100">
+  <img src="logo_04_rscience_mod.png" class="inline-image" width="200"  height="100">
+</div>
+
+## Código para una Super MLR
+
+#### Hora de ejecución: `r format(Sys.time(), "%Y-%m-%d %H:%M:%S")`
+#### Sistema operativo: `r Sys.info()["sysname"]`
+#### Versión de R: `r R.version.string`
+#### Versión de RStudio: `r RStudio.Version()$version`
+
+
+<br>
+<br>
+
+## General Linear Models - Fixed Effects - Anova 1 way
+
+```{r,  include =FALSE}
+knitr::opts_chunk$set(echo=TRUE, comment=NA)
+```
+
+### Section 01 of 15 - Libraries
+```{r, include =T, eval = T, class.source="bg-success"}
+### Section 01 of 15 - Libraries
+library(stats)      # General Linear Models, Shapiro test and Bartlett test.
+library(agricolae)  # Tukey test
+library(gplots)     # Graphics 
+library(plotly)
+library("openxlsx")
+```
+<br>
+<br>
+
+### Section 02 of 15 - Load database
+```{r, include =T, eval = T, class.source="bg-success"}
+database
+```
+<br>
+<br>
+
+
+
+### Section 04 of 15 - Var selection
+```{r, include =T, eval =T, class.source="bg-success"}
+#--- BEGINNING SCRIPT ----------------------------------------------------------
+
+  # # # Section 01) Libraries
+  library(igraph)
+  library(utils)
+  library(reshape2)
+#-------------------------------------------------------------------------------
+
+  # # # Section 02) Database
+  database <- mtcars
+  head(x = database, n = 5)
+
+  # Vector info database
+  vector_info_database <- c("database", nrow(database), ncol(database))
+  names(vector_info_database) <- c("source", "ncol", "nrow")
+  vector_info_database
+
+#-------------------------------------------------------------------------------
+  
+  # # # Section 03) Alpha value and confidence value
+  alpha_value <- 0.05
+  confidence_value <- 1 - alpha_value
+
+#-------------------------------------------------------------------------------
+  
+  # # # Section 04) Var selection
+  vector_name_x_var <- colnames(database)[-1]
+  value_name_y <- colnames(database)[1]
+  vector_all_vars <- c(value_name_y, vector_name_x_var)
+
+#----------------------------------------------------------------
+
+  # # # Section 05) Minibase
+  minibase <- na.omit(database[vector_all_vars])
+  head(x = minibase, n = 5)
+  
+  # Constant x detection 
+  dt_x_vars_ok <- sapply(vector_name_x_var, function(x){
+    var(na.omit(minibase[,x])) != 0
+  })
+  dt_x_vars_ok
+  
+  # Non constant x vars
+  vector_name_x_var <- vector_name_x_var[dt_x_vars_ok]
+  vector_all_vars <- c(value_name_y, vector_name_x_var)
+  vector_all_vars
+  
+  # Final minibase
+  minibase <- minibase[, vector_all_vars]
+  head(x = minibase, n = 5)
+  
+  
+  # Vector info minibase
+  vector_info_minibase <- c("minibase", nrow(minibase), ncol(minibase))
+  names(vector_info_minibase) <- c("source", "ncol", "nrow")
+  vector_info_minibase
+  
+  # k value
+  value_k <- length(vector_name_x_var)
+  value_k
+
+#-------------------------------------------------------------------------------
+  
+  # # # Section 06) Stock for tests (there are much more hypotesis, plots and tables)
+  # For each "test" there are at least: one hypotesis, one plot and one table.
+  # For each mlr there much more than 1 hypotesis!
+  # How big is your work?
+  
+  # Initial Combinations 
+  vector_stock01 <- c()
+  vector_stock01["x_vars"]        <- value_k
+  vector_stock01["x_diff_pairs"]  <- (value_k*(value_k-1))/2
+  vector_stock01["x_all_comb"]    <- 2^value_k
+  
+  # Data frame for stock01
+  df_stock01 <- t(as.data.frame(vector_stock01))
+  rownames(df_stock01) <- 1
+  df_stock01
+  
+  # Combinations for each case
+  vector_stock02 <- c()
+  vector_stock02["normality_x"]   <- vector_stock01["x_vars"]
+  vector_stock02["homogeneity"]   <- vector_stock01["x_diff_pairs"]
+  vector_stock02["cor_pearson"]   <- vector_stock01["x_diff_pairs"]
+  vector_stock02["cor_spearman"]  <- vector_stock01["x_diff_pairs"]
+  vector_stock02["models_rlm"]    <- vector_stock01["x_all_comb"]
+  vector_stock02["normality_res"] <- vector_stock01["x_all_comb"]
+  df_stock02 <- t(as.data.frame(vector_stock02))
+  rownames(df_stock02) <- 1
+  df_stock02
+
+#-------------------------------------------------------------------------------
+  
+
+  # # # Section 07) Normality test
+  
+  # Theoretical number of normality test: k
+  amount_normality_x <- vector_stock02["normality_x"]
+  amount_normality_x
+  
+  # Digit filling for pars
+  digit_fill_normality_x <- nchar(amount_normality_x)
+  
+  # Reference Data Frame for each normality test on x vars
+  vector_cols_ref_normality_x <- c("order", "text_order", "x_var_name") 
+    
+  # Reference data frame for normality for variables x
+  df_ref_normality_x <- data.frame(matrix(NA, amount_normality_x, length(vector_cols_ref_normality_x)))
+  colnames(df_ref_normality_x) <- vector_cols_ref_normality_x
+  df_ref_normality_x$"order" <-  1:amount_normality_x
+  df_ref_normality_x$"text_order" <- formatC(x = df_ref_normality_x$"order", width = digit_fill_normality_x, format = "d", flag = "0")
+  df_ref_normality_x$"text_order" <- paste0("normality_x_", df_ref_normality_x$"text_order")
+  df_ref_normality_x$"x_var_name" <- vector_name_x_var
+  df_ref_normality_x
+
+
+
+  # Normality test - List01
+  # All normality tests (Shapiro-Wilk) for x vars
+  list_normality_x_01 <- sapply(1:nrow(df_ref_normality_x), function(x){
+    
+    # x <- 1
+    selected_x_var <- df_ref_normality_x$"x_var_name"[x]
+    the_test <- shapiro.test(x = minibase[,selected_x_var])
+    the_test
+    
+  }, simplify = F)
+  names(list_normality_x_01) <- df_ref_normality_x$"text_order"
+
+  
+  # Information gathering
+  list_normality_x_02 <- sapply(1:length(list_normality_x_01), function(x){
+    
+    # x <- 1
+    selected_list <- list_normality_x_01[[x]]
+    
+    output_df <- data.frame(
+      "order" = x,
+      "text_order" = names(list_normality_x_01)[x],
+      "x_var_name" = df_ref_normality_x$"x_var_name"[x],
+      "n" = nrow(minibase),
+      "test" = "Normality - Shapiro Test",
+      "statistic" = selected_list$"statistic",
+      "p.value" = selected_list$"p.value",
+      "alpha_value" = alpha_value
+    )
+    
+    
+    check_reject_h0 <- output_df$"p.value" < output_df$"alpha_value"
+    
+    output_df$"h0_normality_text01" <- ifelse(test = check_reject_h0, 
+                                       yes = "H0 rejected",
+                                       no =  "H0 not rejected")
+  
+    output_df$"h0_normality_text02" <- ifelse(test = check_reject_h0, 
+                                              yes = "Normality rejected",
+                                              no =  "Normality not rejected")
+    
+    output_df$"rejected_h0_logical" <- ifelse(test = check_reject_h0, 
+                                       yes = TRUE,
+                                       no =  FALSE)
+  
+    output_df$"rejected_h0_text" <- ifelse(test = check_reject_h0, 
+                                              yes = "Yes",
+                                              no =  "No")
+    
+    rownames(output_df) <- x
+    
+    output_df
+    
+  }, simplify = F) 
+  names(list_normality_x_02) <- names(names(list_normality_x_01))
+
+  
+  # Formation of the dataframe for normality
+  df_normality_x <- do.call(what = rbind.data.frame, args = list_normality_x_02)
+  df_normality_x
+
+#-------------------------------------------------------------------------------
+  
+  # # # Section 08) Pairs Combinations for homogeneity and correlations
+
+  # # # All pairs of different combinations of variables x.
+  # It is useful when performing homogeneity and correlation tests.
+  
+  # Theoretical number of pairs of different combinations: (k*(k-1))/2
+  amount_pairs <- vector_stock01["x_diff_pairs"]
+  amount_pairs
+
+  # Digit filling for pairs
+  digit_fill_par <- nchar(amount_pairs)
+
+  # Reference Data Frame for all combinations for x (df_facfx)
+  df_ref_pair <- utils::combn(vector_name_x_var, 2)
+  df_ref_pair <- t(df_ref_pair)
+  df_ref_pair <- as.data.frame(df_ref_pair)
+  colnames(df_ref_pair) <- c("x_var_name01", "x_var_name02")
+  df_ref_pair$"order" <- 1:nrow(df_ref_pair)
+  df_ref_pair$"text_order" <- formatC(x = df_ref_pair$"order", width = digit_fill_par, format = "d", flag = "0")
+  df_ref_pair$"text_order" <- paste0("pair_", df_ref_pair$"text_order")
+  df_ref_pair <- df_ref_pair[c(3,4,1,2)]
+  df_ref_pair
+
+
+#-------------------------------------------------------------------------------
+  
+
+    
+  # # # Section 09)  Homogeneity test
+  # Theoretical number of pairs of different combinations: (k*(k-1))/2
+  amount_homogeneity <- vector_stock02["homogeneity"]
+  
+  # Digit filling - Homogeneity
+  digit_fill_homogeneity <- nchar(amount_homogeneity)
+
+  
+  # All homogeneity tests (Bartlett test)
+  list_homogeneity01 <- sapply(1:nrow(df_ref_pair), function(x){
+    
+    # Selected x vars
+    var_x01 <- df_ref_pair$"x_var_name01"[x]
+    var_x02 <- df_ref_pair$"x_var_name02"[x]
+    selected_vars <- c(var_x01, var_x02)
+    
+    # The test
+    the_test <- bartlett.test(x = list(minibase[,var_x01], minibase[,var_x02]))
+    the_test
+    
+  }, simplify = F)
+  names(list_homogeneity01) <- df_ref_pair$"text_order"
+  
+  # Information gathering
+  list_homogeneity02 <- sapply(1:length(list_homogeneity01), function(x){
+    
+    # x <- 1
+    selected_list <- list_homogeneity01[[x]]
+    
+    output_df <- data.frame(
+      "order" = x,
+      "text_order" = df_ref_pair$"text_order"[x],
+      "x_var_name01" = df_ref_pair$"x_var_name01"[x],
+      "x_var_name02" = df_ref_pair$"x_var_name02"[x],
+      "test" = "Homogeneity - Bartlett",
+      "statistic" = selected_list$"statistic",
+      "df" = selected_list$"parameter",
+      "p.value" = selected_list$"p.value",
+      "alpha_value" = alpha_value
+    )
+    
+    
+    check_reject_h0 <- output_df$"p.value" < output_df$"alpha_value"
+    
+    output_df$"h0_homogeneity_text01" <- ifelse(test = check_reject_h0, 
+                                              yes = "H0 rejected",
+                                              no =  "H0 not rejected")
+    
+    output_df$"h0_homogeneity_text02" <- ifelse(test = check_reject_h0, 
+                                              yes = "Homogeneity rejected",
+                                              no =  "Homogeneity not rejected")
+    
+    output_df$"rejected_h0_logical" <- ifelse(test = check_reject_h0, 
+                                              yes = TRUE,
+                                              no =  FALSE)
+    
+    output_df$"rejected_h0_text" <- ifelse(test = check_reject_h0, 
+                                           yes = "Yes",
+                                           no =  "No")
+    
+    output_df
+    
+  }, simplify = F) 
+  names(list_homogeneity02) <- names(list_homogeneity01)
+  
+  # Formation of the dataframe for homogeneity
+  df_homogeneity <- do.call(what = rbind.data.frame, args = list_homogeneity02)
+  rownames(df_homogeneity) <- 1:nrow(df_homogeneity)
+  df_homogeneity
+
+  
+#-------------------------------------------------------------------------------
+  
+  # # # Section 10)  Requeriments (Normality and Homogeneity)
+  # # #              for Pearson Correlation Test
+
+  # Position for matching homogeneity and normality for each pair
+  vector_pos_x01 <- match(df_homogeneity$x_var_name01, df_normality_x$x_var_name)
+  vector_pos_x02 <- match(df_homogeneity$x_var_name02, df_normality_x$x_var_name)
+  
+  # Formation of the dataframe for requirements of the Pearson correlation
+  # Only p.values from normality and homogeneity
+  selected_vars01 <- c("order", "text_order", "x_var_name01", "x_var_name02")
+  df_req_cor_pearson01 <- df_homogeneity[selected_vars01]
+  df_req_cor_pearson01$"p.value_normality_x01" <- df_normality_x$p.value[vector_pos_x01]
+  df_req_cor_pearson01$"p.value_normality_x02" <- df_normality_x$p.value[vector_pos_x02]
+  df_req_cor_pearson01$"p.value_homogeneity"   <- df_homogeneity$p.value
+  df_req_cor_pearson01
+  
+  
+  # Formation of the dataframe for requirements of the Pearson correlation
+  # Interpretation of p values
+  selected_vars02 <- c("order", "text_order", "x_var_name01", "x_var_name02")
+  df_req_cor_pearson02 <- df_homogeneity[selected_vars02]
+  df_req_cor_pearson02$"ok_normality_x01" <- df_normality_x$ok_normality[vector_pos_x01]
+  df_req_cor_pearson02$"ok_normality_x02" <- df_normality_x$ok_normality[vector_pos_x02]
+  df_req_cor_pearson02$"ok_homogeneity"   <- df_homogeneity$ok_homogeneity
+  df_req_cor_pearson02$"ok_general_logical" <- sapply(1:nrow(df_req_cor_pearson02), function(x){
+    
+    # x <- 1    
+    selected_vars <- c("ok_normality_x01", "ok_normality_x02", "ok_homogeneity")
+    check_vector <- df_req_cor_pearson02[x, selected_vars02] == "Yes"
+    check_general <- sum(check_vector) == length(check_vector)
+    check_general
+    
+  })
+  df_req_cor_pearson02$"ok_general_text01" <- ifelse(test = df_req_cor_pearson02$"ok_general_logical",
+                                                 yes = "Yes", 
+                                                 no = "No")
+  
+  df_req_cor_pearson02$"ok_general_text02" <- ifelse(test = df_req_cor_pearson02$"ok_general_logical",
+                                                  yes = "Pearson OK!", 
+                                                  no = "Is not correct use Pearson")
+  
+  df_req_cor_pearson02$"ok_general_text03" <- ifelse(test = df_req_cor_pearson02$"ok_general_logical",
+                                                     yes = "Requirements are met", 
+                                                     no = "Requirements are NOT met")
+
+  df_req_cor_pearson02$"desition_cor_test" <- ifelse(test = df_req_cor_pearson02$"ok_general_logical",
+                                                  yes = "Pearson", no = "Spearman")
+  
+  df_req_cor_pearson02
+  
+#-------------------------------------------------------------------------------
+  
+  # # # Section 11)  Pearson Correlation Test
+  
+  # Theoretical number of pairs of different combinations: (k*(k-1))/2
+  amount_cor_pearson <- vector_stock02["cor_pearson"]
+  
+  # Digit filling - Cor Pearson
+  digit_fill_pearson <- nchar(amount_cor_pearson)
+  
+  # All Pearson correlation tests
+  list_pearson01 <- sapply(1:nrow(df_ref_pair), function(x){
+    
+    # x <- 1
+    var_x01 <- df_ref_pair$"x_var_name01"[x]
+    var_x02 <- df_ref_pair$"x_var_name02"[x]
+    selected_vars <- c(var_x01, var_x02)
+    
+    the_test <- cor.test(x = minibase[,var_x01], 
+                         y = minibase[,var_x02],
+                         alternative = "two.sided",
+                         method = "pearson",
+                         exact = FALSE, 
+                         conf.level = confidence_value, 
+                         continuity = FALSE)
+    
+
+  }, simplify = F)
+  names(list_pearson01) <- df_ref_pair$"text_order"
+  
+  # Information gathering
+  list_pearson02 <- sapply(1:length(list_pearson01), function(x){
+    
+    # x <- 1
+    selected_list <- list_pearson01[[x]]
+    
+    output_df <- data.frame(
+      "order" = x,
+      "text_order" = df_ref_pair$"text_order"[x],
+      "x_var_name01" = df_ref_pair$"x_var_name01"[x],
+      "x_var_name02" = df_ref_pair$"x_var_name02"[x],
+      "test" = "Pearson",
+      "statistic" = selected_list$"statistic",
+      "df" = selected_list$"parameter",
+      "estimated" = selected_list$estimate,
+      "p.value" = selected_list$"p.value",
+      "alpha_value" = alpha_value
+    )
+    
+    
+    check_reject_h0 <- output_df$"p.value" < output_df$"alpha_value"
+    
+    output_df$"rejected_h0_logical" <- ifelse(test = check_reject_h0, 
+                                              yes  = TRUE,
+                                              no   = FALSE)
+    
+    output_df$"h0_cor_text01" <- ifelse(test = check_reject_h0, 
+                                                yes = "H0 rejected",
+                                                no =  "H0 not rejected")
+    
+    output_df$"h0_cor_text02" <- ifelse(test = check_reject_h0, 
+                                                yes = "Rho = 0, rejected",
+                                                no =  "Rho = 0, not rejected")
+    
+
+    
+    output_df$"rejected_h0_text" <- ifelse(test = check_reject_h0, 
+                                           yes = "Yes",
+                                           no =  "No")
+    
+    output_df$"cor_text" <- ifelse(test = check_reject_h0, 
+                                   yes  = "Correlated vars",
+                                   no   = "Not correlated vars")
+    
+    output_df$"cor_logical" <- ifelse(test = !check_reject_h0, 
+                                      yes  = TRUE,
+                                      no   = FALSE)
+    output_df
+    
+  }, simplify = F) 
+  names(list_pearson02) <- names(list_pearson01)
+  
+  # Formation of the dataframe for Pearson correlation
+  df_cor_pearson <- do.call(what = rbind.data.frame, args = list_pearson02)
+  rownames(df_cor_pearson) <- 1:nrow(df_cor_pearson)
+  
+  # Adding requirements information
+  df_cor_pearson$"req_pearson_text01" <- df_req_cor_pearson02$"ok_general_text03"
+  df_cor_pearson$"req_pearson_text02" <- df_req_cor_pearson02$"ok_general_text02"
+  df_cor_pearson
+  
+#-------------------------------------------------------------------------------
+
+  # # # Section 12)  Spearman Correlation Test
+  
+  # Theoretical number of pairs of different combinations: (k*(k-1))/2
+  amount_cor_spearman <- vector_stock02["cor_spearman"]
+  
+  # Digit filling - Cor Spearman
+  digit_fill_spearman <- nchar(amount_cor_spearman)
+  
+  # All Spearman correlation tests
+  list_spearman01 <- sapply(1:nrow(df_ref_pair), function(x){
+    
+    # x <- 1
+    var_x01 <- df_ref_pair$"x_var_name01"[x]
+    var_x02 <- df_ref_pair$"x_var_name02"[x]
+    selected_vars <- c(var_x01, var_x02)
+    
+    the_test <- cor.test(x = minibase[,var_x01], 
+                         y = minibase[,var_x02],
+                         alternative = "two.sided",
+                         method = "spearman",
+                         exact = FALSE, 
+                         conf.level = confidence_value, 
+                         continuity = FALSE)
+    
+    
+  }, simplify = F)
+  names(list_spearman01) <- df_ref_pair$"text_order"
+  
+  # Information gathering
+  list_spearman02 <- sapply(1:length(list_spearman01), function(x){
+    
+    # x <- 1
+    selected_list <- list_spearman01[[x]]
+    
+    output_df <- data.frame(
+      "order" = x,
+      "text_order" = df_ref_pair$"text_order"[x],
+      "x_var_name01" = df_ref_pair$"x_var_name01"[x],
+      "x_var_name02" = df_ref_pair$"x_var_name02"[x],
+      "test" = "Spearman",
+      "statistic" = selected_list$"statistic",
+      "df" = NA,
+      "estimated" = selected_list$"estimate",
+      "p.value" = selected_list$"p.value",
+      "alpha_value" = alpha_value
+    )
+    
+    
+    check_reject_h0 <- output_df$"p.value" < output_df$"alpha_value"
+    
+    output_df$"rejected_h0_logical" <- ifelse(test = check_reject_h0, 
+                                              yes = TRUE,
+                                              no =  FALSE)
+    
+    output_df$"h0_cor_text01" <- ifelse(test = check_reject_h0, 
+                                        yes = "H0 rejected",
+                                        no =  "H0 not rejected")
+    
+    output_df$"h0_cor_text02" <- ifelse(test = check_reject_h0, 
+                                        yes = "Rho = 0, rejected",
+                                        no =  "Rho = 0, not rejected")
+    
+
+    
+    output_df$"rejected_h0_text" <- ifelse(test = check_reject_h0, 
+                                           yes = "Yes",
+                                           no =  "No")
+    
+    output_df$"cor_text" <- ifelse(test = check_reject_h0, 
+                                   yes  = "Correlated vars",
+                                   no   = "Not correlated vars")
+    
+    output_df$"cor_logical" <- ifelse(test = !check_reject_h0, 
+                                      yes  = TRUE,
+                                      no   = FALSE)
+    
+    output_df
+    
+  }, simplify = F) 
+  names(list_spearman02) <- names(list_spearman01)
+  
+  # Formation of the dataframe for Spearman correlation
+  df_cor_spearman <- do.call(what = rbind.data.frame, args = list_spearman02)
+  rownames(df_cor_spearman) <- 1:nrow(df_cor_spearman)
+  
+  df_cor_spearman
+  
+#-------------------------------------------------------------------------------
+  
+
+  # # # Section 13)  Mix Correlation Test
+  # Selection between Pearson and Spearman depends on Pearson requirements
+  vector_cor_cols <- colnames(df_cor_spearman)
+  vector_dt_ok_pearson <- df_req_cor_pearson02$ok_general_logical 
+  
+  # Take the information from spearman and add what is valid for pearson
+  df_cor_mix <- df_cor_spearman
+  df_cor_mix[vector_dt_ok_pearson,] <- df_cor_pearson[vector_dt_ok_pearson, vector_cor_cols]
+
+  df_cor_mix
+
+#-------------------------------------------------------------------------------
+  
+  # # # Section 14)  Correlation matrix
+  # It is necessary to duplicate the information, giving the same 
+  # correlation values but changing the order of the variables.
+  # A symmetrical dataframe is formed.
+  vector_special_cols <- c("x_var_name01", "x_var_name02")
+  special_formula <- as.formula(paste0(vector_special_cols, collapse = " ~ "))
+  df_cor_mix_mirror <- df_cor_mix
+  df_cor_mix_mirror$"x_var_name01" <- df_cor_mix$"x_var_name02"
+  df_cor_mix_mirror$"x_var_name02" <- df_cor_mix$"x_var_name01"
+  df_cor_mix_symetric <- rbind(df_cor_mix, df_cor_mix_mirror)
+
+  vector_mat <- c("estimated", "test", "cor_logical")
+  list_fill <- list(1, "---", TRUE)
+  list_matrix_cor <- lapply(1:length(vector_mat), function(x){
+
+    new_matrix <- reshape2::dcast(data = df_cor_mix_symetric, 
+                              formula = special_formula, 
+                              value.var=vector_mat[x], 
+                              fun.aggregate = NULL, fill =list_fill[x])
+    
+    new_matrix <- as.matrix(new_matrix)
+    new_matrix <- new_matrix[,-1]
+    rownames(new_matrix) <- colnames(new_matrix)
+    new_matrix
+  })
+  names(list_matrix_cor) <- vector_mat
+  list_matrix_cor
+
+#-------------------------------------------------------------------------------
+
+  # # # Section 14)  Groups for non correlated variables
+  
+  # Create a graph from the correlation matrix
+  # We convert T to 0 (without edge) and F to 1 (with edge)
+  adjacency_matrix <- ifelse(list_matrix_cor[["cor_logical"]] == T, 0, 1)
+  the_graph <- igraph::graph_from_adjacency_matrix(adjmatrix = adjacency_matrix, mode = "undirected")
+
+  # Calculate the complement of the graph
+  the_complement_graph <- igraph::complementer(graph = the_graph)
+
+  # Find all cliques in the complementary graph
+  list_all_cliques_original <- igraph::cliques(graph = the_complement_graph, min = 1)
+
+  # Convert clicks to a vector list
+  # Here we already have the subsets of regressor variables
+  # with all regressors not correlated with each other.
+  list_all_cliques_mod <- lapply(list_all_cliques_original, function(x){vector_name_x_var[as.vector(x)] })
+
+  
+  
+  # The same list, but from least to most returners.
+  # Sort clicks by the number of elements
+  #----!!! Esto serian los modelos de regresion
+  # que en realidad se pueden aplicar ya que 
+  # no estan correlacionadas las variables.
+  list_all_cliques_sorted <- list_all_cliques_mod[order(sapply(list_all_cliques_mod, length))]
+  list_all_cliques_sorted <- lapply(list_all_cliques_sorted, sort)
+
+  # # # Subconjuntos maximizados de variables regresoras.
+  # Serian todos los subconjuntos posibles tal que:
+  # 1) Dentro de cada subconjunto sus variables no estan correlacionadas.
+  # 2) Ningun subconjunto esta incluido completamente en otro subconjunto.
+  # Serian los unicos casos con los que vale la pena
+  # arrancar una seleccion de modelos por backward.
+  vector_cliques <- rep(T, length(list_all_cliques_sorted))
+  for(k1 in 1:(length(list_all_cliques_sorted)-1)){
+  found <- FALSE
+  for(k2 in (k1+1):length(list_all_cliques_sorted)){
+    vector_a <- list_all_cliques_sorted[[k1]]
+    vector_b <- list_all_cliques_sorted[[k2]]
+    check_inn <- !all(vector_a %in% vector_b)
+    if(!check_inn){
+      vector_cliques[k1] <- FALSE
+      found <- TRUE
+      break
+    }
+  }
+  if(found) next
+}
+  list_all_cliques_sorted_maximazed <- list_all_cliques_sorted[vector_cliques]
+  list_all_cliques_sorted_maximazed
+
+
+  # 
+  list_models_cor_ok <- c("", list_all_cliques_sorted)
+  list_models_cor_ok
+  
+  
+  # Observed number of models OK about correlation
+  amount_models_cor_ok <- length(list_models_cor_ok)
+  
+  
+  # Digit filling - Cor Spearman
+  digit_fill_models_cor_ok <- nchar(amount_models_cor_ok)
+  
+  # Dataframe for cliques
+  df_ind_cor_models <- data.frame("order" = 1:length(list_models_cor_ok))
+  df_ind_cor_models$"posibility" <- formatC(x = df_ind_cor_models$"order", width = digit_fill_models_cor_ok, format = "d", flag = "0")
+  df_ind_cor_models$"posibility" <- paste0("posibility_", df_ind_cor_models$"posibility")
+  df_ind_cor_models$"sorted_x_var_name" <- sapply(list_models_cor_ok, function(x){
+    vector_fusion <- sort(x)
+    vector_fusion <- paste0(vector_fusion, collapse = ";")
+    vector_fusion
+  })
+  df_ind_cor_models$"number_of_x" <- sapply(list_models_cor_ok, function(x){
+    
+    the_number <- length(x)
+    if(length(x) == 1) if(x == "") the_number <- 0
+    the_number
+  })
+  df_ind_cor_models
+
+    
+#-------------------------------------------------------------------------------
+
+  # # # Section 15)  Combinations for all MLR models
+  
+  # Theoretical number of pairs of different combinations: (k*(k-1))/2
+  amount_models <- vector_stock01["x_all_comb"]
+  amount_models
+  
+  # Digit filling for pairs
+  digit_fill_models <- nchar(amount_models)
+  
+  # Todas las combinaciones
+  matrix_all_comb <- expand.grid(rep(list(c(F, T)), length(vector_name_x_var)))
+  #df_all_comb <- as.data.frame(df_all_comb)
+  colnames(matrix_all_comb) <- vector_name_x_var
+  matrix_all_comb <- matrix_all_comb[order(rowSums(matrix_all_comb), decreasing = F),]
+  rownames(matrix_all_comb) <- 1:nrow(matrix_all_comb)
+
+
+ 
+  # Reference Data Frame for all combinations for x (df_facfx)
+  df_ref_models <- data.frame("order" = 1:nrow(matrix_all_comb))
+  df_ref_models$"text_order" <- formatC(x = df_ref_models$"order", width = digit_fill_models, format = "d", flag = "0")
+  df_ref_models$"text_order" <- paste0("model_", df_ref_models$"text_order")
+  df_ref_models$"y_var_name" <- value_name_y
+  df_ref_models$"x_var_name" <- apply(matrix_all_comb, 1, function(x){
+    selected_x_vars <- vector_name_x_var[x]
+    selected_x_vars <- paste0(selected_x_vars, collapse = ";")
+    selected_x_vars
+  })
+  df_ref_models$"amount_x" <- apply(matrix_all_comb, 1, function(x){
+    selected_amount_x <- sum(x)
+    selected_amount_x
+  })
+  df_ref_models$"r_formula"  <- apply(matrix_all_comb, 1, function(x){
+    selected_x_vars <- vector_name_x_var[x]
+    if(length(selected_x_vars) == 0) selected_x_vars <- "1"
+    selected_x_vars <- paste0(selected_x_vars, collapse = " + ")
+    
+    selected_formula <- paste0(value_name_y, " ~ ", selected_x_vars)
+    selected_formula
+  })
+  df_ref_models$"sorted_x_var_name" <- apply(matrix_all_comb, 1, function(x){
+    selected_x_vars <- vector_name_x_var[x]
+    selected_x_vars <- sort(selected_x_vars)
+    selected_x_vars <- paste0(selected_x_vars, collapse = ";")
+    selected_x_vars
+  })
+  df_ref_models
+    
+  
+  
+
+#-------------------------------------------------------------------------------
+
+  # # # Section 16)  List of models that comply with the non-correlation of their regressors
+
+  vector_short <- df_ind_cor_models$"sorted_x_var_name"
+  vector_long  <- df_ref_models$"sorted_x_var_name"
+  vector_pos_cor_ok <- match(vector_short, vector_long)
+  vector_pos_cor_ok <- na.omit(vector_pos_cor_ok)
+  
+  df_ind_cor_models_mod <-   df_ind_cor_models
+  df_ind_cor_models_mod$"models_ok" <- df_ref_models$"text_order"[vector_pos_cor_ok]
+  df_ind_cor_models_mod$"models_ok_order" <- vector_pos_cor_ok
+    
+#-------------------------------------------------------------------------------
+  
+  # # # Section 17)  All MLR models
+  list_summary_mlr01 <- lapply(1:nrow(df_ref_models), function(x){
+  
+    # Hardcorded
+    formula_mlr_general <- "lm(formula = _selected_model_, data = minibase)"
+    
+    # x <- 1
+    selected_model <- df_ref_models$"r_formula"[x]
+    formula_mlr_mod <- formula_mlr_general
+    formula_mlr_mod <- sub("_selected_model_", selected_model, formula_mlr_mod)
+    
+    the_test <- eval(parse(text = formula_mlr_mod))
+    the_test
+  })
+  names(list_summary_mlr01) <- df_ref_models$"text_order"
+  
+  
+  
+  #-------------------------------------------------------------------------------
+  
+  # # # Section 20)  Position and dispersion measurements of each model.
+  list_pos_disp  <-   lapply(1:length(list_summary_mlr01), function(x){
+    
+    # x <- 1
+    residuals <- list_summary_mlr01[[x]]$residuals
+    minibase_new <- cbind.data.frame(minibase, residuals)
+    
+    
+    df_position <- data.frame(
+      "var_name" = colnames(minibase_new),
+      "min" = apply(minibase_new, 2, min),
+      "max" = apply(minibase_new, 2, max),
+      "mean" = apply(minibase_new, 2, mean),
+      "q1" = apply(minibase_new, 2, quantile, 0.25),
+      "median" = apply(minibase_new, 2, median),
+      "q2" = apply(minibase_new, 2, quantile, 0.75),
+      "n" = apply(minibase_new, 2, length)
+    )
+    
+    df_dispersion <- data.frame(
+      "var_name" = colnames(minibase_new),
+      "range" = df_position$"max" - df_position$"min",
+      "var" = apply(minibase_new, 2, var),
+      "sd" = apply(minibase_new, 2, sd),
+      "iqr" = apply(minibase_new, 2, IQR),
+      "n" = apply(minibase_new, 2, length)
+    )
+    
+  })
+  
+  
+  
+  # Information gathering
+  list_summary_mlr02 <- lapply(1:length(list_summary_mlr01), function(x){
+    
+    # x <- 2
+    selected_list <- list_summary_mlr01[[x]]
+    
+    the_summary <- summary(selected_list)
+    
+    #if(is.list(the_summary))
+    df_eval_model <- data.frame(
+      "order" = x,
+      "order_text" = df_ref_models$"text_order"[x],
+      "value_r2" = round(the_summary$r.squared, 5),
+      "value_ajusted_r2" = round(the_summary$adj.r.squared, 5),
+      "value_aic" = round(AIC(selected_list), 5),
+      "value_bic" = round(BIC(selected_list), 5)
+    )
+  
+    df_coef01 <- the_summary$coefficients
+    df_coef01 <- as.data.frame(df_coef01)
+    
+    df_coef02 <- df_coef01 
+    df_coef02$"alpha_value" <- alpha_value
+  
+    vector_all_p.value <- df_coef02[,"Pr(>|t|)"]
+    vector_check_rejected_h0 <- vector_all_p.value < alpha_value
+    
+    df_coef02$"rejected_h0_coef_logical" <- ifelse(test = vector_check_rejected_h0,
+                                                yes = TRUE, 
+                                                no = FALSE)
+  
+    df_coef02$"rejected_h0_coef_text01" <- ifelse(test = vector_check_rejected_h0,
+                                         yes = "H0 rejected", 
+                                         no = "H0 not rejected")
+  
+    df_coef02$"rejected_h0_coef_text02" <- ifelse(test = vector_check_rejected_h0,
+                                                yes = "Coef significative", 
+                                                no = "Coef not significative")
+  
+    vector_pos_constant <- 1
+    vector_pos_slopes <- 2:nrow(df_coef01)
+    if(nrow(df_coef01) == 1) vector_pos_slopes <- 0
+    
+    vector_name_constant <- rownames(df_coef01)[vector_pos_constant]
+    vector_name_slopes <- rownames(df_coef01)[vector_pos_slopes]
+      
+    vector_check_constant   <- vector_check_rejected_h0[vector_pos_constant]
+    vector_check_each_slope <- vector_check_rejected_h0[vector_pos_slopes]
+    value_total_slopes <- length(vector_check_each_slope)
+    value_total_sig_slopes   <- sum(vector_check_each_slope)
+    value_total_no_sig_slopes <- value_total_slopes - value_total_sig_slopes
+    check_all_sig_slopes <- sum(vector_check_each_slope) == value_total_slopes
+    
+    fusion_names_sig_slopes <-   paste0(vector_name_slopes[vector_check_each_slope], collapse = ";")
+    fusion_names_no_sig_slopes <- paste0(vector_name_slopes[!vector_check_each_slope], collapse = ";")
+    
+    df_coef_info <- data.frame(
+      "order" = x,
+      "order_text" = df_ref_models$"text_order"[x],
+      "sig_const" = vector_check_constant,
+      "sig_all_slopes" = check_all_sig_slopes,
+      "total_slopes" = value_total_slopes,
+      "amount_sig_x" = value_total_sig_slopes,
+      "amount_no_sig_x" = value_total_no_sig_slopes,
+      "var_name_x_sig" = fusion_names_sig_slopes,
+      "var_name_x_no_sig" = fusion_names_no_sig_slopes
+    )
+    
+    output_list <- Hmisc::llist(the_summary, df_eval_model, df_coef01, 
+                                df_coef02, df_coef_info)
+    
+    output_list
+    
+  })
+  names(list_summary_mlr02) <- names(list_summary_mlr01)
+  
+  
+  
+  # Normality test - Residuals
+  # All normality tests (Shapiro-Wilk) for residuals on each model
+  list_summary_mlr03 <- lapply(1:length(list_summary_mlr02), function(x){
+    
+    # x <- 1
+    selected_list <- list_summary_mlr02[[x]]
+    vector_residuals <- selected_list$the_summary$residuals
+    the_test <- shapiro.test(x = vector_residuals)
+    the_test
+    
+  })
+  names(list_summary_mlr03) <- names(list_summary_mlr02)
+  
+  
+  # Information gathering from Residuals Normality Test
+  list_summary_mlr04 <- sapply(1:length(list_summary_mlr03), function(x){
+    
+    # x <- 1
+    selected_list <- list_summary_mlr03[[x]]
+    
+    output_df <- data.frame(
+      "order" = x,
+      "text_order" = names(list_summary_mlr03)[x],
+      "var_name" = "residuals",
+      "n" = nrow(minibase),
+      "test" = "Normality - Shapiro Test",
+      "statistic" = selected_list$"statistic",
+      "p.value" = selected_list$"p.value",
+      "alpha_value" = alpha_value
+    )
+    
+    
+    check_reject_h0 <- output_df$"p.value" < output_df$"alpha_value"
+    
+    output_df$"h0_normality_text01" <- ifelse(test = check_reject_h0, 
+                                              yes = "H0 rejected",
+                                              no =  "H0 not rejected")
+    
+    output_df$"h0_normality_text02" <- ifelse(test = check_reject_h0, 
+                                              yes = "Normality rejected",
+                                              no =  "Normality not rejected")
+    
+    output_df$"rejected_h0_logical" <- ifelse(test = check_reject_h0, 
+                                              yes = TRUE,
+                                              no =  FALSE)
+    
+    output_df$"rejected_h0_text" <- ifelse(test = check_reject_h0, 
+                                           yes = "Yes",
+                                           no =  "No")
+    
+    output_df$"ok_req_normality_res" <- ifelse(test = !check_reject_h0, 
+                                           yes = "Yes",
+                                           no =  "No")
+    rownames(output_df) <- x
+    
+    output_df
+    
+  }, simplify = F) 
+  names(list_summary_mlr04) <- names(list_summary_mlr03)
+  
+
+  # Dataframe for Residuals Normality Test
+  df_normality_residuals <- do.call(what = rbind.data.frame, args = list_summary_mlr04)
+  df_normality_residuals
+
+  # Summary Dataframe for all mlr
+  df_mlr_summary_req <- df_ref_models
+  df_mlr_summary_req$"ok_req_normality_res"  <- df_normality_residuals$"ok_req_normality_res"  
+  df_mlr_summary_req$"ok_req_cor_x"  <- "No"  
+  df_mlr_summary_req$"ok_req_cor_x"[df_ind_cor_models_mod$"models_ok_order"] <- "Yes"
+  df_mlr_summary_req$"ok_model_step01" <- (df_mlr_summary_req$"ok_req_normality_res" == "Yes") & (df_mlr_summary_req$"ok_req_cor_x" == "Yes")
+  df_mlr_summary_req$"ok_model_step01" <- ifelse(df_mlr_summary_req$"ok_model_step01", yes = "Yes", no = "No")
+  df_mlr_summary_req$"ok_req_homogeneity_res"  <- "User desition"
+  df_mlr_summary_req
+
+  #-------------------------------------------------------------------------------
+  
+  # # # Section 18)  Only models OK on Step01
+  
+  # Dataframe only with OK models step01
+  df_mlr_only_req_ok_step01 <- df_mlr_summary_req[df_mlr_summary_req$"ok_model_step01" == "Yes",]
+  rownames(df_mlr_only_req_ok_step01) <- 1:nrow(df_mlr_only_req_ok_step01)
+  colnames(df_mlr_only_req_ok_step01)[c(1,2)] <- c("order_model", "text_order_model")
+  
+  digit_fill_models_ok <- nchar(nrow(df_mlr_only_req_ok_step01))
+  df_mlr_only_req_ok_step01$"order_model_ok" <- 1:nrow(df_mlr_only_req_ok_step01)
+  df_mlr_only_req_ok_step01$"text_order_model_ok" <- formatC(x = df_mlr_only_req_ok_step01$"order_model_ok", width = digit_fill_models_ok, format = "d", flag = "0")
+  df_mlr_only_req_ok_step01$"text_order_model_ok" <- paste0("model_ok_", df_mlr_only_req_ok_step01$"text_order_model_ok")
+  df_mlr_only_req_ok_step01 <- df_mlr_only_req_ok_step01[,c(tail(names(df_mlr_only_req_ok_step01), 2), head(names(df_mlr_only_req_ok_step01), -2))]
+  df_mlr_only_req_ok_step01
+  
+#-------------------------------------------------------------------------------
+
+  # # # Section 19)  Summarizing all models
+  
+  list_mlr_general <-   lapply(1:nrow(df_mlr_summary_req), function(x){
+    
+    # x <- 2
+    selected_row <- x
+    df01 <- df_mlr_summary_req[x,]
+    
+    df02 <- data.frame("n" = nrow(minibase))
+    
+    df03 <- list_summary_mlr02[[x]]$df_eval_model
+    df03 <- df03[,-c(1,2)]
+    
+    df04 <- list_summary_mlr02[[x]]$df_coef_info
+    df04 <- df04[,-c(1,2)]
+    
+    df_output <- cbind.data.frame(df01, df02, df03, df04)
+    
+    df_output$"req_ok_and_all_slope_sig" <- ((df_output$ok_model_step01 == "Yes") + df_output$sig_all_slopes) == 2
+    df_output
+    
+  })
+
+  df_mlr_general <- do.call(rbind.data.frame, list_mlr_general)
+  df_mlr_general
+  
+  
+```
+
+
+```{r,  eval = T, include =F}
+ df_mlr_general
+
+```
+
+
+```{r,  eval = T, include =F}
+# Save all objects!
+save.image(file = "R_results.rdata")
+saveRDS(df_mlr_general, file = "df_mlr_general.rds")
+```

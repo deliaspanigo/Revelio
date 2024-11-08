@@ -1,7 +1,7 @@
 
 
 # # # 01) UI - Selection for 'database'
-module_pack003_summary_s03_QC_ui <- function(id){
+module_pack004_mlr_ui <- function(id){
 
   ns <- shiny::NS(id)
 
@@ -27,7 +27,7 @@ module_pack003_summary_s03_QC_ui <- function(id){
         }
       "))
     ),
-    shiny::h1("Summary - QC"),
+    shiny::h1("Multiple Linear Regresion"),
     shiny::fluidRow(
       shiny::column(5,
                     uiOutput(ns("box02_var_selector"))),
@@ -52,7 +52,7 @@ module_pack003_summary_s03_QC_ui <- function(id){
 
 
 # Var selection - Render - Show Results
-module_pack003_summary_s03_QC_server <- function(id, vector_all_colnames_database, database){
+module_pack004_mlr_server <- function(id, vector_all_colnames_database, database){
 
   moduleServer(
     id,
@@ -260,7 +260,12 @@ module_pack003_summary_s03_QC_server <- function(id, vector_all_colnames_databas
                        column(12,
                               shinycssloaders::withSpinner(htmlOutput(ns("htmlviewer_temporal2"))))
                      )
-            )
+            ),
+            tabPanel(title = "New", value = 3,
+                     fluidRow(
+                       column(12,
+                              verbatimTextOutput(ns("all_files_view")))
+                     ))
           )
         )
 
@@ -372,7 +377,7 @@ module_pack003_summary_s03_QC_server <- function(id, vector_all_colnames_databas
 
         # # # Detalles para este caso en particular
         the_package_name <- "Revelio"
-        selected_folder <- "pack03_summary_03_qc"
+        selected_folder <- "pack04_mlr"   ### CAMBIO!!!
 
         # # # Sigue el resto...
         special_folder_package <- file.path("extdata", selected_folder)
@@ -510,12 +515,23 @@ module_pack003_summary_s03_QC_server <- function(id, vector_all_colnames_databas
 
       ######################################################
 
-      download_counter_html <- reactiveVal()
+      download_counter_html <- reactiveVal(0)
 
       observeEvent(special_path_output_html_report(),{
 
+        if(file.exists(special_path_output_html_report())){
         shinyjs::enable("download_button_html")
         runjs(sprintf('$("#%s").css({"background-color": "orange", "color": "white", "border": "none", "padding": "10px 20px", "text-align": "center", "text-decoration": "none", "display": "inline-block", "font-size": "16px", "margin": "4px 2px", "cursor": "pointer", "border-radius": "12px"});', ns("download_button_html")))
+        }
+
+      })
+
+      observeEvent(download_counter_html(),{
+
+        if(download_counter_html() > 0){
+          runjs(sprintf('$("#%s").css({"background-color": "green", "color": "white", "border": "none", "padding": "10px 20px", "text-align": "center", "text-decoration": "none", "display": "inline-block", "font-size": "16px", "margin": "4px 2px", "cursor": "pointer", "border-radius": "12px"});', ns("download_button_html")))
+
+        }
 
       })
 
@@ -573,6 +589,66 @@ module_pack003_summary_s03_QC_server <- function(id, vector_all_colnames_databas
         }
       )
 
+      #######################################################
+
+
+      my_files <- reactive({
+        req(special_path_output_folder())
+        the_folder <- special_path_output_folder()
+        the_files <- list.files(the_folder, full.names = T)
+        the_files <- grep("\\.rds$", the_files, value = TRUE, ignore.case = TRUE)
+        #print(the_files)
+        #if(is.null(my_files)) return(NULL)
+        #if(!exists(my_files[1])) return(NULL)
+        #if(sum(my_files == "") > 0) return(NULL)
+        the_files
+      })
+
+      control_33 <- reactive({
+        req(my_files())
+
+
+
+      })
+
+
+      lo_todo <- reactive({
+
+        #req(exists(my_files()))
+
+        aver <- list.files(special_path_output_folder())
+
+        #
+        # aver <- list.files("/tmp/RtmpEaztWu/Rsience_FOLDER_2024_11_08_00_47_08/R_results.rdata",
+        #                    pattern = "R_results.rdata", full.names = T)
+        print(aver)
+        load_specific_object <- function(file, object) {
+          env <- new.env()
+          load(file, envir = env)
+          return(env[[object]])
+        }
+        #load_specific_object(aver, "df_mlr_general")
+        df_loaded <- readRDS(my_files())
+        df_loaded
+
+      })
+
+
+        #print(la_df)
+        #df <- load_specific_object(input$file$datapath, "my_data")
+        #mi_df(la_df)
+
+        # Actualizar las opciones del selectInput para plotear
+        #updateSelectInput(session, "plot_var", choices = colnames(df))
+      #})
+
+
+      output$all_files_view <- renderPrint({
+        #req(mi_df())
+        lo_todo()
+        #my_files()
+        #print(mi_df())
+      })
       # aqui esta el archivo
       #
 

@@ -30,7 +30,7 @@ library("devtools")
 # Construir y revisar el paquete
 devtools::load_all()
 
-devtools::document()
+# devtools::document()
 
 devtools::build()
 

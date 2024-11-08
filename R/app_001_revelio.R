@@ -36,7 +36,9 @@ app_001_revelio <- function(){
         shinydashboard::menuItem(text = "database", tabName = "tab02_database", icon = shiny::icon("th")),
         br(),
         shinydashboard::menuItem(text = "summary", tabName = "tab03_summary", icon = shiny::icon("th")),
-        br()#,
+        br(),
+        shinydashboard::menuItem(text = "MLR", tabName = "tab04_mlr", icon = shiny::icon("th")),
+        br()#,#,
         #shinydashboard::menuItem(text = "Test 001 - Anova 1 Factor", tabName = "tab_test001_p01", icon = shiny::icon("th")),
 
         #shinydashboard::menuItem(text = "Test 002 - Kaplan-Maier", tabName = "tab_test002_p01", icon = shiny::icon("th")),
@@ -66,7 +68,10 @@ app_001_revelio <- function(){
 
 
         shinydashboard::tabItem(tabName = "tab03_summary",
-                module_pack003_summary_s03_QC_ui("space03_summary_03"))
+                module_pack003_summary_s03_QC_ui("space03_summary_03")),
+
+        shinydashboard::tabItem(tabName = "tab04_mlr",
+                                module_pack004_mlr_ui("space04_mlr"))
 
         # shinydashboard::tabItem(tabName = "tab_test001_p01",
         #                         #   tableOutput("la_tabla"),
@@ -151,6 +156,8 @@ app_001_revelio <- function(){
     module_pack003_summary_s03_QC_server(id = "space03_summary_03",
                                          vector_all_colnames_database, database)
 
+    module_pack004_mlr_server(id = "space04_mlr",
+                                         vector_all_colnames_database, database)
 
   } #--- Fin server
 
