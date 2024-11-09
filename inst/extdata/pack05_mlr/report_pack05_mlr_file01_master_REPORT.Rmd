@@ -1,0 +1,201 @@
+---
+title: "GLM - Gamma"
+author: "David Elias Panigo"
+date: "24-05-2024"
+output:
+  html_document:
+    df_print: paged
+
+runtime: shiny
+---
+
+<style>
+body {
+  text-align: left;
+  margin-left: 5px;
+  padding-left: 5px;
+}
+
+.main-container {
+  margin-left: 5px;
+  padding-left: 5px;
+}
+</style>
+
+<br>
+<br>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  var title = document.querySelector('h1.title');
+  var author = document.querySelector('.author');
+  var date = document.querySelector('.date');
+  
+  title.style.display = 'none';
+  author.style.display = 'none';
+  date.style.display = 'none';
+});
+</script>
+
+<div class="image-container">
+  <img src="logo_01_unc_mod.png"      class="inline-image" width="200"  height="100">
+  <img src="logo_02_fcefyn_mod.png"   class="inline-image" width="200"  height="100">
+  <img src="logo_03_efadoc_mod.png"   class="inline-image" width="200"  height="100">
+  <img src="logo_04_rscience_mod.png" class="inline-image" width="200"  height="100">
+</div>
+
+## Diplomatura en Bioestadística básica aplicada mediada con R
+
+#### Hora de ejecución: `r format(Sys.time(), "%Y-%m-%d %H:%M:%S")`
+#### Sistema operativo: `r Sys.info()["sysname"]`
+#### Versión de R: `r R.version.string`
+#### Versión de RStudio: `r RStudio.Version()$version`
+
+
+<br>
+<br>
+
+
+
+```{r,  include =FALSE}
+knitr::opts_chunk$set(echo=TRUE, comment=NA)
+library(plotly)
+library(png)
+library(grid)
+library("plotly")
+library("png")
+library("grid")
+library("knitr")
+library("kableExtra")
+
+library(knitr)
+library(kableExtra)
+library("DT")
+
+#load("R_results.rdata")
+```
+
+
+## Summary - All MLR
+
+```{r, include =T, eval = T, echo = F, class.source="bg-success"}
+
+# Ejemplo de un data frame
+selected_cols <- c("order", "text_order", "y_var_name", 
+                   "x_var_name", "amount_x", "amount_sig_x",
+                   "ok_req_normality_res", 
+                   "ok_req_cor_x", 
+                   "sig_const", "sig_all_slopes",
+                   "value_r2",
+                   "value_ajusted_r2", "value_aic", "value_bic")
+
+new_col_names <- c("#", "model", "Y", 
+                   "X", "num_x", "sig_x", "req_norm_res", "req_no_cor",
+                   "sig_const", "sig_all_slopes", "r^2", "r^2_ajust", "aic", "bic")
+
+mi_tabla <- df_mlr_general
+mi_tabla <- mi_tabla[selected_cols]
+
+# Crear la tabla interactiva con DT
+tabla_mod <- DT::datatable(
+  mi_tabla, colnames = new_col_names, 
+  filter = 'top',
+  extensions = 'Buttons',
+  options = list(
+    autowidth = TRUE,
+    order = list(list(0, 'asc')),
+    columnDefs = list(list(className = 'dt-left', targets = c(0,1,2))),
+    pageLength = 10, 
+    lengthMenu = c(10, 50, 75, 100, 150),
+    dom = 'Bfrtip',  # Elementos de la tabla (botones, filtro, etc.)
+    buttons = c('copy', 'csv', 'excel', 'pdf', 'print'),  # Botones para exportar la tabla
+    initComplete = JS("
+      function(settings, json) {
+        $('body').css({
+          'font-family': 'Century Gothic', 'font-size': '150%'
+        });
+        $(this.api().table().header()).css({
+          'font-family': 'Century Gothic',
+          'font-size':'125%',
+          'background-color': '#008000',
+          'color': '#fff'
+        });
+      }
+    "),
+    rowCallback = JS("
+      function(row, data, index) {
+        if(index % 2 === 0) {
+          $(row).css('background-color', 'lightblue');
+        } else {
+          $(row).css('background-color', 'lightgreen');
+        }
+      }
+    ")
+  ),
+  rownames = FALSE
+)
+
+# Mostrar la tabla
+tabla_mod
+
+```
+<br>
+<br>
+
+
+
+
+### Section 01 of 15 - Medidas de Posición
+```{r, include =T, eval = T, echo = F, class.source="bg-success"}
+
+# # Ejemplo de un data frame
+# selected_cols <- c("order", "text_order", "y_var_name", 
+#                    "x_var_name", "amount_x", "amount_sig_x",
+#                    "ok_req_normality_res", 
+#                    "ok_req_cor_x", 
+#                    "sig_const", "sig_all_slopes",
+#                    "value_r2",
+#                    "value_ajusted_r2", "value_aic", "value_bic")
+# 
+# new_col_names <- c("#", "model", "Y", 
+#                    "X", "num_x", "sig_x", "req_norm_res", "req_no_cor",
+#                    "sig_const", "sig_all_slopes", "r^2", "r^2_ajust", "aic", "bic")
+
+selected_cols <- colnames(df_model_stock)
+new_col_names <- colnames(df_model_stock)
+mi_tabla <- df_model_stock
+mi_tabla <- mi_tabla[selected_cols]
+
+# Crear la tabla interactiva con DT
+DT::datatable(
+  mi_tabla, colnames = new_col_names, 
+  filter = 'top',
+  extensions = 'Buttons',
+  options = list(
+    autowidth = TRUE,
+    order = list(list(0, 'asc')),
+    columnDefs = list(list(className = 'dt-left', targets = c(0,1,2))),
+    pageLength = 25, 
+    lengthMenu = c(25, 50, 75, 100, 150),
+    dom = 'Bfrtip',  # Elementos de la tabla (botones, filtro, etc.)
+    buttons = c('copy', 'csv', 'excel', 'pdf', 'print'),  # Botones para exportar la tabla
+    initComplete = JS("
+      function(settings, json) {
+        $('body').css({
+          'font-family': 'Century Gothic', 'font-size': '150%'
+        });
+        $(this.api().table().header()).css({
+          'font-family': 'Century Gothic',
+          'font-size':'125%',
+          'background-color': '#008000',
+          'color': '#fff'
+        });
+      }
+    ")
+  ),
+  rownames = FALSE
+)
+```
+<br>
+<br>
+
+

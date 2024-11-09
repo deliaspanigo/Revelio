@@ -1,0 +1,534 @@
+---
+title: "GLM - Gamma"
+author: "David Elias Panigo"
+date: "24-05-2024"
+output:
+  html_document:
+    df_print: paged
+
+runtime: shiny
+---
+<!-- <style> -->
+<!-- body { -->
+<!--   text-align: center; -->
+<!--   margin-left: 5px; -->
+<!--   padding-left: 5px; -->
+<!-- } -->
+
+<!-- .main-container { -->
+<!--   margin-left: 5px; -->
+<!--   padding-left: 5px; -->
+<!-- } -->
+<!-- </style> -->
+
+<br>
+<br>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  var title = document.querySelector('h1.title');
+  var author = document.querySelector('.author');
+  var date = document.querySelector('.date');
+  
+  title.style.display = 'none';
+  author.style.display = 'none';
+  date.style.display = 'none';
+});
+</script>
+
+<div class="image-container">
+  <img src="logo_01_unc_mod.png"      class="inline-image" width="200"  height="100">
+  <img src="logo_02_fcefyn_mod.png"   class="inline-image" width="200"  height="100">
+  <img src="logo_03_efadoc_mod.png"   class="inline-image" width="200"  height="100">
+  <img src="logo_04_rscience_mod.png" class="inline-image" width="200"  height="100">
+</div>
+
+## Diplomatura en Bioestadística básica aplicada mediada con R
+
+#### Hora de ejecución: `r format(Sys.time(), "%Y-%m-%d %H:%M:%S")`
+#### Sistema operativo: `r Sys.info()["sysname"]`
+#### Versión de R: `r R.version.string`
+#### Versión de RStudio: `r RStudio.Version()$version`
+
+
+<br>
+<br>
+
+# MLR
+
+```{r,  include =FALSE}
+knitr::opts_chunk$set(echo=TRUE, comment=NA)
+library(plotly)
+library(png)
+library(grid)
+library("plotly")
+library("png")
+library("grid")
+library("knitr")
+library("kableExtra")
+
+library(knitr)
+library(kableExtra)
+library("DT")
+
+#load("R_results.rdata")
+```
+
+
+
+
+
+```{r, include =T, eval = T, echo = F, class.source="bg-success"}
+tabla_formato_especial <- function(la_tabla, frase_final = " "){
+# Crear la tabla y aplicar estilos
+  tabla_mod <- knitr::kable(la_tabla, caption = "", align = 'c') %>%
+              kableExtra::kable_styling(position = "center", full_width = FALSE, 
+                            bootstrap_options = c("striped", "hover")) %>%
+              kableExtra::row_spec(0, bold = TRUE) %>%  # Negrita para la fila de encabezado
+              kableExtra::add_footnote(frase_final, notation = "none")
+
+    
+  if(nrow(la_tabla) >= 1){
+   tabla_mod <- tabla_mod %>% kableExtra::row_spec(seq(1, nrow(la_tabla), 2), background = "lightblue")   
+  }
+
+    if(nrow(la_tabla) >= 2){
+   tabla_mod <- tabla_mod %>%   kableExtra::row_spec(seq(2, nrow(la_tabla), 2), background = "lightgreen") # Color para filas pares
+
+  }
+   
+  return(tabla_mod)
+}
+```
+
+
+### Section 01 of 13 - Estimated Model
+```{r, include =T, eval = T, echo = F, class.source="bg-success"}
+
+mi_tabla05_disp <- list_summary_mlr02[[selected_model]]$"df_coef02"
+mi_tabla05_disp <- mi_tabla05_disp[-c(6)]
+colnames(mi_tabla05_disp)[4] <- "p_value"
+tabla_formato_especial(mi_tabla05_disp)
+
+dt_rows <- df_mlr_general$"text_order" == selected_model
+my_y <- df_mlr_general$"y_var_name"[dt_rows]
+my_x <- df_mlr_general$"x_var_name"[dt_rows]
+my_x <- strsplit(my_x, ";")[[1]]
+  
+mis_coef_letra <- rownames(mi_tabla05_disp)
+mis_coef_letra <- paste0("(", mis_coef_letra, ")")
+mis_coef_letra[1] <- ""
+
+mis_x <- paste0("x_{", 0:(length(mis_coef_letra)-1), "}")
+mis_x[1] <- ""
+
+mis_coef_value <- mi_tabla05_disp$"Estimate"
+mis_coef_value <- round(mis_coef_value, 4)
+vector_suma <- rep(" + ", length(mis_coef_value))
+vector_suma[mis_coef_value<0] <- " "
+vector_suma[1] <- ""
+#vector_suma <- c(vector_simbols01, "")
+vector_multi <- rep("*", length(mis_coef_value))
+vector_multi[1] <- ""
+
+
+#########################################
+armado01 <- paste0(mis_coef_value, vector_multi, mis_x)
+armado01 <- paste0(vector_suma, armado01)
+armado01 <- paste0(armado01, collapse = "")
+
+
+la_formula01 <- paste0("$$ y_{i}= ", armado01, " + \\epsilon_{i} $$")
+#########################################################
+
+armado02 <- paste0(vector_multi, mis_coef_letra)
+armado02 <- paste0(mis_coef_value, armado02)
+armado02 <- paste0(vector_suma, armado02)
+armado02 <- paste0(armado02, collapse = "")
+
+
+la_formula02 <- paste0("$$ ", my_y,"_{i}= ", armado02, " + \\epsilon_{i} $$")
+
+
+
+```
+<br>
+`r la_formula01`
+`r la_formula02`
+<br>
+<br>
+
+```{r, include =T, eval = T, echo = F, class.source="bg-success"}
+
+  
+  dt_rows <- df_mlr_general$"text_order" == selected_model
+  my_y <- df_mlr_general$"y_var_name"[dt_rows]
+  my_x <- df_mlr_general$"x_var_name"[dt_rows]
+  my_x <- strsplit(my_x, ";")[[1]]
+  
+  check_x01 <- length(my_x) == 1 && sum(my_x == "") == 0
+  check_x02 <- length(my_x) == 2 && sum(my_x == "") == 0
+
+  if(check_x01){
+  
+
+     # Crear el gráfico interactivo con Plotly
+
+    # Crear el gráfico interactivo con Plotly
+
+    plot001 <- plotly::plot_ly()
+
+    plot001 <- add_trace(p = plot001,
+                         x = minibase[,my_x],
+                         y = minibase[,my_y],
+                         type = 'scatter',
+                         mode = 'markers',
+                         name = "data",
+                         marker = list(size = 15, color = 'blue'))
+
+
+    # Agregar la recta
+    selected_slop <- mi_tabla05_disp[2,1]# Pendiente
+    selected_constant <- mi_tabla05_disp[1,1]  # Ordenada al origen
+
+    x_recta <- c(min(minibase[,my_x]), max(minibase[,my_x]))
+    y_recta <- selected_slop * x_recta + selected_constant
+    plot001 <- add_trace(p = plot001,
+                         x = x_recta, y = y_recta,
+                         type = 'scatter',
+                         mode = 'lines',
+                         name = 'slop',
+                         line = list(width = 5, color = 'orange'))
+
+
+    plot001 <- plotly::layout(p = plot001,
+                              xaxis = list(title = my_x),
+                              yaxis = list(title = my_y),
+                              title = "Scatterplot XY",
+                              font = list(size = 20),
+                              margin = list(t = 100))
+
+
+
+    plot001 <- plotly::layout(p = plot001,
+                              xaxis = list(zeroline = FALSE),
+                              yaxis = list(zeroline = FALSE))
+
+    # Mostrar el gráfico interactivo
+    plot001
+}
+
+   if(check_x02){
+
+    
+    my_x01 <- my_x[1]
+    my_x02 <- my_x[2]
+    
+      # Crear el gráfico interactivo con Plotly
+
+   
+
+    plot001 <- plotly::plot_ly()
+
+    plot001 <- add_trace(p = plot001,
+                         x = minibase[,my_x02],
+                         y = minibase[,my_x01],
+                         z = minibase[,my_y],
+                         type = 'scatter3d',
+                         mode = 'markers',
+                         name = "data",
+                         marker = list(size = 10,
+                                       color = 'blue',
+                                       opacity = 0.7))
+
+
+    plot001 <- plotly::layout(p = plot001,
+                              scene = list(xaxis = list(title = my_x02, zeroline = FALSE),
+                                           yaxis = list(title = my_x01, zeroline = FALSE),
+                                           zaxis = list(title = my_y,  zeroline = FALSE)),
+                              title = "Scatterplot XYZ",
+                              font = list(size = 20),
+                              margin = list(t = 100))
+
+
+
+
+    # # Ajustar el modelo de regresión lineal
+    # #modelo <- lm_full
+    modelo <- list_summary_mlr01[[selected_model]]
+
+    # Rango de valores para Sepal.Length y Sepal.Width
+    x_range <- seq(min(minibase[,my_x02]), max(minibase[,my_x02]), length.out = 20)
+    y_range <- seq(min(minibase[,my_x01]), max(minibase[,my_x01]), length.out = 20)
+
+    # Crear una malla de puntos en el espacio bidimensional
+    the_mesh <- expand.grid("X02" = x_range, "X01" = y_range)
+    colnames(the_mesh) <- c(my_x02, my_x01)
+    
+    # Calcular los valores predichos para Petal.Length en cada punto de la malla
+    the_mesh[,my_y] <- predict(modelo, newdata = the_mesh)
+    # 
+    # 
+    # Agregar el plano de la regresión lineal al gráfico con add_surface
+# Agregar el plano de la regresión lineal al gráfico con add_surface
+    plot001 <- add_trace(p = plot001,
+                         x = rep(x_range, each = 20),
+                         y = rep(y_range, times = 20),
+                         z = the_mesh[, my_y],
+                         type = "mesh3d",
+                         name = "plano",
+                         showscale = FALSE,
+                         colorscale = list(c(0, 1), c('red', 'red')),
+                         opacity = 0.5,
+                         legendgroup = "plano",
+                         showlegend = TRUE)
+
+    plot001
+   }
+  
+  
+  
+```
+
+
+
+<hr style="border-top: 3px solid black; width: 100%;">
+
+### Section 02 of 13 - Summary info from model
+```{r, include =T, eval = T, echo = F, class.source="bg-success"}
+
+# Ejemplo de un data frame
+selected_cols <- c("order", "text_order", "y_var_name", 
+                   "x_var_name", "amount_x", "amount_sig_x",
+                   "ok_req_normality_res", 
+                   "ok_req_cor_x", "ok_req_homogeneity_res",
+                   "sig_const", "sig_all_slopes",
+                   "value_r2",
+                   "value_ajusted_r2", "value_aic", "value_bic")
+
+new_col_names <- c("#", "model", "Y", 
+                   "X", "num_x", "sig_x", "req_norm_res", "req_no_cor", "req_homo_res",
+                   "sig_const", "sig_all_slopes", "r^2", "r^2_ajust", "aic", "bic")
+
+mi_tabla <- df_mlr_general[df_mlr_general$"text_order" == selected_model, selected_cols]
+
+tabla_formato_especial(mi_tabla[c(1,2,7,8,9, 12,13,14,15)])
+
+#tabla_formato_especial(mi_tabla)[c(1:10)]
+```
+<br>
+<br>
+
+<hr style="border-top: 3px solid black; width: 100%;">
+
+### Section 03 of 13 - Residuals Normality test
+```{r, include =T, eval = T, echo = F, class.source="bg-success"}
+
+dt_rows02 <- df_normality_residuals$"text_order" == selected_model
+mi_tabla02 <- df_normality_residuals[dt_rows02,c(1:10)]
+tabla_formato_especial(mi_tabla02)
+
+
+
+
+```
+<br>
+<br>
+
+<hr style="border-top: 3px solid black; width: 100%;">
+
+### Section 04 of 13 - Correlation Mix (Pearson and Spearman)
+```{r, include =T, eval = T, echo = F, class.source="bg-success"}
+
+dt_rows02 <- df_compass$"text_order" == selected_model
+selected_pair <- df_compass$"compass_pairs_x"[dt_rows02]
+
+vector_selected_pair <- strsplit(selected_pair, ";")[[1]]
+dt_rows <- df_cor_mix$"text_order" %in% vector_selected_pair
+
+super_selection <- c(1,2,3,4,5,6,7,8,9, 10, 12, 13, 14, 15)
+mi_tabla02 <- df_cor_mix[dt_rows,super_selection]
+tabla_formato_especial(mi_tabla02)
+
+```
+<br>
+<br>
+
+<hr style="border-top: 3px solid black; width: 100%;">
+
+
+### Section 05 of 13 - Scatterplot - Residuals vs Fitted
+```{r, include =T, eval = T, echo = F, class.source="bg-success"}
+  #new_plot <-  with(list_summary_mlr02,{
+
+
+    # Crear el gráfico interactivo con Plotly
+
+    plot002 <- plotly::plot_ly()
+
+    plot002 <- add_trace(p = plot002,
+                         x = list_summary_mlr01[[selected_model]]$fitted.values,
+                         y = list_summary_mlr01[[selected_model]]$residuals,
+                         type = 'scatter',
+                         mode = 'markers',
+                         name = "data",
+                         marker = list(size = 15, color = 'blue'))
+
+
+
+
+    plot002 <- plotly::layout(p = plot002,
+                              xaxis = list(title = "Fitted values"),
+                              yaxis = list(title = "Residuals"),
+                              title = "Residuals vs. Fitted values",
+                              font = list(size = 20),
+                              margin = list(t = 100))
+
+
+
+    plot002 <- plotly::layout(p = plot002,
+                              xaxis = list(zeroline = FALSE),
+                              yaxis = list(zeroline = TRUE))
+
+    # Mostrar el gráfico interactivo
+    plot002
+
+
+ #})
+
+  #new_plot
+```
+<br>
+<br>
+
+<hr style="border-top: 3px solid black; width: 100%;">
+
+
+### Section 06 of 13 - Defining the correct correlation test from each pair
+```{r, include =T, eval = T, echo = F, class.source="bg-success"}
+
+dt_rows02 <- df_compass$"text_order" == selected_model
+selected_pair <- df_compass$"compass_pairs_x"[dt_rows02]
+
+vector_selected_pair <- strsplit(selected_pair, ";")[[1]]
+dt_rows <- df_req_cor_pearson02$"text_order" %in% vector_selected_pair
+
+super_selection <- c(1, 2, 3, 4, 5, 6,7, 9, 10, 12)
+mi_tabla02 <- df_req_cor_pearson02[dt_rows, super_selection]
+tabla_formato_especial(mi_tabla02)
+
+```
+<br>
+<br>
+
+
+
+
+
+<hr style="border-top: 3px solid black; width: 100%;">
+
+
+### Section 07 of 13 - Position
+```{r, include =T, eval = T, echo = F, class.source="bg-success"}
+
+mi_tabla03_pos <- list_pos_disp[[selected_model]]$"df_position"
+tabla_formato_especial(mi_tabla03_pos)
+```
+<br>
+<br>
+
+<hr style="border-top: 3px solid black; width: 100%;">
+
+
+### Section 08 of 13 - Dispertion
+```{r, include =T, eval = T, echo = F, class.source="bg-success"}
+
+mi_tabla04_disp <- list_pos_disp[[selected_model]]$"df_dispersion"
+tabla_formato_especial(mi_tabla04_disp)
+```
+<br>
+<br>
+
+<hr style="border-top: 3px solid black; width: 100%;">
+
+
+
+
+
+
+### Section 09 of 13 - R output - Linear Model
+```{r, include =T, eval = T, echo = F, class.source="bg-success"}
+
+list_summary_mlr02[[selected_model]]$the_summary
+
+
+```
+<br>
+<br>
+
+<hr style="border-top: 3px solid black; width: 100%;">
+
+
+### Section 10 of 13 - R Output - Normality test for x vars
+```{r, include =T, eval = T, echo = F, class.source="bg-success"}
+
+
+dt_rows02 <- df_compass$"text_order" == selected_model
+selected_compass <- df_compass$"compass_norm_x"[dt_rows02]
+vector_selected_norm_x <- strsplit(selected_compass, ";")[[1]]
+
+list_normality_x_01[vector_selected_norm_x]
+```
+<br>
+<br>
+
+<hr style="border-top: 3px solid black; width: 100%;">
+
+
+### Section 11 of 13 - R Output - Homogeneity test for x vars
+```{r, include =T, eval = T, echo = F, class.source="bg-success"}
+
+
+dt_rows02 <- df_compass$"text_order" == selected_model
+selected_compass <- df_compass$"compass_pairs_x"[dt_rows02]
+vector_selected_homogeneity <- strsplit(selected_compass, ";")[[1]]
+
+list_homogeneity01[vector_selected_homogeneity]
+```
+<br>
+<br>
+
+<hr style="border-top: 3px solid black; width: 100%;">
+
+
+
+### Section 12 of 13 - R Output - Pearson test
+```{r, include =T, eval = T, echo = F, class.source="bg-success"}
+
+dt_rows02 <- df_compass$"text_order" == selected_model
+selected_pair <- df_compass$"compass_pairs_x"[dt_rows02]
+
+vector_selected_pair <- strsplit(selected_pair, ";")[[1]]
+list_pearson01[vector_selected_pair]
+
+```
+<br>
+<br>
+
+
+
+<hr style="border-top: 3px solid black; width: 100%;">
+
+
+
+### Section 13 of 13 - R Output - Spearman test
+```{r, include =T, eval = T, echo = F, class.source="bg-success"}
+
+dt_rows02 <- df_compass$"text_order" == selected_model
+selected_pair <- df_compass$"compass_pairs_x"[dt_rows02]
+
+vector_selected_pair <- strsplit(selected_pair, ";")[[1]]
+list_spearman01[vector_selected_pair]
+
+```
+<br>
+<br>

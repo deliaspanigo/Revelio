@@ -1,5 +1,5 @@
 ---
-title: "MLR"
+title: "GLM - Gamma"
 author: "David Elias Panigo"
 date: "24-05-2024"
 output:
@@ -120,6 +120,7 @@ vector_all_vars
 minibase <- minibase[, vector_all_vars]
 head(x = minibase, n = 5)
 
+minibase[,value_name_y] <- minibase[,value_name_y] + 1
 
 # Vector info minibase
 vector_info_minibase <- c("minibase", nrow(minibase), ncol(minibase))
@@ -238,8 +239,8 @@ list_normality_x_02 <- sapply(1:length(list_normality_x_01), function(x){
                                          no =  "No")
 
   output_df$"ok_normality" <- ifelse(test = !check_reject_h0, 
-                                       yes = "Yes",
-                                       no =  "No")
+                                       yes = "No",
+                                       no =  "Yes")
   rownames(output_df) <- x
   
   output_df
@@ -347,8 +348,8 @@ list_homogeneity02 <- sapply(1:length(list_homogeneity01), function(x){
                                          no =  "No")
   
   output_df$"ok_homogeneity" <- ifelse(test = !check_reject_h0, 
-                                       yes = "Yes",
-                                       no =  "No")
+                                       yes = "No",
+                                       no =  "Yes")
     
   output_df
   
@@ -794,7 +795,7 @@ df_ind_cor_models_mod$"models_ok_order" <- vector_pos_cor_ok
 list_summary_mlr01 <- lapply(1:nrow(df_ref_models), function(x){
   
   # Hardcorded
-  formula_mlr_general <- "lm(formula = _selected_model_, data = minibase)"
+  formula_mlr_general <- "glm(formula = _selected_model_, family  = Gamma(link = 'log'), data = minibase)"
   
   # x <- 1
   selected_model <- df_ref_models$"r_formula"[x]
@@ -858,8 +859,8 @@ list_summary_mlr02 <- lapply(1:length(list_summary_mlr01), function(x){
   df_eval_model <- data.frame(
     "order" = x,
     "order_text" = df_ref_models$"text_order"[x],
-    "value_r2" = round(the_summary$r.squared, 5),
-    "value_ajusted_r2" = round(the_summary$adj.r.squared, 5),
+    "value_r2" = NA,#round(the_summary$r.squared, 5),
+    "value_ajusted_r2" = NA, #round(the_summary$adj.r.squared, 5),
     "value_aic" = round(AIC(selected_list), 5),
     "value_bic" = round(BIC(selected_list), 5)
   )
