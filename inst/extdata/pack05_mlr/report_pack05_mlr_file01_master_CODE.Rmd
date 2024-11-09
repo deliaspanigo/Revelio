@@ -120,8 +120,6 @@ vector_all_vars
 minibase <- minibase[, vector_all_vars]
 head(x = minibase, n = 5)
 
-minibase[,value_name_y] <- minibase[,value_name_y] + 1
-
 # Vector info minibase
 vector_info_minibase <- c("minibase", nrow(minibase), ncol(minibase))
 names(vector_info_minibase) <- c("source", "ncol", "nrow")
@@ -237,10 +235,10 @@ list_normality_x_02 <- sapply(1:length(list_normality_x_01), function(x){
   output_df$"rejected_h0_text" <- ifelse(test = check_reject_h0, 
                                          yes = "Yes",
                                          no =  "No")
-
+  
   output_df$"ok_normality" <- ifelse(test = !check_reject_h0, 
-                                       yes = "No",
-                                       no =  "Yes")
+                                     yes = "Yes",
+                                     no =  "No")
   rownames(output_df) <- x
   
   output_df
@@ -306,7 +304,7 @@ list_homogeneity01 <- sapply(1:nrow(df_ref_pair), function(x){
   the_test <- eval(parse(text = str_test_bartlett))
   the_test
   
-
+  
 }, simplify = F)
 names(list_homogeneity01) <- df_ref_pair$"text_order"
 
@@ -348,9 +346,9 @@ list_homogeneity02 <- sapply(1:length(list_homogeneity01), function(x){
                                          no =  "No")
   
   output_df$"ok_homogeneity" <- ifelse(test = !check_reject_h0, 
-                                       yes = "No",
-                                       no =  "Yes")
-    
+                                       yes = "Yes",
+                                       no =  "No")
+  
   output_df
   
 }, simplify = F) 
@@ -795,7 +793,7 @@ df_ind_cor_models_mod$"models_ok_order" <- vector_pos_cor_ok
 list_summary_mlr01 <- lapply(1:nrow(df_ref_models), function(x){
   
   # Hardcorded
-  formula_mlr_general <- "glm(formula = _selected_model_, family  = Gamma(link = 'log'), data = minibase)"
+  formula_mlr_general <- "glm(formula = _selected_model_, family = Gamma(link = 'log'), data = minibase)"
   
   # x <- 1
   selected_model <- df_ref_models$"r_formula"[x]
@@ -859,7 +857,7 @@ list_summary_mlr02 <- lapply(1:length(list_summary_mlr01), function(x){
   df_eval_model <- data.frame(
     "order" = x,
     "order_text" = df_ref_models$"text_order"[x],
-    "value_r2" = NA,#round(the_summary$r.squared, 5),
+    "value_r2" = NA, #round(the_summary$r.squared, 5),
     "value_ajusted_r2" = NA, #round(the_summary$adj.r.squared, 5),
     "value_aic" = round(AIC(selected_list), 5),
     "value_bic" = round(BIC(selected_list), 5)
@@ -925,96 +923,12 @@ names(list_summary_mlr02) <- names(list_summary_mlr01)
 
 
 
-# Normality test - Residuals
-# All normality tests (Shapiro-Wilk) for residuals on each model
-list_summary_mlr03 <- lapply(1:length(list_summary_mlr02), function(x){
-  
-  # x <- 1
-  selected_list <- list_summary_mlr02[[x]]
-  vector_residuals <- selected_list$the_summary$residuals
-  the_test <- shapiro.test(x = vector_residuals)
-  the_test
-  
-})
-names(list_summary_mlr03) <- names(list_summary_mlr02)
-
-
-# Information gathering from Residuals Normality Test
-list_summary_mlr04 <- sapply(1:length(list_summary_mlr03), function(x){
-  
-  # x <- 1
-  selected_list <- list_summary_mlr03[[x]]
-  
-  output_df <- data.frame(
-    "order" = x,
-    "text_order" = names(list_summary_mlr03)[x],
-    "var_name" = "residuals",
-    "n" = nrow(minibase),
-    "test" = "Normality - Shapiro Test",
-    "statistic" = selected_list$"statistic",
-    "p.value" = selected_list$"p.value",
-    "alpha_value" = alpha_value
-  )
-  
-  
-  check_reject_h0 <- output_df$"p.value" < output_df$"alpha_value"
-  
-  output_df$"h0_normality_text01" <- ifelse(test = check_reject_h0, 
-                                            yes = "H0 rejected",
-                                            no =  "H0 not rejected")
-  
-  output_df$"h0_normality_text02" <- ifelse(test = check_reject_h0, 
-                                            yes = "Normality rejected",
-                                            no =  "Normality not rejected")
-  
-  output_df$"rejected_h0_logical" <- ifelse(test = check_reject_h0, 
-                                            yes = TRUE,
-                                            no =  FALSE)
-  
-  output_df$"rejected_h0_text" <- ifelse(test = check_reject_h0, 
-                                         yes = "Yes",
-                                         no =  "No")
-  
-  output_df$"ok_req_normality_res" <- ifelse(test = !check_reject_h0, 
-                                             yes = "Yes",
-                                             no =  "No")
-  rownames(output_df) <- x
-  
-  output_df
-  
-}, simplify = F) 
-names(list_summary_mlr04) <- names(list_summary_mlr03)
-
-
-# Dataframe for Residuals Normality Test
-df_normality_residuals <- do.call(what = rbind.data.frame, args = list_summary_mlr04)
-df_normality_residuals
 
 # Summary Dataframe for all mlr
 df_mlr_summary_req <- df_ref_models
-df_mlr_summary_req$"ok_req_normality_res"  <- df_normality_residuals$"ok_req_normality_res"  
 df_mlr_summary_req$"ok_req_cor_x"  <- "No"  
 df_mlr_summary_req$"ok_req_cor_x"[df_ind_cor_models_mod$"models_ok_order"] <- "Yes"
-df_mlr_summary_req$"ok_model_step01" <- (df_mlr_summary_req$"ok_req_normality_res" == "Yes") & (df_mlr_summary_req$"ok_req_cor_x" == "Yes")
-df_mlr_summary_req$"ok_model_step01" <- ifelse(df_mlr_summary_req$"ok_model_step01", yes = "Yes", no = "No")
-df_mlr_summary_req$"ok_req_homogeneity_res"  <- "User desition"
 df_mlr_summary_req
-
-#-------------------------------------------------------------------------------
-
-# # # Section 18)  Only models OK on Step01
-
-# Dataframe only with OK models step01
-df_mlr_only_req_ok_step01 <- df_mlr_summary_req[df_mlr_summary_req$"ok_model_step01" == "Yes",]
-rownames(df_mlr_only_req_ok_step01) <- 1:nrow(df_mlr_only_req_ok_step01)
-colnames(df_mlr_only_req_ok_step01)[c(1,2)] <- c("order_model", "text_order_model")
-
-digit_fill_models_ok <- nchar(nrow(df_mlr_only_req_ok_step01))
-df_mlr_only_req_ok_step01$"order_model_ok" <- 1:nrow(df_mlr_only_req_ok_step01)
-df_mlr_only_req_ok_step01$"text_order_model_ok" <- formatC(x = df_mlr_only_req_ok_step01$"order_model_ok", width = digit_fill_models_ok, format = "d", flag = "0")
-df_mlr_only_req_ok_step01$"text_order_model_ok" <- paste0("model_ok_", df_mlr_only_req_ok_step01$"text_order_model_ok")
-df_mlr_only_req_ok_step01 <- df_mlr_only_req_ok_step01[,c(tail(names(df_mlr_only_req_ok_step01), 2), head(names(df_mlr_only_req_ok_step01), -2))]
-df_mlr_only_req_ok_step01
 
 #-------------------------------------------------------------------------------
 
@@ -1036,11 +950,10 @@ list_mlr_general <-   lapply(1:nrow(df_mlr_summary_req), function(x){
   
   df_output <- cbind.data.frame(df01, df02, df03, df04)
   
-  df_output$"req_ok_and_all_slope_sig" <- ((df_output$ok_model_step01 == "Yes") + df_output$sig_all_slopes) == 2
+  df_output$"req_ok_and_all_slope_sig" <- ((df_mlr_summary_req$"ok_req_cor_x"[x] == "Yes") + df_output$sig_all_slopes) == 2
   df_output
   
 })
-
 df_mlr_general <- do.call(rbind.data.frame, list_mlr_general)
 df_mlr_general
 
@@ -1065,7 +978,7 @@ df_compass$"compass_pairs_x" <- sapply(1:nrow(df_compass), function(x){
   the_vars <- strsplit(df_compass$"x_var_name"[x], ";")[[1]]
   vector_largo01 <- df_ref_pair$"x_var_name01"
   vector_largo02 <- df_ref_pair$"x_var_name02"
-    # Crear un vector lógico
+  # Crear un vector lógico
   vector_logico01 <- vector_largo01 %in% the_vars
   vector_logico02 <- vector_largo02 %in% the_vars
   pos_on_ex <- (vector_logico01 + vector_logico02) == 2    
@@ -1080,7 +993,7 @@ df_compass$"compass_norm_resi" <- df_compass$"text_order"
 
 # # # Section 21)  stock
 vector_ref_num01 <- c("order", "text_order", "y_var_name", "amount_x")
-                    #"compass_norm_x", "compass_pairs_x")
+#"compass_norm_x", "compass_pairs_x")
 df_model_stock <- df_compass[vector_ref_num01]
 df_model_stock$"num_model" <- 1 
 df_model_stock$"num_norm_x" <- sapply(1:nrow(df_compass), function(x){
@@ -1153,7 +1066,7 @@ saveRDS(df_req_cor_pearson02, file = "df_req_cor_pearson02.rds")
 saveRDS(df_compass, file = "df_compass.rds")
 saveRDS(df_model_stock, file = "df_model_stock.rds")
 
-saveRDS(df_normality_residuals, file = "df_normality_residuals.rds")
+#saveRDS(df_normality_residuals, file = "df_normality_residuals.rds")
 saveRDS(list_pos_disp, file = "list_pos_disp.rds")
 
 saveRDS(list_summary_mlr01, file = "list_summary_mlr01.rds")
@@ -1163,7 +1076,6 @@ saveRDS(list_normality_x_01, file = "list_normality_x_01.rds")
 saveRDS(list_homogeneity01, file = "list_homogeneity01.rds")
 saveRDS(list_pearson01, file = "list_pearson01.rds")
 saveRDS(list_spearman01, file = "list_spearman01.rds")
-
-
-
 ```
+
+

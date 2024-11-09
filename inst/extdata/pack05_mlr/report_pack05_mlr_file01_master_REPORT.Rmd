@@ -81,15 +81,14 @@ library("DT")
 
 # Ejemplo de un data frame
 selected_cols <- c("order", "text_order", "y_var_name", 
-                   "x_var_name", "amount_x", "amount_sig_x",
-                   "ok_req_normality_res", 
+                   "x_var_name", "amount_x", "amount_sig_x", 
                    "ok_req_cor_x", 
                    "sig_const", "sig_all_slopes",
                    "value_r2",
                    "value_ajusted_r2", "value_aic", "value_bic")
 
 new_col_names <- c("#", "model", "Y", 
-                   "X", "num_x", "sig_x", "req_norm_res", "req_no_cor",
+                   "X", "num_x", "sig_x", "req_no_cor",
                    "sig_const", "sig_all_slopes", "r^2", "r^2_ajust", "aic", "bic")
 
 mi_tabla <- df_mlr_general

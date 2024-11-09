@@ -297,21 +297,32 @@ la_formula02 <- paste0("$$ ", my_y,"_{i}= ", armado02, " + \\epsilon_{i} $$")
 ```{r, include =T, eval = T, echo = F, class.source="bg-success"}
 
 # Ejemplo de un data frame
-selected_cols <- c("order", "text_order", "y_var_name", 
-                   "x_var_name", "amount_x", "amount_sig_x",
-                   "ok_req_normality_res", 
-                   "ok_req_cor_x", "ok_req_homogeneity_res",
+selected_cols <- c("order", "text_order", 
+                   #"y_var_name", 
+                   #"x_var_name", 
+                   "amount_x", "amount_sig_x",
+                   #"ok_req_normality_res", 
+                   "ok_req_cor_x", 
+                   #"ok_req_homogeneity_res",
                    "sig_const", "sig_all_slopes",
                    "value_r2",
-                   "value_ajusted_r2", "value_aic", "value_bic")
+                   "value_ajusted_r2", 
+                   "value_aic", 
+                   "value_bic")
 
-new_col_names <- c("#", "model", "Y", 
-                   "X", "num_x", "sig_x", "req_norm_res", "req_no_cor", "req_homo_res",
+new_col_names <- c("#", "model", 
+                   #"Y", 
+                   #"X", 
+                   "num_x", "sig_x", 
+                   #"req_norm_res", 
+                   "req_no_cor", 
+                   #"req_homo_res",
                    "sig_const", "sig_all_slopes", "r^2", "r^2_ajust", "aic", "bic")
 
 mi_tabla <- df_mlr_general[df_mlr_general$"text_order" == selected_model, selected_cols]
 
-tabla_formato_especial(mi_tabla[c(1,2,7,8,9, 12,13,14,15)])
+#la_seleccion <- c(1,2,3,47,8, 11,12,13,14) #???
+tabla_formato_especial(mi_tabla)
 
 #tabla_formato_especial(mi_tabla)[c(1:10)]
 ```
@@ -320,21 +331,21 @@ tabla_formato_especial(mi_tabla[c(1,2,7,8,9, 12,13,14,15)])
 
 <hr style="border-top: 3px solid black; width: 100%;">
 
-### Section 03 of 13 - Residuals Normality test
-```{r, include =T, eval = T, echo = F, class.source="bg-success"}
+<!-- ### Section 03 of 13 - Residuals Normality test -->
+<!-- ```{r, include =T, eval = T, echo = F, class.source="bg-success"} -->
 
-dt_rows02 <- df_normality_residuals$"text_order" == selected_model
-mi_tabla02 <- df_normality_residuals[dt_rows02,c(1:10)]
-tabla_formato_especial(mi_tabla02)
-
-
+<!-- dt_rows02 <- df_normality_residuals$"text_order" == selected_model -->
+<!-- mi_tabla02 <- df_normality_residuals[dt_rows02,c(1:10)] -->
+<!-- tabla_formato_especial(mi_tabla02) -->
 
 
-```
-<br>
-<br>
 
-<hr style="border-top: 3px solid black; width: 100%;">
+
+<!-- ``` -->
+<!-- <br> -->
+<!-- <br> -->
+
+<!-- <hr style="border-top: 3px solid black; width: 100%;"> -->
 
 ### Section 04 of 13 - Correlation Mix (Pearson and Spearman)
 ```{r, include =T, eval = T, echo = F, class.source="bg-success"}
@@ -465,21 +476,19 @@ list_summary_mlr02[[selected_model]]$the_summary
 <br>
 <br>
 
-<hr style="border-top: 3px solid black; width: 100%;">
+
+<!-- ### Section 10 of 13 - R Output - Normality test for x vars -->
+<!-- ```{r, include =T, eval = T, echo = F, class.source="bg-success"} -->
 
 
-### Section 10 of 13 - R Output - Normality test for x vars
-```{r, include =T, eval = T, echo = F, class.source="bg-success"}
+<!-- dt_rows02 <- df_compass$"text_order" == selected_model -->
+<!-- selected_compass <- df_compass$"compass_norm_x"[dt_rows02] -->
+<!-- vector_selected_norm_x <- strsplit(selected_compass, ";")[[1]] -->
 
-
-dt_rows02 <- df_compass$"text_order" == selected_model
-selected_compass <- df_compass$"compass_norm_x"[dt_rows02]
-vector_selected_norm_x <- strsplit(selected_compass, ";")[[1]]
-
-list_normality_x_01[vector_selected_norm_x]
-```
-<br>
-<br>
+<!-- list_normality_x_01[vector_selected_norm_x] -->
+<!-- ``` -->
+<!-- <br> -->
+<!-- <br> -->
 
 <hr style="border-top: 3px solid black; width: 100%;">
 
