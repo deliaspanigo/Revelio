@@ -101,7 +101,7 @@ module_pack002_import_s01_xlsx_ui <- function(id){
 
 
   div(uiOutput(ns("iu_base_selector")),
-      dataTableOutput(ns("df_database")))
+      DTOutput(ns("df_database")))
 
 
 
@@ -150,10 +150,52 @@ module_pack002_import_s01_xlsx_server <- function(id, sui_data_source){
         aver
       })
 
-      output$df_database <- renderDataTable({
+      output$df_database <- renderDT({
         req(database())
-        database()
+        mi_tabla <- database()
+        new_col_names <- colnames(mi_tabla)
+
+        DT::datatable(
+          mi_tabla, colnames = new_col_names,
+          filter = 'top',
+          extensions = 'Buttons',
+          options = list(
+            autowidth = TRUE,
+            order = list(list(0, 'asc')),
+            columnDefs = list(list(className = 'dt-left', targets = c(0,1,2))),
+            pageLength = 10,
+            lengthMenu = c(10, 50, 75, 100, 150),
+            dom = 'Bfrtip',  # Elementos de la tabla (botones, filtro, etc.)
+            buttons = c('copy', 'csv', 'excel', 'pdf', 'print'),  # Botones para exportar la tabla
+            initComplete = JS("
+      function(settings, json) {
+        $('body').css({
+          'font-family': 'Century Gothic', 'font-size': '150%'
+        });
+        $(this.api().table().header()).css({
+          'font-family': 'Century Gothic',
+          'font-size':'125%',
+          'background-color': '#008000',
+          'color': '#fff'
+        });
+      }
+    "),
+            rowCallback = JS("
+      function(row, data, index) {
+        if(index % 2 === 0) {
+          $(row).css('background-color', 'lightblue');
+        } else {
+          $(row).css('background-color', 'lightgreen');
+        }
+      }
+    ")
+          ),
+          rownames = FALSE
+        )
+
       })
+
+
 
       return(database)
     }
@@ -169,7 +211,7 @@ module_pack002_import_s02_csv_ui <- function(id){
 
 
   div(uiOutput(ns("iu_base_selector")),
-      dataTableOutput(ns("df_database")))
+      DTOutput(ns("df_database")))
 
 
 
@@ -237,8 +279,49 @@ module_pack002_import_s02_csv_server <- function(id, sui_data_source){
       database
       })
 
-      output$df_database <- renderDataTable({
-        database()
+      output$df_database <- renderDT({
+        req(database())
+        mi_tabla <- database()
+        new_col_names <- colnames(mi_tabla)
+
+        DT::datatable(
+          mi_tabla, colnames = new_col_names,
+          filter = 'top',
+          extensions = 'Buttons',
+          options = list(
+            autowidth = TRUE,
+            order = list(list(0, 'asc')),
+            columnDefs = list(list(className = 'dt-left', targets = c(0,1,2))),
+            pageLength = 10,
+            lengthMenu = c(10, 50, 75, 100, 150),
+            dom = 'Bfrtip',  # Elementos de la tabla (botones, filtro, etc.)
+            buttons = c('copy', 'csv', 'excel', 'pdf', 'print'),  # Botones para exportar la tabla
+            initComplete = JS("
+      function(settings, json) {
+        $('body').css({
+          'font-family': 'Century Gothic', 'font-size': '150%'
+        });
+        $(this.api().table().header()).css({
+          'font-family': 'Century Gothic',
+          'font-size':'125%',
+          'background-color': '#008000',
+          'color': '#fff'
+        });
+      }
+    "),
+            rowCallback = JS("
+      function(row, data, index) {
+        if(index % 2 === 0) {
+          $(row).css('background-color', 'lightblue');
+        } else {
+          $(row).css('background-color', 'lightgreen');
+        }
+      }
+    ")
+          ),
+          rownames = FALSE
+        )
+
       })
 
       return(database)
@@ -255,7 +338,7 @@ module_pack002_import_s03_revelio_ui <- function(id){
 
 
       div(uiOutput(ns("iu_base_selector")),
-          dataTableOutput(ns("df_database")))
+          DTOutput(ns("df_database")))
 
 
 
@@ -338,10 +421,49 @@ module_pack002_import_s03_revelio_server <- function(id, sui_data_source){
         #        stop("Base de datos no encontrada"))
       })
 
-      output$df_database <- renderDataTable({
-        req(check_ok())
+      output$df_database <- renderDT({
+        req(database())
+        mi_tabla <- database()
+        new_col_names <- colnames(mi_tabla)
 
-        database()
+        DT::datatable(
+          mi_tabla, colnames = new_col_names,
+          filter = 'top',
+          extensions = 'Buttons',
+          options = list(
+            autowidth = TRUE,
+            order = list(list(0, 'asc')),
+            columnDefs = list(list(className = 'dt-left', targets = c(0,1,2))),
+            pageLength = 10,
+            lengthMenu = c(10, 50, 75, 100, 150),
+            dom = 'Bfrtip',  # Elementos de la tabla (botones, filtro, etc.)
+            buttons = c('copy', 'csv', 'excel', 'pdf', 'print'),  # Botones para exportar la tabla
+            initComplete = JS("
+      function(settings, json) {
+        $('body').css({
+          'font-family': 'Century Gothic', 'font-size': '150%'
+        });
+        $(this.api().table().header()).css({
+          'font-family': 'Century Gothic',
+          'font-size':'125%',
+          'background-color': '#008000',
+          'color': '#fff'
+        });
+      }
+    "),
+            rowCallback = JS("
+      function(row, data, index) {
+        if(index % 2 === 0) {
+          $(row).css('background-color', 'lightblue');
+        } else {
+          $(row).css('background-color', 'lightgreen');
+        }
+      }
+    ")
+          ),
+          rownames = FALSE
+        )
+
       })
 
       return(database)
@@ -358,7 +480,7 @@ module_pack002_import_s04_r_ui <- function(id){
 
 
   div(uiOutput(ns("iu_base_selector")),
-      dataTableOutput(ns("df_database")))
+      DTOutput(ns("df_database")))
 
 
 
@@ -402,9 +524,49 @@ module_pack002_import_s04_r_server <- function(id, sui_data_source){
               "airquality" = airquality)
      })
 
-     output$df_database <- renderDataTable({
-       req(check_ok(), sui_data_source())
-       database()
+     output$df_database <- renderDT({
+       req(database())
+       mi_tabla <- database()
+       new_col_names <- colnames(mi_tabla)
+
+       DT::datatable(
+         mi_tabla, colnames = new_col_names,
+         filter = 'top',
+         extensions = 'Buttons',
+         options = list(
+           autowidth = TRUE,
+           order = list(list(0, 'asc')),
+           columnDefs = list(list(className = 'dt-left', targets = c(0,1,2))),
+           pageLength = 10,
+           lengthMenu = c(10, 50, 75, 100, 150),
+           dom = 'Bfrtip',  # Elementos de la tabla (botones, filtro, etc.)
+           buttons = c('copy', 'csv', 'excel', 'pdf', 'print'),  # Botones para exportar la tabla
+           initComplete = JS("
+      function(settings, json) {
+        $('body').css({
+          'font-family': 'Century Gothic', 'font-size': '150%'
+        });
+        $(this.api().table().header()).css({
+          'font-family': 'Century Gothic',
+          'font-size':'125%',
+          'background-color': '#008000',
+          'color': '#fff'
+        });
+      }
+    "),
+           rowCallback = JS("
+      function(row, data, index) {
+        if(index % 2 === 0) {
+          $(row).css('background-color', 'lightblue');
+        } else {
+          $(row).css('background-color', 'lightgreen');
+        }
+      }
+    ")
+         ),
+         rownames = FALSE
+       )
+
      })
 
      return(database)

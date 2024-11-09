@@ -18,6 +18,8 @@ app_001_revelio <- function(){
   library(shinyjs)
   library(markdown)
   library(rmarkdown)
+  library(tools)
+  library(plotly)
   library(Revelio)
   #ruta_css <- system.file("www", "estilos.css", package = "miPaquete")
 
@@ -141,10 +143,10 @@ app_001_revelio <- function(){
              "source_r" = module_pack002_import_s04_r_ui("space02_database_04"))
 
     })
-    output$df_database <- renderDataTable({
-      req(database())
-      database()
-    })
+    # output$df_database <- renderDataTable({
+    #   req(database())
+    #   database()
+    # })
 
     vector_all_colnames_database <- reactive({
       req(database())

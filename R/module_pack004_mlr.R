@@ -28,12 +28,13 @@ module_pack004_mlr_ui <- function(id){
       "))
     ),
     shiny::h1("Multiple Linear Regresion"),
-    shiny::fluidRow(
-      shiny::column(5,
-                    uiOutput(ns("box02_var_selector"))),
-      shiny::column(7,
-                    uiOutput(ns("box03_control_de_mision")))
-    ),
+    shiny::fluidRow(uiOutput(ns("box02_var_selector"))),
+    br(),
+    fluidRow(
+      column(6),
+      column(6, shiny::fluidRow(uiOutput(ns("box03_control_de_mision"))))
+      ),
+
     shiny::fluidRow(
       shiny::column(12,
                     shiny::textOutput(ns("text_control_general")))),
@@ -109,11 +110,12 @@ module_pack004_mlr_server <- function(id, vector_all_colnames_database, database
 
 
         vector_options <- standard_info_var_selection()$"vector_options"
+        vector_options <- vector_options[-1]
 
         div(
-          shiny::selectInput(inputId = ns("selected_vr_name"), label = "Variable Respuesta",
+          shiny::radioButtons(inputId = ns("selected_vr_name"), label = "Response Variable (Y)",
                              choices = vector_options,
-                             selected = vector_options[1])
+                             selected = character(0))
         )
 
       })
@@ -130,11 +132,11 @@ module_pack004_mlr_server <- function(id, vector_all_colnames_database, database
 
 
         vector_options <- standard_info_var_selection()$"vector_options"
+        vector_options <- vector_options[-1]
 
         div(
-          shiny::selectInput(inputId = ns("selected_factor_name"), label = "Factor",
-                             choices = vector_options,
-                             selected = vector_options[1])
+          shiny::checkboxGroupInput(inputId = ns("selected_x_name"), label = "Regresor vars (X)",
+                             choices = vector_options)
 
 
         )
@@ -146,7 +148,7 @@ module_pack004_mlr_server <- function(id, vector_all_colnames_database, database
       output$box02_var_selector <- renderUI({
 
         shinydashboard::box(
-          title = "02 - Selección de variables",
+          title = "01 - Variables Selection",
           status = "primary",
           id = ns("my_box02"),
           solidHeader = TRUE,
@@ -154,9 +156,10 @@ module_pack004_mlr_server <- function(id, vector_all_colnames_database, database
           collapsed = FALSE,
           closable = FALSE,
           width = 12,
-          shiny::uiOutput(ns("var_selector01")),
-          shiny::uiOutput(ns("var_selector02")),
-          shiny::uiOutput(ns("var_selector03"))
+          fluidRow(
+            column(6, shiny::uiOutput(ns("var_selector01"))),
+            column(6, shiny::uiOutput(ns("var_selector02")))
+          )
 
 
 
@@ -175,7 +178,7 @@ module_pack004_mlr_server <- function(id, vector_all_colnames_database, database
         ns <- shiny::NS(id)
 
         div(shinydashboard::box(
-              title = "03 - Control de Misión",
+              title = "02 - Mission Control",
               status = "primary",
               id = ns("my_box03"),
               solidHeader = TRUE,
@@ -215,7 +218,7 @@ module_pack004_mlr_server <- function(id, vector_all_colnames_database, database
         my_local_file <- file.path("output_temp_folder", my_file)
 
         # Levantamos el html
-        armado_v <- paste('<div style="height: 100%; width: 100%; overflow: auto;"><iframe style="height: 1000vh; width:100%; border: none;" src="', my_local_file, '"></iframe></div>', sep = "")
+        armado_v <- paste('<div style="height: 100%; width: 100%; overflow: hidden;"><iframe style="height: 1000vh; width:100%; border: none;" src="', my_local_file, '"></iframe></div>', sep = "")
 
         return(armado_v)
       })
@@ -235,7 +238,7 @@ module_pack004_mlr_server <- function(id, vector_all_colnames_database, database
         my_local_file <- file.path("output_temp_folder", my_file)
 
         # Levantamos el html
-        armado_v <- paste('<div style="height: 100%; width: 100%; overflow: auto;"><iframe style="height: 1000vh; width:100%; border: none;" src="', my_local_file, '"></iframe></div>', sep = "")
+        armado_v <- paste('<div style="height: 100%; width: 100%; overflow: hidden;"><iframe style="height: 1000vh; width:100%; border: none;" src="', my_local_file, '"></iframe></div>', sep = "")
 
         return(armado_v)
       })
@@ -249,23 +252,22 @@ module_pack004_mlr_server <- function(id, vector_all_colnames_database, database
         div(
           tabsetPanel(
             selected = 1,
-            tabPanel(title = "Código original", value = 1,
-                     fluidRow(
-                       column(12,
-                              shinycssloaders::withSpinner(htmlOutput(ns("htmlviewer_temporal"))))
-                     )
-            ),
-            tabPanel(title = "Resumen", value = 2,
+            tabPanel(title = "Summary MLR", value = 1,
                      fluidRow(
                        column(12,
                               shinycssloaders::withSpinner(htmlOutput(ns("htmlviewer_temporal2"))))
                      )
             ),
-            tabPanel(title = "New", value = 3,
+            tabPanel(title = "Model View", value = 3,
+                     uiOutput(ns("selected_pack")),
+                     br(),br(),br(),br(),br(),br(),br(),br(),br()
+                     ),
+            tabPanel(title = "R Code", value = 3,
                      fluidRow(
                        column(12,
-                              verbatimTextOutput(ns("all_files_view")))
-                     ))
+                              shinycssloaders::withSpinner(htmlOutput(ns("htmlviewer_temporal"))))
+                     )
+            ),
           )
         )
 
@@ -289,7 +291,7 @@ module_pack004_mlr_server <- function(id, vector_all_colnames_database, database
         #runjs(sprintf('$("#%s").css({"background-color": "grey", "color": "white", "border": "none", "padding": "10px 20px", "text-align": "center", "text-decoration": "none", "display": "inline-block", "font-size": "16px", "margin": "4px 2px", "cursor": "pointer", "border-radius": "12px"});', ns("render_report_button")))
       })
 
-      observeEvent(input$selected_factor_name, {
+      observeEvent(input$selected_x_name, {
         render_button_status(FALSE)
         render_button_counter(0)
         #shinyjs::disable("render_report_button")
@@ -308,33 +310,41 @@ module_pack004_mlr_server <- function(id, vector_all_colnames_database, database
 
       control_01 <- reactive({
 
-        #req(vector_all_colnames_database(), input$selected_vr_name, input$selected_factor_name)
+        #req(vector_all_colnames_database(), input$selected_vr_name, input$selected_x_name)
 
-        #req(input$selected_vr_name, input$selected_factor_name)
-
-        validate(
-          need(!is.null(input$selected_vr_name),   ''),
-          need(!is.null(input$selected_factor_name),   ''),
-          errorClass = "ERROR"
-        )
+        #req(input$selected_vr_name, input$selected_x_name)
 
         validate(
-          need(input$selected_vr_name != "", 'Seleccione una VR de su base de datos.'),
-          need(input$selected_factor_name != "", 'Seleccione un FACTOR de su base de datos.'),
+          need(!is.null(input$selected_vr_name),  'Select a single variable Y.'),
+          need(!is.null(input$selected_x_name),   'Select two or more X variables.'),
           errorClass = "WARNING"
         )
 
-
-
-        check_vr <- sum(vector_all_colnames_database() == input$selected_vr_name) == 1
-        check_factor <- sum(vector_all_colnames_database() == input$selected_factor_name) == 1
+        validate(
+          need(input$selected_vr_name != "", 'Select a single variable Y.'),
+          need(input$selected_x_name != "", 'Select two or more X variables.'),
+          errorClass = "WARNING"
+        )
 
         validate(
-          need(check_vr,      'Error 006: Problemas con la variable VR seleccionada. Vuelva a cargar el archivo.'),
-          need(check_factor, 'Error 006: Problemas con la variable FACTOR seleccionada. Vuelva a cargar el archivo.'),
+          need(length(input$selected_vr_name) == 1, 'Select only a single variable Y.'),
+          need(length(input$selected_x_name) >= 2, 'Select two or more X variables.'),
+          errorClass = "WARNING"
+        )
+
+        check_vr <- sum(vector_all_colnames_database() == input$selected_vr_name) == 1
+        check_x <-  sum(vector_all_colnames_database() %in% input$selected_x_name) == length(input$selected_x_name)
+
+        validate(
+          need(check_vr, 'Error 006: Problems with selected names. Rename the columns or try uploading the file again..'),
+          need(check_x,  'Error 007: Problems with selected names. Rename the columns or try uploading the file again..'),
           errorClass = "ERROR"
         )
 
+        validate(
+          need(sum(input$selected_x_name %in% input$selected_vr_name) == 0, 'Error 007: The same variable cannot be in both groups.'),
+          errorClass = "ERROR"
+        )
         #shinyjs::enable("render_report_button")
         if(!render_button_status()) render_button_status(TRUE)
         #runjs(sprintf('$("#%s").css({"background-color": "orange", "color": "white", "border": "none", "padding": "10px 20px", "text-align": "center", "text-decoration": "none", "display": "inline-block", "font-size": "16px", "margin": "4px 2px", "cursor": "pointer", "border-radius": "12px"});', ns("render_report_button")))
@@ -433,11 +443,13 @@ module_pack004_mlr_server <- function(id, vector_all_colnames_database, database
       })
 
       special_path_output_folder <- reactiveVal()
+
       special_path_output_rmd_code <- reactiveVal()
       special_path_output_html_code <- reactiveVal()
 
       special_path_output_rmd_report <- reactiveVal()
       special_path_output_html_report <- reactiveVal()
+
 
       observeEvent(input$render_report_button, {
 
@@ -454,7 +466,7 @@ module_pack004_mlr_server <- function(id, vector_all_colnames_database, database
         # Carpeta temporal
         # # # New temporal file
         new_temp_folder <- tempdir()
-        new_sub_folder <- paste0("Rsience_FOLDER_", execution_time)
+        new_sub_folder <- paste0("Revelio_FOLDER_", execution_time)
         output_folder_temp <- file.path(new_temp_folder, new_sub_folder)
         special_path_output_folder(output_folder_temp)
         dir.create(output_folder_temp)
@@ -484,7 +496,7 @@ module_pack004_mlr_server <- function(id, vector_all_colnames_database, database
         render_env <- new.env()
         render_env$"database" <- database()
         render_env$"selected_vr_name" <- input$selected_vr_name
-        render_env$"selected_factor_name" <- input$selected_factor_name
+        render_env$"selected_x_name" <- input$selected_x_name
 
         #render_env$"the_time" <- original_time
         #render_env$"data_source" <- input$data_source
@@ -505,7 +517,6 @@ module_pack004_mlr_server <- function(id, vector_all_colnames_database, database
         output_path_rmd2  <- chance_name_path
         output_path_rmd2  <- grep("_REPORT", output_path_rmd2, value = TRUE)
         output_path_html2 <- gsub("\\.Rmd$", ".html", output_path_rmd2)
-
         special_path_output_html_report(output_path_html2)
 
         rmarkdown::render(output_path_rmd2, rmarkdown::html_document(), output_file = output_path_html2, envir = render_env)
@@ -539,9 +550,9 @@ module_pack004_mlr_server <- function(id, vector_all_colnames_database, database
       #
       #   #req(control_01(), special_path_output_html_report())
       #
-      #   #req(vector_all_colnames_database(), input$selected_vr_name, input$selected_factor_name)
+      #   #req(vector_all_colnames_database(), input$selected_vr_name, input$selected_x_name)
       #
-      #   #req(input$selected_vr_name, input$selected_factor_name)
+      #   #req(input$selected_vr_name, input$selected_x_name)
       #   download_counter_html(0)
       #   shinyjs::disable("download_button_html")
       #   runjs(sprintf('$("#%s").css({"background-color": "grey", "color": "white", "border": "none", "padding": "10px 20px", "text-align": "center", "text-decoration": "none", "display": "inline-block", "font-size": "16px", "margin": "4px 2px", "cursor": "pointer", "border-radius": "12px"});', ns("download_button_html")))
@@ -592,63 +603,188 @@ module_pack004_mlr_server <- function(id, vector_all_colnames_database, database
       #######################################################
 
 
-      my_files <- reactive({
-        req(special_path_output_folder())
-        the_folder <- special_path_output_folder()
-        the_files <- list.files(the_folder, full.names = T)
-        the_files <- grep("\\.rds$", the_files, value = TRUE, ignore.case = TRUE)
-        #print(the_files)
-        #if(is.null(my_files)) return(NULL)
-        #if(!exists(my_files[1])) return(NULL)
-        #if(sum(my_files == "") > 0) return(NULL)
-        the_files
-      })
-
-      control_33 <- reactive({
-        req(my_files())
 
 
 
-      })
 
 
-      lo_todo <- reactive({
+      special_path_output_rmd_nuevo <- reactiveVal()
+      special_path_output_html_nuevo <- reactiveVal()
 
-        #req(exists(my_files()))
+      render_new_button_status  <- shiny::reactiveVal()
+      render_new_button_counter <- shiny::reactiveVal()
 
-        aver <- list.files(special_path_output_folder())
 
-        #
-        # aver <- list.files("/tmp/RtmpEaztWu/Rsience_FOLDER_2024_11_08_00_47_08/R_results.rdata",
-        #                    pattern = "R_results.rdata", full.names = T)
-        print(aver)
-        load_specific_object <- function(file, object) {
-          env <- new.env()
-          load(file, envir = env)
-          return(env[[object]])
-        }
-        #load_specific_object(aver, "df_mlr_general")
-        df_loaded <- readRDS(my_files())
-        df_loaded
+      vector_models_up <- shiny::reactiveVal()
 
+      observeEvent(input$action_up, {
+        render_new_button_counter(render_new_button_counter()+1)
+        #shinyjs::disable("render_report_button")
+        #runjs(sprintf('$("#%s").css({"background-color": "grey", "color": "white", "border": "none", "padding": "10px 20px", "text-align": "center", "text-decoration": "none", "display": "inline-block", "font-size": "16px", "margin": "4px 2px", "cursor": "pointer", "border-radius": "12px"});', ns("render_report_button")))
       })
 
 
-        #print(la_df)
-        #df <- load_specific_object(input$file$datapath, "my_data")
-        #mi_df(la_df)
-
-        # Actualizar las opciones del selectInput para plotear
-        #updateSelectInput(session, "plot_var", choices = colnames(df))
-      #})
-
-
-      output$all_files_view <- renderPrint({
-        #req(mi_df())
-        lo_todo()
-        #my_files()
-        #print(mi_df())
+      observeEvent(input$selected_model, {
+        render_new_button_status(FALSE)
+        render_new_button_counter(0)
+        #shinyjs::disable("render_report_button")
+        #runjs(sprintf('$("#%s").css({"background-color": "grey", "color": "white", "border": "none", "padding": "10px 20px", "text-align": "center", "text-decoration": "none", "display": "inline-block", "font-size": "16px", "margin": "4px 2px", "cursor": "pointer", "border-radius": "12px"});', ns("render_report_button")))
       })
+  output$htmlviewer_temporal3 <- renderText({
+
+    req(control_01(), special_path_output_folder(), special_path_output_html_nuevo())
+    req(render_new_button_counter(), render_new_button_counter() >= 1)
+
+    # # # Definimos como un "alias" o un "bindeo".
+    # A la carpeta temporal le damos como un "alias".
+    # Esto es por que los HTML no pueden ser tomados de cualquier lado.
+    my_path <- special_path_output_folder()
+    addResourcePath(prefix = "output_temp_folder", directoryPath = my_path)
+
+    # Armamos ahora un path con el "alias" como folder.
+    my_file <- basename(special_path_output_html_nuevo())
+    my_local_file <- file.path("output_temp_folder", my_file)
+
+    # Levantamos el html
+    armado_v <- paste('<div style="height: 100%; width: 100%; overflow: hidden;"><iframe style="height: 1000vh; width:100%; border: none;" src="', my_local_file, '"></iframe></div>', sep = "")
+
+    return(armado_v)
+  })
+
+
+
+
+
+  observeEvent(render_new_button_counter(), {
+
+    # Todo lo anterior tiene que estar OK.
+    req(control_01(), special_path_output_folder(), all_files_mod())
+    req(render_new_button_counter(), render_new_button_counter() >= 1)
+
+    req(special_path_output_folder())
+    the_folder <- special_path_output_folder()
+    the_paths <- list.files(the_folder, full.names = T)
+    the_paths_rds <- grep("\\.rds$", the_paths, value = TRUE, ignore.case = TRUE)
+    the_files_rds <- basename(the_paths_rds)
+    the_names_rds <- tools::file_path_sans_ext(the_files_rds)
+
+    for(k1 in 1:length(the_files_rds)){
+
+      decime_ok <- paste0(the_names_rds[k1], " <- readRDS('", the_paths_rds[k1], "')", collapse = "")
+      print(decime_ok)
+      eval(parse(text = decime_ok))
+
+    }
+
+    # # # SPECIAL UP!
+    vector_models_up(df_mlr_general$"text_order")
+
+    ###
+    aver <- list.files(special_path_output_folder())
+    ###
+    #print(paste0("my_files(): ", my_files()))
+
+    # str_general <- "_the_name_rds_ <- readRDS(_the_path_rds_)"
+    #       for(k1 in 1:length(the_files_rds)){
+    #         str_new <- str_general
+    #         str_new <- gsub("_the_name_rds_",the_names_rds[k1], str_new)
+    #         str_new <- gsub("_the_path_rds_",the_paths_rds[k1], str_new)
+    #         eval(parse(text = str_new))
+    #
+    #       }
+
+    #print(the_files)
+    #if(is.null(my_files)) return(NULL)
+    #if(!exists(my_files[1])) return(NULL)
+    #if(sum(my_files == "") > 0) return(NULL)
+    #the_files
+      # the_folder <- special_path_output_folder()
+      # the_paths <- list.files(the_folder, full.names = T)
+      # the_paths_rds <- grep("\\.rds$", the_paths, value = TRUE, ignore.case = TRUE)
+      # the_files_rds <- basename(the_paths_rds)
+      # the_names_rds <- tools::file_path_sans_ext(the_files_rds)
+    # str_general <- "_the_name_rds_ <- readRDS(_the_path_rds_)"
+
+      #print(the_paths_rds)
+#
+#       for(k1 in 1:length(the_files_rds)){
+#         str_new <- str_general
+#         str_new <- gsub("_the_name_rds_",the_names_rds[k1], str_new)
+#         str_new <- gsub("_the_path_rds_",the_paths_rds[k1], str_new)
+#         eval(parse(text = str_new))
+#
+#       }
+
+
+
+    #print("AAA")
+    # # # Execution time...
+
+    #print("ZZZ")
+
+    # # # Objetos de entorno
+    # Estos objetos seran usados como si estuvieran
+    # detallados dentro del archivo .Rmd.
+    # Por ejemplo, tomamos la base de datos.
+    render_env <- new.env()
+    render_env$"selected_model" <- input$selected_model
+    #render_env$"df_mlr_general" <- df_mlr_general
+    str_general02 <- 'render_env$"_name_rds_" <- _name_rds_'
+
+    for(k1 in 1:length(the_files_rds)){
+      str_new02 <- str_general02
+      str_new02 <- gsub("_name_rds_",the_names_rds[k1], str_new02)
+      eval(parse(text = str_new02))
+
+    }
+
+    chance_name_path   <- file.path(special_path_output_folder(), all_files_mod())
+    output_path_rmd3  <- chance_name_path
+    output_path_rmd3  <- grep("_NUEVO", output_path_rmd3, value = TRUE)
+    output_path_html3 <-gsub("\\.Rmd$", ".html", output_path_rmd3)
+
+    special_path_output_html_nuevo(output_path_html3)
+
+    rmarkdown::render(output_path_rmd3, rmarkdown::html_document(), output_file = output_path_html3, envir = render_env)
+
+
+
+  })
+
+
+
+  output$selected_pack <- renderUI({
+
+    ns <- NS(id)
+    # Theoretical number of pairs of different combinations: (k*(k-1))/2
+
+    #amount_models <- vector_stock01["x_all_comb"]
+    #
+    cantidad_vars <- length(input$selected_x_name)
+    cantidad_modelos <- 2^cantidad_vars
+    cantidad_digitos <- nchar(cantidad_modelos)
+    vector_opt <- 1:cantidad_modelos
+    vector_opt <- formatC(x = vector_opt, width = cantidad_digitos, format = "d", flag = "0")
+    vector_opt <- paste0("model_", vector_opt)
+
+
+    div(
+      fluidRow(
+        column(3,
+      selectInput(inputId = ns("selected_model"), label = "Select a model",
+                  choices = vector_opt)),
+
+      column(1, actionButton(inputId = ns("action_up"), label = "LOAD!"))
+      ),
+      br(),br(),
+      shinycssloaders::withSpinner(htmlOutput(ns("htmlviewer_temporal3")))
+    )
+
+
+  })
+
+
+
       # aqui esta el archivo
       #
 
