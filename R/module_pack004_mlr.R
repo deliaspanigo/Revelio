@@ -148,7 +148,7 @@ module_pack004_mlr_server <- function(id, vector_all_colnames_database, database
       output$box02_var_selector <- renderUI({
 
         shinydashboard::box(
-          title = "01 - Variables Selection",
+          title = "01 - Variable selector",
           status = "primary",
           id = ns("my_box02"),
           solidHeader = TRUE,
@@ -238,7 +238,7 @@ module_pack004_mlr_server <- function(id, vector_all_colnames_database, database
         my_local_file <- file.path("output_temp_folder", my_file)
 
         # Levantamos el html
-        armado_v <- paste('<div style="height: 100%; width: 100%; overflow: hidden;"><iframe style="height: 1000vh; width:100%; border: none;" src="', my_local_file, '"></iframe></div>', sep = "")
+        armado_v <- paste('<div style="height: 10000%; width: 100%; overflow: hidden;"><iframe style="height: 1000vh; width:100%; border: none;" src="', my_local_file, '"></iframe></div>', sep = "")
 
         return(armado_v)
       })
@@ -251,8 +251,14 @@ module_pack004_mlr_server <- function(id, vector_all_colnames_database, database
 
         div(
           tabsetPanel(
-            selected = 1,
-            tabPanel(title = "Summary MLR", value = 1,
+            selected = 2,
+            tabPanel(title = "R Code", value = 1,
+                     fluidRow(
+                       column(12,
+                              shinycssloaders::withSpinner(htmlOutput(ns("htmlviewer_temporal"))))
+                     )
+            ),
+            tabPanel(title = "Summary MLR", value = 2,
                      fluidRow(
                        column(12,
                               shinycssloaders::withSpinner(htmlOutput(ns("htmlviewer_temporal2"))))
@@ -261,13 +267,7 @@ module_pack004_mlr_server <- function(id, vector_all_colnames_database, database
             tabPanel(title = "Model View", value = 3,
                      uiOutput(ns("selected_pack")),
                      br(),br(),br(),br(),br(),br(),br(),br(),br()
-                     ),
-            tabPanel(title = "R Code", value = 3,
-                     fluidRow(
-                       column(12,
-                              shinycssloaders::withSpinner(htmlOutput(ns("htmlviewer_temporal"))))
                      )
-            ),
           )
         )
 
@@ -615,7 +615,7 @@ module_pack004_mlr_server <- function(id, vector_all_colnames_database, database
       render_new_button_counter <- shiny::reactiveVal()
 
 
-      vector_models_up <- shiny::reactiveVal()
+      #vector_models_up <- shiny::reactiveVal()
 
       observeEvent(input$action_up, {
         render_new_button_counter(render_new_button_counter()+1)
@@ -657,6 +657,7 @@ module_pack004_mlr_server <- function(id, vector_all_colnames_database, database
 
   observeEvent(render_new_button_counter(), {
 
+    req(input$selected_model())
     # Todo lo anterior tiene que estar OK.
     req(control_01(), special_path_output_folder(), all_files_mod())
     req(render_new_button_counter(), render_new_button_counter() >= 1)
@@ -668,6 +669,11 @@ module_pack004_mlr_server <- function(id, vector_all_colnames_database, database
     the_files_rds <- basename(the_paths_rds)
     the_names_rds <- tools::file_path_sans_ext(the_files_rds)
 
+    lala <- file.path(special_path_output_folder(), 'list_summary_mlr02.rds')
+    la_sentencia <- paste0("readRDS(lala)")
+    selected_list_summary_mlr02 <- eval(parse(text = la_sentencia))
+    selected_list_summary_mlr02 <- selected_list_summary_mlr02[[input$selected_model]]
+
     for(k1 in 1:length(the_files_rds)){
 
       decime_ok <- paste0(the_names_rds[k1], " <- readRDS('", the_paths_rds[k1], "')", collapse = "")
@@ -676,8 +682,11 @@ module_pack004_mlr_server <- function(id, vector_all_colnames_database, database
 
     }
 
+
+
+
     # # # SPECIAL UP!
-    vector_models_up(df_mlr_general$"text_order")
+    #vector_models_up(df_mlr_general$"text_order")
 
     ###
     aver <- list.files(special_path_output_folder())
@@ -728,9 +737,14 @@ module_pack004_mlr_server <- function(id, vector_all_colnames_database, database
     # Por ejemplo, tomamos la base de datos.
     render_env <- new.env()
     render_env$"selected_model" <- input$selected_model
+
+    ###
+    render_env$"selected_list_summary_mlr02" <- selected_list_summary_mlr02
+    ###
     #render_env$"df_mlr_general" <- df_mlr_general
     str_general02 <- 'render_env$"_name_rds_" <- _name_rds_'
 
+    ###########################################3
     for(k1 in 1:length(the_files_rds)){
       str_new02 <- str_general02
       str_new02 <- gsub("_name_rds_",the_names_rds[k1], str_new02)
@@ -738,6 +752,7 @@ module_pack004_mlr_server <- function(id, vector_all_colnames_database, database
 
     }
 
+    ######################################
     chance_name_path   <- file.path(special_path_output_folder(), all_files_mod())
     output_path_rmd3  <- chance_name_path
     output_path_rmd3  <- grep("_NUEVO", output_path_rmd3, value = TRUE)

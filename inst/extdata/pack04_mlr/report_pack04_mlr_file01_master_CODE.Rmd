@@ -29,18 +29,18 @@ document.addEventListener('DOMContentLoaded', function() {
   <img src="logo_04_rscience_mod.png" class="inline-image" width="200"  height="100">
 </div>
 
-## Código para una Super MLR
+## R Code - All posible MLR
 
-#### Hora de ejecución: `r format(Sys.time(), "%Y-%m-%d %H:%M:%S")`
-#### Sistema operativo: `r Sys.info()["sysname"]`
-#### Versión de R: `r R.version.string`
-#### Versión de RStudio: `r RStudio.Version()$version`
+### Execution time: `r format(Sys.time(), "%Y-%m-%d %H:%M:%S")`
+#### Operating system: `r Sys.info()["sysname"]`
+#### R version: `r R.version.string`
+#### RStudio version: `r RStudio.Version()$version`
 
 
 <br>
 <br>
 
-## General Linear Models - Fixed Effects - Anova 1 way
+## General Linear Models - Multiple linear regression
 
 ```{r,  include =FALSE}
 knitr::opts_chunk$set(echo=TRUE, comment=NA)
@@ -49,10 +49,10 @@ knitr::opts_chunk$set(echo=TRUE, comment=NA)
 ### Section 01 of 15 - Libraries
 ```{r, include =T, eval = T, class.source="bg-success"}
 ### Section 01 of 15 - Libraries
-library(stats)      # General Linear Models, Shapiro test and Bartlett test.
-library(agricolae)  # Tukey test
-library(gplots)     # Graphics 
-library(plotly)
+library("stats")      # General Linear Models, Shapiro test and Bartlett test.
+library("agricolae")  # Tukey test
+library("gplots")     # Graphics 
+library("plotly")
 library("openxlsx")
 ```
 <br>
@@ -60,7 +60,7 @@ library("openxlsx")
 
 ### Section 02 of 15 - Load database
 ```{r, include =T, eval = T, class.source="bg-success"}
-database
+###head(x = database, n = 5)
 ```
 <br>
 <br>
@@ -72,9 +72,10 @@ database
 #--- BEGINNING SCRIPT ----------------------------------------------------------
 
 # # # Section 01) Libraries
-library(igraph)
-library(utils)
-library(reshape2)
+library("plotly")
+library("igraph")
+library("utils")
+library("reshape2")
 #-------------------------------------------------------------------------------
 
 # # # Section 02) Database

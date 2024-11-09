@@ -42,18 +42,18 @@ document.addEventListener('DOMContentLoaded', function() {
   <img src="logo_04_rscience_mod.png" class="inline-image" width="200"  height="100">
 </div>
 
-## Diplomatura en Bioestadística básica aplicada mediada con R
+# View selected GLM - Regression - Gamma
 
-#### Hora de ejecución: `r format(Sys.time(), "%Y-%m-%d %H:%M:%S")`
-#### Sistema operativo: `r Sys.info()["sysname"]`
-#### Versión de R: `r R.version.string`
-#### Versión de RStudio: `r RStudio.Version()$version`
+### Execution time: `r format(Sys.time(), "%Y-%m-%d %H:%M:%S")`
+#### Operating system: `r Sys.info()["sysname"]`
+#### R version: `r R.version.string`
+#### RStudio version: `r RStudio.Version()$version`
 
 
 <br>
 <br>
 
-# MLR
+# GLM - Regression - Gamma . Selected `r selected_model`
 
 ```{r,  include =FALSE}
 knitr::opts_chunk$set(echo=TRUE, comment=NA)
@@ -105,55 +105,55 @@ tabla_formato_especial <- function(la_tabla, frase_final = " "){
 ```{r, include =T, eval = T, echo = F, class.source="bg-success"}
 
 mi_tabla05_disp <- list_summary_mlr02[[selected_model]]$"df_coef02"
-mi_tabla05_disp <- mi_tabla05_disp[-c(6)]
-colnames(mi_tabla05_disp)[4] <- "p_value"
+#mi_tabla05_disp <- mi_tabla05_disp[-c(6)]
+#colnames(mi_tabla05_disp)[4] <- "p_value"
 tabla_formato_especial(mi_tabla05_disp)
+# 
+# dt_rows <- df_mlr_general$"text_order" == selected_model
+# my_y <- df_mlr_general$"y_var_name"[dt_rows]
+# my_x <- df_mlr_general$"x_var_name"[dt_rows]
+# my_x <- strsplit(my_x, ";")[[1]]
+#   
+# mis_coef_letra <- rownames(mi_tabla05_disp)
+# mis_coef_letra <- paste0("(", mis_coef_letra, ")")
+# mis_coef_letra[1] <- ""
+# 
+# mis_x <- paste0("x_{", 0:(length(mis_coef_letra)-1), "}")
+# mis_x[1] <- ""
+# 
+# mis_coef_value <- mi_tabla05_disp$"Estimate"
+# mis_coef_value <- round(mis_coef_value, 4)
+# vector_suma <- rep(" + ", length(mis_coef_value))
+# vector_suma[mis_coef_value<0] <- " "
+# vector_suma[1] <- ""
+# #vector_suma <- c(vector_simbols01, "")
+# vector_multi <- rep("*", length(mis_coef_value))
+# vector_multi[1] <- ""
+# 
+# 
+# #########################################
+# armado01 <- paste0(mis_coef_value, vector_multi, mis_x)
+# armado01 <- paste0(vector_suma, armado01)
+# armado01 <- paste0(armado01, collapse = "")
+# 
+# 
+# la_formula01 <- paste0("$$ y_{i}= ", armado01, " + \\epsilon_{i} $$")
+# #########################################################
+# 
+# armado02 <- paste0(vector_multi, mis_coef_letra)
+# armado02 <- paste0(mis_coef_value, armado02)
+# armado02 <- paste0(vector_suma, armado02)
+# armado02 <- paste0(armado02, collapse = "")
+# 
+# 
+# la_formula02 <- paste0("$$ ", my_y,"_{i}= ", armado02, " + \\epsilon_{i} $$")
 
-dt_rows <- df_mlr_general$"text_order" == selected_model
-my_y <- df_mlr_general$"y_var_name"[dt_rows]
-my_x <- df_mlr_general$"x_var_name"[dt_rows]
-my_x <- strsplit(my_x, ";")[[1]]
-  
-mis_coef_letra <- rownames(mi_tabla05_disp)
-mis_coef_letra <- paste0("(", mis_coef_letra, ")")
-mis_coef_letra[1] <- ""
-
-mis_x <- paste0("x_{", 0:(length(mis_coef_letra)-1), "}")
-mis_x[1] <- ""
-
-mis_coef_value <- mi_tabla05_disp$"Estimate"
-mis_coef_value <- round(mis_coef_value, 4)
-vector_suma <- rep(" + ", length(mis_coef_value))
-vector_suma[mis_coef_value<0] <- " "
-vector_suma[1] <- ""
-#vector_suma <- c(vector_simbols01, "")
-vector_multi <- rep("*", length(mis_coef_value))
-vector_multi[1] <- ""
-
-
-#########################################
-armado01 <- paste0(mis_coef_value, vector_multi, mis_x)
-armado01 <- paste0(vector_suma, armado01)
-armado01 <- paste0(armado01, collapse = "")
-
-
-la_formula01 <- paste0("$$ y_{i}= ", armado01, " + \\epsilon_{i} $$")
-#########################################################
-
-armado02 <- paste0(vector_multi, mis_coef_letra)
-armado02 <- paste0(mis_coef_value, armado02)
-armado02 <- paste0(vector_suma, armado02)
-armado02 <- paste0(armado02, collapse = "")
-
-
-la_formula02 <- paste0("$$ ", my_y,"_{i}= ", armado02, " + \\epsilon_{i} $$")
-
-
+# <!-- <br> -->
+# <!-- `r la_formula01` -->
+# <!-- `r la_formula02` -->
 
 ```
-<br>
-`r la_formula01`
-`r la_formula02`
+
 <br>
 <br>
 

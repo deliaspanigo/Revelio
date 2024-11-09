@@ -43,12 +43,12 @@ document.addEventListener('DOMContentLoaded', function() {
   <img src="logo_04_rscience_mod.png" class="inline-image" width="200"  height="100">
 </div>
 
-## Diplomatura en Bioestadística básica aplicada mediada con R
+## R Code - All posible GLM - Gamma - Regression
 
-#### Hora de ejecución: `r format(Sys.time(), "%Y-%m-%d %H:%M:%S")`
-#### Sistema operativo: `r Sys.info()["sysname"]`
-#### Versión de R: `r R.version.string`
-#### Versión de RStudio: `r RStudio.Version()$version`
+### Execution time: `r format(Sys.time(), "%Y-%m-%d %H:%M:%S")`
+#### Operating system: `r Sys.info()["sysname"]`
+#### R version: `r R.version.string`
+#### RStudio version: `r RStudio.Version()$version`
 
 
 <br>
@@ -91,8 +91,8 @@ new_col_names <- c("#", "model", "Y",
                    "X", "num_x", "sig_x", "req_no_cor",
                    "sig_const", "sig_all_slopes", "r^2", "r^2_ajust", "aic", "bic")
 
-mi_tabla <- df_mlr_general
-mi_tabla <- mi_tabla[selected_cols]
+#mi_tabla <- 
+mi_tabla <- df_mlr_general[selected_cols]
 
 # Crear la tabla interactiva con DT
 tabla_mod <- DT::datatable(

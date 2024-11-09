@@ -29,18 +29,18 @@ document.addEventListener('DOMContentLoaded', function() {
   <img src="logo_04_rscience_mod.png" class="inline-image" width="200"  height="100">
 </div>
 
-## Código para una Super MLR
+## R Code - All posible GLM Gamma
 
-#### Hora de ejecución: `r format(Sys.time(), "%Y-%m-%d %H:%M:%S")`
-#### Sistema operativo: `r Sys.info()["sysname"]`
-#### Versión de R: `r R.version.string`
-#### Versión de RStudio: `r RStudio.Version()$version`
+### Execution time: `r format(Sys.time(), "%Y-%m-%d %H:%M:%S")`
+#### Operating system: `r Sys.info()["sysname"]`
+#### R version: `r R.version.string`
+#### RStudio version: `r RStudio.Version()$version`
 
 
 <br>
 <br>
 
-## General Linear Models - Fixed Effects - Anova 1 way
+## Generalized Linear Model (GLM) - Multiple linear regression - Gamma
 
 ```{r,  include =FALSE}
 knitr::opts_chunk$set(echo=TRUE, comment=NA)

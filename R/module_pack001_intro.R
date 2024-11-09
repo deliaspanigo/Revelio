@@ -9,12 +9,11 @@ module_pack001_intro_ui <- function(id){
 
   div(shinyjs::useShinyjs(), id = ns("input-panel"),
 
-      shiny::h1("Pasos..."),
-      "1) Selecciona la semana...",br(),
-      "2) Selecciona una base de datos...",br(),
-      "3) Dar clic en LOAD",br(),
-      "4) Completar la Selección de variables",br(),
-      "5) Dar clic en Render!"
+      shiny::h1("Steps..."),
+      "1) Select a database...",br(),
+      "2) Click on LOAD",br(),
+      "3) Select Summary, MLR or GLM Gamma",br(),
+      "4) Click Render!"
 
   ) # End div
 }

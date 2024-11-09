@@ -251,8 +251,14 @@ module_pack005_mlr_server <- function(id, vector_all_colnames_database, database
 
         div(
           tabsetPanel(
-            selected = 1,
-            tabPanel(title = "Summary MLR", value = 1,
+            selected = 2,
+            tabPanel(title = "R Code", value = 1,
+                     fluidRow(
+                       column(12,
+                              shinycssloaders::withSpinner(htmlOutput(ns("htmlviewer_temporal"))))
+                     )
+            ),
+            tabPanel(title = "Summary MLR", value = 2,
                      fluidRow(
                        column(12,
                               shinycssloaders::withSpinner(htmlOutput(ns("htmlviewer_temporal2"))))
@@ -261,13 +267,7 @@ module_pack005_mlr_server <- function(id, vector_all_colnames_database, database
             tabPanel(title = "Model View", value = 3,
                      uiOutput(ns("selected_pack")),
                      br(),br(),br(),br(),br(),br(),br(),br(),br()
-                     ),
-            tabPanel(title = "R Code", value = 3,
-                     fluidRow(
-                       column(12,
-                              shinycssloaders::withSpinner(htmlOutput(ns("htmlviewer_temporal"))))
                      )
-            ),
           )
         )
 
