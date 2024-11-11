@@ -33,7 +33,7 @@ module_pack004_mlr_ui <- function(id){
     fluidRow(
       column(6),
       column(6, shiny::fluidRow(uiOutput(ns("box03_control_de_mision"))))
-      ),
+    ),
 
     shiny::fluidRow(
       shiny::column(12,
@@ -114,8 +114,8 @@ module_pack004_mlr_server <- function(id, vector_all_colnames_database, database
 
         div(
           shiny::radioButtons(inputId = ns("selected_vr_name"), label = "Response Variable (Y)",
-                             choices = vector_options,
-                             selected = character(0))
+                              choices = vector_options,
+                              selected = character(0))
         )
 
       })
@@ -136,7 +136,7 @@ module_pack004_mlr_server <- function(id, vector_all_colnames_database, database
 
         div(
           shiny::checkboxGroupInput(inputId = ns("selected_x_name"), label = "Regresor vars (X)",
-                             choices = vector_options)
+                                    choices = vector_options)
 
 
         )
@@ -148,7 +148,7 @@ module_pack004_mlr_server <- function(id, vector_all_colnames_database, database
       output$box02_var_selector <- renderUI({
 
         shinydashboard::box(
-          title = "01 - Variable selector",
+          title = "01 - Variables Selection",
           status = "primary",
           id = ns("my_box02"),
           solidHeader = TRUE,
@@ -167,38 +167,38 @@ module_pack004_mlr_server <- function(id, vector_all_colnames_database, database
         )
       })
 
-############################
+      ############################
 
 
 
-############################
+      ############################
 
       output$box03_control_de_mision <- renderUI({
 
         ns <- shiny::NS(id)
 
         div(shinydashboard::box(
-              title = "02 - Mission Control",
-              status = "primary",
-              id = ns("my_box03"),
-              solidHeader = TRUE,
-              collapsible = TRUE,
-              collapsed = FALSE,
-              closable = FALSE,
-              width = 12,
-              div(
-                #h2("Generacion de Reportes"), br(),
-                #h3("- Base de datos - OK!"),
-                #h3("- Variable cuantitativa seleccionada - OK!"),
-                #h3("- Reporte y script - OK!"),
-                actionButton(ns("render_report_button"), "Render Report", width = "100%"),
-                downloadButton(outputId = ns('download_button_html'),  label = "HTML", width = "100%", disabled = TRUE),
-                #downloadButton(outputId = ns('download_button_pdf'),   label = "PDF", width = "100%", disabled = TRUE),
-                #downloadButton(outputId = ns('download_button_word'),  label = "WORD", width = "100%", disabled = TRUE),
-                #downloadButton(outputId = ns('download_button_Rcode'), label = "Rcode", width = "100%", disabled = TRUE),
-                downloadButton(outputId = ns('download_button_zip'),   label = "All (ZIP)", width = "100%", disabled = TRUE)
-              )
-            )
+          title = "02 - Mission Control",
+          status = "primary",
+          id = ns("my_box03"),
+          solidHeader = TRUE,
+          collapsible = TRUE,
+          collapsed = FALSE,
+          closable = FALSE,
+          width = 12,
+          div(
+            #h2("Generacion de Reportes"), br(),
+            #h3("- Base de datos - OK!"),
+            #h3("- Variable cuantitativa seleccionada - OK!"),
+            #h3("- Reporte y script - OK!"),
+            actionButton(ns("render_report_button"), "Render Report", width = "100%"),
+            downloadButton(outputId = ns('download_button_html'),  label = "HTML", width = "100%", disabled = TRUE),
+            #downloadButton(outputId = ns('download_button_pdf'),   label = "PDF", width = "100%", disabled = TRUE),
+            #downloadButton(outputId = ns('download_button_word'),  label = "WORD", width = "100%", disabled = TRUE),
+            #downloadButton(outputId = ns('download_button_Rcode'), label = "Rcode", width = "100%", disabled = TRUE),
+            downloadButton(outputId = ns('download_button_zip'),   label = "All (ZIP)", width = "100%", disabled = TRUE)
+          )
+        )
         )
       })
 
@@ -238,7 +238,7 @@ module_pack004_mlr_server <- function(id, vector_all_colnames_database, database
         my_local_file <- file.path("output_temp_folder", my_file)
 
         # Levantamos el html
-        armado_v <- paste('<div style="height: 10000%; width: 100%; overflow: hidden;"><iframe style="height: 1000vh; width:100%; border: none;" src="', my_local_file, '"></iframe></div>', sep = "")
+        armado_v <- paste('<div style="height: 100%; width: 100%; overflow: hidden;"><iframe style="height: 1000vh; width:100%; border: none;" src="', my_local_file, '"></iframe></div>', sep = "")
 
         return(armado_v)
       })
@@ -267,7 +267,7 @@ module_pack004_mlr_server <- function(id, vector_all_colnames_database, database
             tabPanel(title = "Model View", value = 3,
                      uiOutput(ns("selected_pack")),
                      br(),br(),br(),br(),br(),br(),br(),br(),br()
-                     )
+            )
           )
         )
 
@@ -531,8 +531,8 @@ module_pack004_mlr_server <- function(id, vector_all_colnames_database, database
       observeEvent(special_path_output_html_report(),{
 
         if(file.exists(special_path_output_html_report())){
-        shinyjs::enable("download_button_html")
-        runjs(sprintf('$("#%s").css({"background-color": "orange", "color": "white", "border": "none", "padding": "10px 20px", "text-align": "center", "text-decoration": "none", "display": "inline-block", "font-size": "16px", "margin": "4px 2px", "cursor": "pointer", "border-radius": "12px"});', ns("download_button_html")))
+          shinyjs::enable("download_button_html")
+          runjs(sprintf('$("#%s").css({"background-color": "orange", "color": "white", "border": "none", "padding": "10px 20px", "text-align": "center", "text-decoration": "none", "display": "inline-block", "font-size": "16px", "margin": "4px 2px", "cursor": "pointer", "border-radius": "12px"});', ns("download_button_html")))
         }
 
       })
@@ -615,7 +615,7 @@ module_pack004_mlr_server <- function(id, vector_all_colnames_database, database
       render_new_button_counter <- shiny::reactiveVal()
 
 
-      #vector_models_up <- shiny::reactiveVal()
+      vector_models_up <- shiny::reactiveVal()
 
       observeEvent(input$action_up, {
         render_new_button_counter(render_new_button_counter()+1)
@@ -630,173 +630,158 @@ module_pack004_mlr_server <- function(id, vector_all_colnames_database, database
         #shinyjs::disable("render_report_button")
         #runjs(sprintf('$("#%s").css({"background-color": "grey", "color": "white", "border": "none", "padding": "10px 20px", "text-align": "center", "text-decoration": "none", "display": "inline-block", "font-size": "16px", "margin": "4px 2px", "cursor": "pointer", "border-radius": "12px"});', ns("render_report_button")))
       })
-  output$htmlviewer_temporal3 <- renderText({
+      output$htmlviewer_temporal3 <- renderText({
 
-    req(control_01(), special_path_output_folder(), special_path_output_html_nuevo())
-    req(render_new_button_counter(), render_new_button_counter() >= 1)
+        req(control_01(), special_path_output_folder(), special_path_output_html_nuevo())
+        req(render_new_button_counter(), render_new_button_counter() >= 1)
 
-    # # # Definimos como un "alias" o un "bindeo".
-    # A la carpeta temporal le damos como un "alias".
-    # Esto es por que los HTML no pueden ser tomados de cualquier lado.
-    my_path <- special_path_output_folder()
-    addResourcePath(prefix = "output_temp_folder", directoryPath = my_path)
+        # # # Definimos como un "alias" o un "bindeo".
+        # A la carpeta temporal le damos como un "alias".
+        # Esto es por que los HTML no pueden ser tomados de cualquier lado.
+        my_path <- special_path_output_folder()
+        addResourcePath(prefix = "output_temp_folder", directoryPath = my_path)
 
-    # Armamos ahora un path con el "alias" como folder.
-    my_file <- basename(special_path_output_html_nuevo())
-    my_local_file <- file.path("output_temp_folder", my_file)
+        # Armamos ahora un path con el "alias" como folder.
+        my_file <- basename(special_path_output_html_nuevo())
+        my_local_file <- file.path("output_temp_folder", my_file)
 
-    # Levantamos el html
-    armado_v <- paste('<div style="height: 100%; width: 100%; overflow: hidden;"><iframe style="height: 1000vh; width:100%; border: none;" src="', my_local_file, '"></iframe></div>', sep = "")
+        # Levantamos el html
+        armado_v <- paste('<div style="height: 100%; width: 100%; overflow: hidden;"><iframe style="height: 1000vh; width:100%; border: none;" src="', my_local_file, '"></iframe></div>', sep = "")
 
-    return(armado_v)
-  })
-
-
-
-
-
-  observeEvent(render_new_button_counter(), {
-
-    req(input$selected_model())
-    # Todo lo anterior tiene que estar OK.
-    req(control_01(), special_path_output_folder(), all_files_mod())
-    req(render_new_button_counter(), render_new_button_counter() >= 1)
-
-    req(special_path_output_folder())
-    the_folder <- special_path_output_folder()
-    the_paths <- list.files(the_folder, full.names = T)
-    the_paths_rds <- grep("\\.rds$", the_paths, value = TRUE, ignore.case = TRUE)
-    the_files_rds <- basename(the_paths_rds)
-    the_names_rds <- tools::file_path_sans_ext(the_files_rds)
-
-    lala <- file.path(special_path_output_folder(), 'list_summary_mlr02.rds')
-    la_sentencia <- paste0("readRDS(lala)")
-    selected_list_summary_mlr02 <- eval(parse(text = la_sentencia))
-    selected_list_summary_mlr02 <- selected_list_summary_mlr02[[input$selected_model]]
-
-    for(k1 in 1:length(the_files_rds)){
-
-      decime_ok <- paste0(the_names_rds[k1], " <- readRDS('", the_paths_rds[k1], "')", collapse = "")
-      print(decime_ok)
-      eval(parse(text = decime_ok))
-
-    }
+        return(armado_v)
+      })
 
 
 
 
-    # # # SPECIAL UP!
-    #vector_models_up(df_mlr_general$"text_order")
 
-    ###
-    aver <- list.files(special_path_output_folder())
-    ###
-    #print(paste0("my_files(): ", my_files()))
+      observeEvent(render_new_button_counter(), {
 
-    # str_general <- "_the_name_rds_ <- readRDS(_the_path_rds_)"
-    #       for(k1 in 1:length(the_files_rds)){
-    #         str_new <- str_general
-    #         str_new <- gsub("_the_name_rds_",the_names_rds[k1], str_new)
-    #         str_new <- gsub("_the_path_rds_",the_paths_rds[k1], str_new)
-    #         eval(parse(text = str_new))
-    #
-    #       }
+        # Todo lo anterior tiene que estar OK.
+        req(control_01(), special_path_output_folder(), all_files_mod())
+        req(render_new_button_counter(), render_new_button_counter() >= 1)
 
-    #print(the_files)
-    #if(is.null(my_files)) return(NULL)
-    #if(!exists(my_files[1])) return(NULL)
-    #if(sum(my_files == "") > 0) return(NULL)
-    #the_files
-      # the_folder <- special_path_output_folder()
-      # the_paths <- list.files(the_folder, full.names = T)
-      # the_paths_rds <- grep("\\.rds$", the_paths, value = TRUE, ignore.case = TRUE)
-      # the_files_rds <- basename(the_paths_rds)
-      # the_names_rds <- tools::file_path_sans_ext(the_files_rds)
-    # str_general <- "_the_name_rds_ <- readRDS(_the_path_rds_)"
+        req(special_path_output_folder())
+        the_folder <- special_path_output_folder()
+        the_paths <- list.files(the_folder, full.names = T)
+        the_paths_rds <- grep("\\.rds$", the_paths, value = TRUE, ignore.case = TRUE)
+        the_files_rds <- basename(the_paths_rds)
+        the_names_rds <- tools::file_path_sans_ext(the_files_rds)
 
-      #print(the_paths_rds)
-#
-#       for(k1 in 1:length(the_files_rds)){
-#         str_new <- str_general
-#         str_new <- gsub("_the_name_rds_",the_names_rds[k1], str_new)
-#         str_new <- gsub("_the_path_rds_",the_paths_rds[k1], str_new)
-#         eval(parse(text = str_new))
-#
-#       }
+        for(k1 in 1:length(the_files_rds)){
 
+          decime_ok <- paste0(the_names_rds[k1], " <- readRDS('", the_paths_rds[k1], "')", collapse = "")
+          print(decime_ok)
+          eval(parse(text = decime_ok))
 
+        }
 
-    #print("AAA")
-    # # # Execution time...
+        # # # SPECIAL UP!
+        vector_models_up(df_mlr_general$"text_order")
 
-    #print("ZZZ")
+        ###
+        aver <- list.files(special_path_output_folder())
+        ###
+        #print(paste0("my_files(): ", my_files()))
 
-    # # # Objetos de entorno
-    # Estos objetos seran usados como si estuvieran
-    # detallados dentro del archivo .Rmd.
-    # Por ejemplo, tomamos la base de datos.
-    render_env <- new.env()
-    render_env$"selected_model" <- input$selected_model
+        # str_general <- "_the_name_rds_ <- readRDS(_the_path_rds_)"
+        #       for(k1 in 1:length(the_files_rds)){
+        #         str_new <- str_general
+        #         str_new <- gsub("_the_name_rds_",the_names_rds[k1], str_new)
+        #         str_new <- gsub("_the_path_rds_",the_paths_rds[k1], str_new)
+        #         eval(parse(text = str_new))
+        #
+        #       }
 
-    ###
-    render_env$"selected_list_summary_mlr02" <- selected_list_summary_mlr02
-    ###
-    #render_env$"df_mlr_general" <- df_mlr_general
-    str_general02 <- 'render_env$"_name_rds_" <- _name_rds_'
+        #print(the_files)
+        #if(is.null(my_files)) return(NULL)
+        #if(!exists(my_files[1])) return(NULL)
+        #if(sum(my_files == "") > 0) return(NULL)
+        #the_files
+        # the_folder <- special_path_output_folder()
+        # the_paths <- list.files(the_folder, full.names = T)
+        # the_paths_rds <- grep("\\.rds$", the_paths, value = TRUE, ignore.case = TRUE)
+        # the_files_rds <- basename(the_paths_rds)
+        # the_names_rds <- tools::file_path_sans_ext(the_files_rds)
+        # str_general <- "_the_name_rds_ <- readRDS(_the_path_rds_)"
 
-    ###########################################3
-    for(k1 in 1:length(the_files_rds)){
-      str_new02 <- str_general02
-      str_new02 <- gsub("_name_rds_",the_names_rds[k1], str_new02)
-      eval(parse(text = str_new02))
-
-    }
-
-    ######################################
-    chance_name_path   <- file.path(special_path_output_folder(), all_files_mod())
-    output_path_rmd3  <- chance_name_path
-    output_path_rmd3  <- grep("_NUEVO", output_path_rmd3, value = TRUE)
-    output_path_html3 <-gsub("\\.Rmd$", ".html", output_path_rmd3)
-
-    special_path_output_html_nuevo(output_path_html3)
-
-    rmarkdown::render(output_path_rmd3, rmarkdown::html_document(), output_file = output_path_html3, envir = render_env)
+        #print(the_paths_rds)
+        #
+        #       for(k1 in 1:length(the_files_rds)){
+        #         str_new <- str_general
+        #         str_new <- gsub("_the_name_rds_",the_names_rds[k1], str_new)
+        #         str_new <- gsub("_the_path_rds_",the_paths_rds[k1], str_new)
+        #         eval(parse(text = str_new))
+        #
+        #       }
 
 
 
-  })
+        #print("AAA")
+        # # # Execution time...
+
+        #print("ZZZ")
+
+        # # # Objetos de entorno
+        # Estos objetos seran usados como si estuvieran
+        # detallados dentro del archivo .Rmd.
+        # Por ejemplo, tomamos la base de datos.
+        render_env <- new.env()
+        render_env$"selected_model" <- input$selected_model
+        #render_env$"df_mlr_general" <- df_mlr_general
+        str_general02 <- 'render_env$"_name_rds_" <- _name_rds_'
+
+        for(k1 in 1:length(the_files_rds)){
+          str_new02 <- str_general02
+          str_new02 <- gsub("_name_rds_",the_names_rds[k1], str_new02)
+          eval(parse(text = str_new02))
+
+        }
+
+        chance_name_path   <- file.path(special_path_output_folder(), all_files_mod())
+        output_path_rmd3  <- chance_name_path
+        output_path_rmd3  <- grep("_NUEVO", output_path_rmd3, value = TRUE)
+        output_path_html3 <-gsub("\\.Rmd$", ".html", output_path_rmd3)
+
+        special_path_output_html_nuevo(output_path_html3)
+
+        rmarkdown::render(output_path_rmd3, rmarkdown::html_document(), output_file = output_path_html3, envir = render_env)
 
 
 
-  output$selected_pack <- renderUI({
-
-    ns <- NS(id)
-    # Theoretical number of pairs of different combinations: (k*(k-1))/2
-
-    #amount_models <- vector_stock01["x_all_comb"]
-    #
-    cantidad_vars <- length(input$selected_x_name)
-    cantidad_modelos <- 2^cantidad_vars
-    cantidad_digitos <- nchar(cantidad_modelos)
-    vector_opt <- 1:cantidad_modelos
-    vector_opt <- formatC(x = vector_opt, width = cantidad_digitos, format = "d", flag = "0")
-    vector_opt <- paste0("model_", vector_opt)
+      })
 
 
-    div(
-      fluidRow(
-        column(3,
-      selectInput(inputId = ns("selected_model"), label = "Select a model",
-                  choices = vector_opt)),
 
-      column(1, actionButton(inputId = ns("action_up"), label = "LOAD!"))
-      ),
-      br(),br(),
-      shinycssloaders::withSpinner(htmlOutput(ns("htmlviewer_temporal3")))
-    )
+      output$selected_pack <- renderUI({
+
+        ns <- NS(id)
+        # Theoretical number of pairs of different combinations: (k*(k-1))/2
+
+        #amount_models <- vector_stock01["x_all_comb"]
+        #
+        cantidad_vars <- length(input$selected_x_name)
+        cantidad_modelos <- 2^cantidad_vars
+        cantidad_digitos <- nchar(cantidad_modelos)
+        vector_opt <- 1:cantidad_modelos
+        vector_opt <- formatC(x = vector_opt, width = cantidad_digitos, format = "d", flag = "0")
+        vector_opt <- paste0("model_", vector_opt)
 
 
-  })
+        div(
+          fluidRow(
+            column(3,
+                   selectInput(inputId = ns("selected_model"), label = "Select a model",
+                               choices = vector_opt)),
+
+            column(1, actionButton(inputId = ns("action_up"), label = "LOAD!"))
+          ),
+          br(),br(),
+          shinycssloaders::withSpinner(htmlOutput(ns("htmlviewer_temporal3")))
+        )
+
+
+      })
 
 
 
