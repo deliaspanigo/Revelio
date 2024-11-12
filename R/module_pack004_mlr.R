@@ -173,6 +173,7 @@ module_pack004_mlr_server <- function(id, vector_all_colnames_database, database
 
       ############################
 
+
       output$box03_control_de_mision <- renderUI({
 
         ns <- shiny::NS(id)
@@ -243,6 +244,19 @@ module_pack004_mlr_server <- function(id, vector_all_colnames_database, database
         return(armado_v)
       })
 
+
+
+      output$mega_switch <- renderUI({
+        req(input$"mega_panel")
+
+        switch(input$"mega_panel",
+               "1" = shinycssloaders::withSpinner(htmlOutput(ns("htmlviewer_temporal"))),
+               "2" = shinycssloaders::withSpinner(htmlOutput(ns("htmlviewer_temporal2"))),
+               "3" = uiOutput(ns("selected_pack")))
+
+      })
+
+
       output$box04_report <- renderUI({
         req(render_button_status(), render_button_counter() > 0)
 
@@ -250,26 +264,40 @@ module_pack004_mlr_server <- function(id, vector_all_colnames_database, database
 
 
         div(
-          tabsetPanel(
-            selected = 2,
-            tabPanel(title = "R Code", value = 1,
-                     fluidRow(
-                       column(12,
-                              shinycssloaders::withSpinner(htmlOutput(ns("htmlviewer_temporal"))))
-                     )
-            ),
-            tabPanel(title = "Summary MLR", value = 2,
-                     fluidRow(
-                       column(12,
-                              shinycssloaders::withSpinner(htmlOutput(ns("htmlviewer_temporal2"))))
-                     )
-            ),
-            tabPanel(title = "Model View", value = 3,
-                     uiOutput(ns("selected_pack")),
-                     br(),br(),br(),br(),br(),br(),br(),br(),br()
+          tabsetPanel(id = ns("mega_panel"), selected = 2,
+            tabPanel(title = "R Code", value = 1),
+            tabPanel(title = "Summary MLR", value = 2),
+            tabPanel(title = "Model View", value = 3)),
+                     uiOutput(ns("mega_switch")),
+                     br(),br(),br(),br(),br(),br(),br(),br(),br(),
+          br(),br(),br(),br(),br(),br(),br(),br(),br(),
+          br(),br(),br(),br(),br(),br(),br(),br(),br(),
+          br(),br(),br(),br(),br(),br(),br(),br(),br()
             )
-          )
-        )
+
+
+#
+#         div(
+#           tabsetPanel(
+#             selected = 2,
+#             tabPanel(title = "R Code", value = 1,
+#                      fluidRow(
+#                        column(12,
+#                               shinycssloaders::withSpinner(htmlOutput(ns("htmlviewer_temporal"))))
+#                      )
+#             ),
+#             tabPanel(title = "Summary MLR", value = 2,
+#                      fluidRow(
+#                        column(12,
+#                               shinycssloaders::withSpinner(htmlOutput(ns("htmlviewer_temporal2"))))
+#                      )
+#             ),
+#             tabPanel(title = "Model View", value = 3,
+#                      uiOutput(ns("selected_pack")),
+#                      br(),br(),br(),br(),br(),br(),br(),br(),br()
+#             )
+#           )
+#         )
 
       })
 

@@ -998,7 +998,19 @@ df_mlr_summary_req$"ok_req_cor_x"[df_ind_cor_models_mod$"models_ok_order"] <- "Y
 df_mlr_summary_req$"ok_model_step01" <- (df_mlr_summary_req$"ok_req_normality_res" == "Yes") & (df_mlr_summary_req$"ok_req_cor_x" == "Yes")
 df_mlr_summary_req$"ok_model_step01" <- ifelse(df_mlr_summary_req$"ok_model_step01", yes = "Yes", no = "No")
 df_mlr_summary_req$"ok_req_homogeneity_res"  <- "User desition"
-df_mlr_summary_req
+df_mlr_summary_req$"ok_req_general" <- sapply(1:nrow(df_mlr_summary_req), function(x){
+  
+  vector_elegidos <- c(df_mlr_summary_req$"ok_req_normality_res"[x],
+                       df_mlr_summary_req$"ok_req_cor_x"[x])
+  
+  check_elegidos <- sum(vector_elegidos == "Yes") == 2
+  
+  mi_respuesta <- ifelse(check_elegidos, 
+                         yes = df_mlr_summary_req$"ok_req_homogeneity_res"[x],
+                         no = "No")
+  
+  mi_respuesta
+})
 
 #-------------------------------------------------------------------------------
 
@@ -1006,14 +1018,17 @@ df_mlr_summary_req
 
 # Dataframe only with OK models step01
 df_mlr_only_req_ok_step01 <- df_mlr_summary_req[df_mlr_summary_req$"ok_model_step01" == "Yes",]
-rownames(df_mlr_only_req_ok_step01) <- 1:nrow(df_mlr_only_req_ok_step01)
+if(nrow(df_mlr_only_req_ok_step01) > 0) rownames(df_mlr_only_req_ok_step01) <- 1:nrow(df_mlr_only_req_ok_step01)
 colnames(df_mlr_only_req_ok_step01)[c(1,2)] <- c("order_model", "text_order_model")
 
 digit_fill_models_ok <- nchar(nrow(df_mlr_only_req_ok_step01))
+df_mlr_only_req_ok_step01 <- data.frame()
+if(nrow(df_mlr_only_req_ok_step01) > 0){
 df_mlr_only_req_ok_step01$"order_model_ok" <- 1:nrow(df_mlr_only_req_ok_step01)
 df_mlr_only_req_ok_step01$"text_order_model_ok" <- formatC(x = df_mlr_only_req_ok_step01$"order_model_ok", width = digit_fill_models_ok, format = "d", flag = "0")
 df_mlr_only_req_ok_step01$"text_order_model_ok" <- paste0("model_ok_", df_mlr_only_req_ok_step01$"text_order_model_ok")
 df_mlr_only_req_ok_step01 <- df_mlr_only_req_ok_step01[,c(tail(names(df_mlr_only_req_ok_step01), 2), head(names(df_mlr_only_req_ok_step01), -2))]
+}
 df_mlr_only_req_ok_step01
 
 #-------------------------------------------------------------------------------

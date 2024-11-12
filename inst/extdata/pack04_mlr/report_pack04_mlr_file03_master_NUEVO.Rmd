@@ -300,24 +300,82 @@ la_formula02 <- paste0("$$ ", my_y,"_{i}= ", armado02, " + \\epsilon_{i} $$")
 selected_cols <- c("order", "text_order", "y_var_name", 
                    "x_var_name", "amount_x", "amount_sig_x",
                    "ok_req_normality_res", 
-                   "ok_req_cor_x", "ok_req_homogeneity_res",
+                   "ok_req_cor_x", 
+                   "ok_req_homogeneity_res", "ok_req_general",
                    "sig_const", "sig_all_slopes",
+                   "n",
                    "value_r2",
                    "value_ajusted_r2", "value_aic", "value_bic")
 
 new_col_names <- c("#", "model", "Y", 
-                   "X", "num_x", "sig_x", "req_norm_res", "req_no_cor", "req_homo_res",
-                   "sig_const", "sig_all_slopes", "r^2", "r^2_ajust", "aic", "bic")
+                   "X", "num_x", "sig_x", "req_norm_res", "req_no_cor", 
+                   "req_homo_res", "req_all_ok",
+                   "sig_const", "sig_all_slopes", "n", "r^2", "r^2_ajust", "aic", "bic")
 
+mi_tabla <- df_mlr_general
 mi_tabla <- df_mlr_general[df_mlr_general$"text_order" == selected_model, selected_cols]
+colnames(mi_tabla) <- new_col_names
 
-tabla_formato_especial(mi_tabla[c(1,2,7,8,9, 12,13,14,15)])
+la_tanda01 <- c(1:13)
+la_tanda02 <- c(1:6, 13:17)
+
+frase01_no <- "Not all model requirements are met. It is not valid to draw conclusions of any kind about these data."
+frase01_yes <- "The model is only valid to draw conclusions if, at the operator's discretion, a homogeneity of variances is observed in the graph of residuals vs. predicted."
+
+frase_salida <- ifelse(mi_tabla[1,"req_all_ok"] == "User decision", 
+                       yes = frase01_yes, 
+                       no = frase01_no)
+
+
+tabla_formato_especial(mi_tabla[la_tanda01])
+#tabla_formato_especial(mi_tabla)
+#tabla_formato_especial(mi_tabla[c(1,2,7,8,9, 12,13,14,15)])
+
+#tabla_formato_especial(mi_tabla)[c(1:10)]
+```
+<div style="text-align: center;">
+  <p style="background-color: yellow; font-size: 24px; padding: 5px; display: inline-block;">
+    `r frase_salida`
+  </p>
+</div>
+
+<br>
+<br>
+
+
+```{r, include =T, eval = T, echo = F, class.source="bg-success"}
+
+# Ejemplo de un data frame
+selected_cols <- c("order", "text_order", "y_var_name", 
+                   "x_var_name", "amount_x", "amount_sig_x",
+                   "ok_req_normality_res", 
+                   "ok_req_cor_x", 
+                   "ok_req_homogeneity_res", "ok_req_general",
+                   "sig_const", "sig_all_slopes",
+                   "n",
+                   "value_r2",
+                   "value_ajusted_r2", "value_aic", "value_bic")
+
+new_col_names <- c("#", "model", "Y", 
+                   "X", "num_x", "sig_x", "req_norm_res", "req_no_cor", 
+                   "req_homo_res", "req_all_ok",
+                   "sig_const", "sig_all_slopes", "n", "r^2", "r^2_ajust", "aic", "bic")
+
+mi_tabla <- df_mlr_general
+mi_tabla <- df_mlr_general[df_mlr_general$"text_order" == selected_model, selected_cols]
+colnames(mi_tabla) <- new_col_names
+
+la_tanda01 <- c(1:13)
+la_tanda02 <- c(1:6, 13:17)
+
+tabla_formato_especial(mi_tabla[la_tanda02])
+#tabla_formato_especial(mi_tabla)
+#tabla_formato_especial(mi_tabla[c(1,2,7,8,9, 12,13,14,15)])
 
 #tabla_formato_especial(mi_tabla)[c(1:10)]
 ```
 <br>
 <br>
-
 <hr style="border-top: 3px solid black; width: 100%;">
 
 ### Section 03 of 13 - Residuals Normality test
