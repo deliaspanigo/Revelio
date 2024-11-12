@@ -1,6 +1,11 @@
 
 # install.packages("devtools")
 # install.packages("roxygen2")
+# Activar la libreria para instalar
+library("remotes")
+
+# Instalar Rscience desde la librería desde GitHub
+remotes::install_github("deliaspanigo/Revelio", force = T)
 
 # Estoy adentro de la carpeta del nuevo paquete!
 
