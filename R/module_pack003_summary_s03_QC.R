@@ -29,14 +29,18 @@ module_pack003_summary_s03_QC_ui <- function(id){
     ),
     shiny::h1("Summary - QC"),
     shiny::fluidRow(
-      shiny::column(5,
-                    uiOutput(ns("box02_var_selector"))),
-      shiny::column(7,
-                    uiOutput(ns("box03_control_de_mision")))
-    ),
+      shiny::column(12, uiOutput(ns("box02_var_selector")))
+      ),
+    shiny::fluidRow(
+      shiny::column(12, uiOutput(ns("box05_colores")))
+      ),
     shiny::fluidRow(
       shiny::column(12,
                     shiny::textOutput(ns("text_control_general")))),
+    # Espacio para los selectores de color dinámicos
+
+    # Mostrar los colores seleccionados
+    uiOutput(ns("box03_control_de_mision")),
     shiny::fluidRow(
       shiny::column(12,
                     shinycssloaders::withSpinner(uiOutput(ns("box04_report"))),
@@ -146,7 +150,7 @@ module_pack003_summary_s03_QC_server <- function(id, vector_all_colnames_databas
       output$box02_var_selector <- renderUI({
 
         shinydashboard::box(
-          title = "02 - Selección de variables",
+          title = "01 - Variable selection",
           status = "primary",
           id = ns("my_box02"),
           solidHeader = TRUE,
@@ -175,7 +179,7 @@ module_pack003_summary_s03_QC_server <- function(id, vector_all_colnames_databas
         ns <- shiny::NS(id)
 
         div(shinydashboard::box(
-              title = "03 - Control de Misión",
+              title = "03 - Mission Control",
               status = "primary",
               id = ns("my_box03"),
               solidHeader = TRUE,
@@ -200,6 +204,126 @@ module_pack003_summary_s03_QC_server <- function(id, vector_all_colnames_databas
       })
 
 
+      ####################################################
+
+      # Crear un objeto reactivo para almacenar los colores seleccionados
+
+
+      output$box05_colores <- renderUI({
+
+        ns <- shiny::NS(id)
+
+        div(shinydashboard::box(
+          title = "02 - Details",
+          status = "primary",
+          id = ns("my_box03"),
+          solidHeader = TRUE,
+          collapsible = TRUE,
+          collapsed = FALSE,
+          closable = FALSE,
+          width = 12,
+          div(
+            fluidRow(
+              column(6, uiOutput(ns("color_pickers"))),
+              column(6, tableOutput(ns("df_color_info")))
+          )
+        )
+        )
+        )
+      })
+
+      las_categorias_originales <- reactive({
+        req(database(), input$"selected_factor_name")
+        vector_niveles <- levels(as.factor(as.character(database()[,input$"selected_factor_name"])))
+        vector_niveles
+      })
+
+      numero_categorias <- reactive({
+        req(las_categorias_originales())
+        numero_categorias <- length(las_categorias_originales())
+        numero_categorias
+      })
+
+      colores_originales <- reactive({
+        req(numero_categorias())
+        rainbow(numero_categorias())
+      })
+      output$color_pickers <- renderUI({
+
+        my_categories_master <- las_categorias_originales()
+        my_colors_master <- colores_originales()
+
+        # # #
+        numero_categorias <- numero_categorias()
+        numero_colores <- numero_categorias
+        vector_orden <- 1:numero_categorias
+        # # #
+        vec_opt_categorias_originales <- vector_orden
+        names(vec_opt_categorias_originales) <-  las_categorias_originales()
+
+
+        color_inputs <- lapply(1:numero_categorias, function(i) {
+          fluidRow(
+            column(4, shiny::selectInput(inputId = ns(paste0("pos", i)),
+                                         label = paste0("Category order ", i, " - ", my_categories_master[i]),
+                                         choices = vec_opt_categorias_originales, selected = vec_opt_categorias_originales[i])),
+            column(4, colourpicker::colourInput(inputId = ns(paste0("color", i)),
+                                                label = paste("Color", i), value = my_colors_master[i]))
+
+          )
+        })
+        do.call(tagList, color_inputs)
+      })
+
+
+
+      my_new_categories <- reactive({
+        num_colors <- numero_categorias()
+        vector_pos <- sapply(1:num_colors, function(i) {
+          the_pos <- input[[paste0("pos", i)]]
+        })
+        vector_pos <- as.numeric(as.character(vector_pos))
+
+        las_categorias_originales()[vector_pos]
+      })
+
+      my_new_order <- reactive({
+        vector_new_pos <- match(las_categorias_originales(), my_new_categories())
+        vector_new_pos
+      })
+
+      my_new_colors <- reactive({
+        num_colors <- numero_categorias()
+        selected_colors <- sapply(1:num_colors, function(i) {
+          color <- input[[paste0("color", i)]]
+        })
+
+        selected_colors
+      })
+
+
+
+      output$selected_colors <- renderUI({
+        num_colors <- numero_categorias()
+        selected_colors <- lapply(1:num_colors, function(i) {
+          color <- input[[paste0("color", i)]]
+          tags$p(paste("Color", i, "seleccionado:"), tags$span(style = paste("color:", color), color))
+        })
+        do.call(tagList, selected_colors)
+      })
+
+      output$df_color_info <- renderTable({
+        df_color_info <- data.frame(
+          "order_new" = 1:length(my_new_categories()),
+          "categories" = my_new_categories(),
+          "colors" = my_new_colors()
+        )
+
+        df_color_info
+
+      })
+      ####################################################
+
       output$htmlviewer_temporal <- renderText({
 
         req(control_01(), special_path_output_folder(), special_path_output_html_code())
@@ -215,7 +339,7 @@ module_pack003_summary_s03_QC_server <- function(id, vector_all_colnames_databas
         my_local_file <- file.path("output_temp_folder", my_file)
 
         # Levantamos el html
-        armado_v <- paste('<div style="height: 100%; width: 100%; overflow: auto;"><iframe style="height: 1000vh; width:100%; border: none;" src="', my_local_file, '"></iframe></div>', sep = "")
+        armado_v <- paste('<div style="height: 100%; width: 100%; overflow: hidden;"><iframe style="height: 2000vh; width:100%; border: none;" src="', my_local_file, '"></iframe></div>', sep = "")
 
         return(armado_v)
       })
@@ -235,7 +359,7 @@ module_pack003_summary_s03_QC_server <- function(id, vector_all_colnames_databas
         my_local_file <- file.path("output_temp_folder", my_file)
 
         # Levantamos el html
-        armado_v <- paste('<div style="height: 100%; width: 100%; overflow: auto;"><iframe style="height: 1000vh; width:100%; border: none;" src="', my_local_file, '"></iframe></div>', sep = "")
+        armado_v <- paste('<div style="height: 1000%; width: 100%; overflow: auto;"><iframe style="height: 700vh; width:100%; border: none;" src="', my_local_file, '"></iframe></div>', sep = "")
 
         return(armado_v)
       })
@@ -248,7 +372,7 @@ module_pack003_summary_s03_QC_server <- function(id, vector_all_colnames_databas
 
         div(
           tabsetPanel(
-            selected = 1,
+            selected = 2,
             tabPanel(title = "Código original", value = 1,
                      fluidRow(
                        column(12,
@@ -480,6 +604,8 @@ module_pack003_summary_s03_QC_server <- function(id, vector_all_colnames_databas
         render_env$"database" <- database()
         render_env$"selected_vr_name" <- input$selected_vr_name
         render_env$"selected_factor_name" <- input$selected_factor_name
+        render_env$"mis_colores" <- my_new_colors()
+        render_env$"mis_categorias" <- my_new_categories()
 
         #render_env$"the_time" <- original_time
         #render_env$"data_source" <- input$data_source

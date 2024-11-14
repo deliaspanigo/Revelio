@@ -10,6 +10,7 @@
 
 app_001_revelio <- function(){
 
+  library(colourpicker)
   library(stringr)
   library(shiny)
   library(shinydashboard)

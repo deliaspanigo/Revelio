@@ -755,7 +755,7 @@ module_pack004_mlr_server <- function(id, vector_all_colnames_database, database
         # detallados dentro del archivo .Rmd.
         # Por ejemplo, tomamos la base de datos.
         render_env <- new.env()
-        render_env$"selected_model" <- input$selected_model
+        render_env$"selected_model" <- el_modelo_elegido() #input$selected_model
         #render_env$"df_mlr_general" <- df_mlr_general
         str_general02 <- 'render_env$"_name_rds_" <- _name_rds_'
 
@@ -784,25 +784,24 @@ module_pack004_mlr_server <- function(id, vector_all_colnames_database, database
       output$selected_pack <- renderUI({
 
         ns <- NS(id)
+        #req(las_opciones())
         # Theoretical number of pairs of different combinations: (k*(k-1))/2
 
         #amount_models <- vector_stock01["x_all_comb"]
         #
         cantidad_vars <- length(input$selected_x_name)
         cantidad_modelos <- 2^cantidad_vars
-        cantidad_digitos <- nchar(cantidad_modelos)
-        vector_opt <- 1:cantidad_modelos
-        vector_opt <- formatC(x = vector_opt, width = cantidad_digitos, format = "d", flag = "0")
-        vector_opt <- paste0("model_", vector_opt)
 
 
         div(
+          fluidRow(paste0("Total models: ", cantidad_modelos)),
           fluidRow(
             column(3,
-                   selectInput(inputId = ns("selected_model"), label = "Select a model",
-                               choices = vector_opt)),
 
-            column(1, actionButton(inputId = ns("action_up"), label = "LOAD!"))
+                   textInput(input = ns("selected_model"),
+                             label = paste0("Type a number between 1 and ", cantidad_modelos))),
+
+            column(1, br(), actionButton(inputId = ns("action_up"), label = "LOAD!"))
           ),
           br(),br(),
           shinycssloaders::withSpinner(htmlOutput(ns("htmlviewer_temporal3")))
@@ -812,7 +811,21 @@ module_pack004_mlr_server <- function(id, vector_all_colnames_database, database
       })
 
 
+      el_modelo_elegido <- reactive({
+          cantidad_vars <- length(input$selected_x_name)
+          cantidad_modelos <- 2^cantidad_vars
+          cantidad_digitos <- nchar(cantidad_modelos)
+          vector_opt <- 1:cantidad_modelos
+          vector_opt <- formatC(x = vector_opt, width = cantidad_digitos, format = "d", flag = "0")
+          vector_opt <- paste0("model_", vector_opt)
 
+          el_elegido <- vector_opt[as.numeric(as.character(input$selected_model))]
+          el_elegido
+      })
+
+      # observe({
+      # updateSelectInput(session, ns("selected_model"), choices = las_opciones())
+      # })
       # aqui esta el archivo
       #
 

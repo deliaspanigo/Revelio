@@ -6,6 +6,7 @@ output:
   html_document:
     df_print: paged
 ---
+
 <br>
 <br>
 <script>
@@ -27,37 +28,63 @@ document.addEventListener('DOMContentLoaded', function() {
   <img src="logo_04_rscience_mod.png" class="inline-image" width="200"  height="100">
 </div>
 
-## Diplomatura en Bioestadística básica aplicada mediada con R
+## Summary Report - Position and dispersion measures for a quantitative variable by groups
 
 #### Hora de ejecución: `r format(Sys.time(), "%Y-%m-%d %H:%M:%S")`
 #### Sistema operativo: `r Sys.info()["sysname"]`
 #### Versión de R: `r R.version.string`
-#### Versión de RStudio: `r RStudio.Version()$version`
+<!-- #### Versión de RStudio: `r RStudio.Version()$version` -->
 
 
 <br>
 <br>
 
-## Informe Resumen - Medidas de posición y dispersión para una variable cuantitativa por grupos
 
 ```{r,  include =FALSE}
 knitr::opts_chunk$set(echo=TRUE, comment=NA)
-library(plotly)
-library(png)
-library(grid)
+library("plotly")
+library("png")
+library("grid")
 library("plotly")
 library("png")
 library("grid")
 library("knitr")
 library("kableExtra")
 
+
 load("R_results.Rdata")
 ```
 
-### Section 01 of 15 - Medidas de Posición
+
+
+
+
+### Section 01 of 04 - References for variables
 ```{r, include =T, eval = T, echo = F, class.source="bg-success"}
-library(knitr)
-library(kableExtra)
+
+
+# Ejemplo de un data frame
+
+
+# Crear la tabla y aplicar estilos
+knitr::kable(df_selected_vars, caption = "", align = 'c') %>%
+  kableExtra::kable_styling(position = "center", full_width = FALSE, 
+                            bootstrap_options = c("striped", "hover")) %>%
+  kableExtra::row_spec(0, bold = TRUE) %>%  # Negrita para la fila de encabezado
+  kableExtra::row_spec(seq(1, nrow(df_selected_vars), 2), background = "lightblue") %>%  # Color para filas impares
+  kableExtra::row_spec(seq(2, nrow(df_selected_vars), 2), background = "lightgreen") %>%  # Color para filas pares
+  kableExtra::add_footnote("Tabla02: Rerencias", notation = "none")
+
+#knitr::kable(, caption = )
+```
+<br>
+<br>
+
+
+
+### Section 01 of 02 - Position Measurements
+```{r, include =T, eval = T, echo = F, class.source="bg-success"}
+
 
 # Ejemplo de un data frame
 
@@ -76,7 +103,7 @@ knitr::kable(df_vr_position_levels, caption = "", align = 'c') %>%
 <br>
 <br>
 
-### Section 01 of 15 - Medidas de Posición
+### Section 03 of 04 - Dispersion Measurements
 ```{r, include =T, eval = T, echo = F, class.source="bg-success"}
 # Crear la tabla y aplicar estilos
 knitr::kable(df_vr_dispersion_levels, caption = "", align = 'c') %>%
@@ -91,7 +118,8 @@ knitr::kable(df_vr_dispersion_levels, caption = "", align = 'c') %>%
 <br>
 <br>
 
-<hr style="border-top: 3px solid black;">
+
+### Section 04 of 04 - Graphics
 ```{r, include =T, eval = T, echo = F, class.source="bg-success"}
 
 

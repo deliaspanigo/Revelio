@@ -11,21 +11,24 @@ Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.3.1
 Imports:
-  kableExtra,
-  png,
+  agricolae,
+  colourpicker,
+  DT,
   gplots,
-  stringr,
+  igraph,
+  kableExtra,
+  knitr,
+  markdown,
+  openxlsx,
+  plotly,
+  png,
+  rmarkdown,
   shiny,
   shinydashboard,
-  DT,
+  stringr,
   shiny,
-  tools,
-  openxlsx,
+  shinycssloaders,
   shinyjs,
-  markdown,
-  rmarkdown,
-  agricolae,
-  plotly,
-  knitr
+  tools
 Depends: 
     R (>= 4.0.0)
