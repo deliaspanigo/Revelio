@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', function() {
   <img src="logo_04_rscience_mod.png" class="inline-image" width="200"  height="100">
 </div>
 
-## Summary Report - Position and dispersion measures for a quantitative variable by groups
+## Summary Report - (QC) - Position and dispersion measures for a quantitative variable by groups
 
 #### Hora de ejecución: `r format(Sys.time(), "%Y-%m-%d %H:%M:%S")`
 #### Sistema operativo: `r Sys.info()["sysname"]`
@@ -422,6 +422,7 @@ plot005_factor <- plotly::add_trace(p = plot005_factor,
                                     colors = df_table_factor_plot005$color,
                                     lowerfence = df_table_factor_plot005$min,
                                     q1 = df_table_factor_plot005$Q1,
+                                    mean = df_table_factor_plot005$mean,
                                     median = df_table_factor_plot005$median,
                                     q3 = df_table_factor_plot005$Q3,
                                     upperfence = df_table_factor_plot005$max,

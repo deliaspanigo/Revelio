@@ -1,0 +1,571 @@
+---
+title: "Diplo - Semana 08 - ANOVA 1 Factor"
+author: "David Elias Panigo"
+date: "24-05-2024"
+output:
+  html_document:
+    df_print: paged
+---
+
+<br>
+<br>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  var title = document.querySelector('h1.title');
+  var author = document.querySelector('.author');
+  var date = document.querySelector('.date');
+  
+  title.style.display = 'none';
+  author.style.display = 'none';
+  date.style.display = 'none';
+});
+</script>
+
+<div class="image-container">
+  <img src="logo_01_unc_mod.png"      class="inline-image" width="200"  height="100">
+  <img src="logo_02_fcefyn_mod.png"   class="inline-image" width="200"  height="100">
+  <img src="logo_03_efadoc_mod.png"   class="inline-image" width="200"  height="100">
+  <img src="logo_04_rscience_mod.png" class="inline-image" width="200"  height="100">
+</div>
+
+## Summary Report - 1C
+
+#### Hora de ejecución: `r format(Sys.time(), "%Y-%m-%d %H:%M:%S")`
+#### Sistema operativo: `r Sys.info()["sysname"]`
+#### Versión de R: `r R.version.string`
+<!-- #### Versión de RStudio: `r RStudio.Version()$version` -->
+
+
+<br>
+<br>
+
+```{r,  include =FALSE}
+knitr::opts_chunk$set(echo=TRUE, comment=NA)
+```
+
+### Section 01 of 15 - Libraries
+```{r, include =T, eval = T, class.source="bg-success"}
+### Section 01 of 15 - Libraries
+library("stats")      # General Linear Models, Shapiro test and Bartlett test.
+library("agricolae")  # Tukey test
+library("gplots")     # Graphics 
+library("plotly")
+library("openxlsx")
+
+
+head(x=database, n=5)
+
+### Section  04 de 15 - Var selection
+
+# Name for each selected var
+selected_var_name <- sui_var_name
+selected_var_name
+
+selected_color <- sui_color
+
+### Section 04 of 15 - Var selection
+
+vector_all_var_names <- colnames(database)
+vector_all_var_names
+
+# # # Selected vars info as dataframe
+df_selected_var <- data.frame(
+  "order" = 1,
+  "var_name" = selected_var_name,
+  "var_number" = match(selected_var_name, vector_all_var_names),
+  "var_letter" = openxlsx::int2col(match(selected_var_name, vector_all_var_names))
+)
+df_selected_var
+
+
+
+### Section  05 de 15 - minibase
+
+# Selected vars with full data on rows only
+minibase <- na.omit(database[selected_var_name])
+
+# Show first 5 rows
+head(x=minibase, n=5)
+
+# Info
+df_show_n <- data.frame(
+  "object" = c("database", "minibase"),
+  "n_col" = c(ncol(database), ncol(minibase)),
+  "n_row" = c(nrow(database), nrow(minibase))
+)
+df_show_n
+
+
+
+
+
+# # # # # Section 09 - minibase_mod --------------------------------------------
+# # # Detect rows on database there are on minibase
+dt_rows_database_ok <- rowSums(!is.na(database[selected_var_name])) == ncol(minibase)
+
+
+
+# # # Object minibase_mod and new cols
+minibase$"color" <- selected_color
+minibase$"id_database" <- c(1:nrow(database))[dt_rows_database_ok]
+minibase$"id_minibase" <- 1:nrow(minibase)
+
+
+head(x=minibase, n=5)
+
+
+
+
+# # # # # Section 12 - Partitioned Measures (VR)--------------------------------
+# # # Partitioned Measures of Position (VR)
+# # # General Measures of Position (VR)
+df_var_position_general <- data.frame(
+  "order" = 1,
+  "min" = min(minibase[,1]),
+  "max" = max(minibase[,1]),
+  "mean" = mean(minibase[,1]),
+  "Q1" = quantile(minibase[,1], prob = 0.25, names = F),
+  "median.Q2" = median(minibase[,1]),
+  "Q3" = quantile(minibase[,1], prob = 0.75, names = F),
+  "n" = length(minibase[,1]),
+  "color" = selected_color
+)
+df_var_position_general
+
+
+
+# # # General Measures of Dispersion (VR)
+df_var_dispersion_general <- data.frame(
+  "order" = 1,
+  "range" = max(minibase[,1]) - min(minibase[,1]),
+  "variance" = var(minibase[,1]),
+  "standard_deviation" = sd(minibase[,1]),
+  "standard_error" = sd(minibase[,1])/(sqrt(length(minibase[,1]))),
+  "percentage_coefficient_variation" = df_var_position_general$"mean"/(sd(minibase[,1])/(sqrt(length(minibase[,1])))),
+  "n" = length(minibase[,1]),
+  "color" = selected_color
+)
+df_var_dispersion_general
+
+
+
+
+df_table_mean_sd_intervals <- data.frame(
+  "order" = 1,
+  "var_name" = df_var_position_general[1],
+  "mean" = df_var_position_general$"mean"[1],
+  "sd" = df_var_dispersion_general$"standard_deviation"[1],
+  "se" = df_var_dispersion_general$"standard_error"[1]
+  
+)
+
+df_table_mean_sd_intervals["lower_limit_sd"]  <- df_table_mean_sd_intervals$"mean" - df_table_mean_sd_intervals$"sd"
+df_table_mean_sd_intervals["upper_limit_sd"]  <- df_table_mean_sd_intervals$"mean" + df_table_mean_sd_intervals$"sd"
+df_table_mean_sd_intervals["lower_limit_se"] <- df_table_mean_sd_intervals$"mean" - df_table_mean_sd_intervals$"se"
+df_table_mean_sd_intervals["upper_limit_se"] <- df_table_mean_sd_intervals$"mean" + df_table_mean_sd_intervals$"se " 
+df_table_mean_sd_intervals["n"] <- df_var_dispersion_general$"n"[1]
+df_table_mean_sd_intervals["color"] <- df_var_dispersion_general$"color"[1]
+df_table_mean_sd_intervals
+
+
+plot001  <- plotly::plot_ly()
+
+# # # Plot001 - Scatter plot for VR and FACTOR on minibase_mod *****************
+plot001  <- plotly::add_trace(p = plot001 ,
+                              type = "scatter",
+                              mode = "markers",
+                              y = minibase[,1],
+                              x = 1,
+                              colors = unique(minibase$color),
+                              color = minibase$color,
+                              marker = list(size = 15, opacity = 0.7))
+
+
+# # # Title settings...
+plot001 <-   plotly::layout(p = plot001,
+                            title = "Plot 001 - Scatterplot",
+                            font = list(size = 20),
+                            margin = list(t = 100))
+
+
+# # # X Axis
+plot001 <-   plotly::layout(p = plot001,
+                            xaxis = list(zeroline = FALSE, 
+                                         title = "",
+                                         showticklabels = FALSE,
+                                         showline = FALSE))
+# # # Y Axis
+plot001 <-   plotly::layout(p = plot001,
+                            yaxis = list(zeroline = FALSE, 
+                                         title = list(text = selected_var_name, 
+                                                      standoff = 20)))
+
+plot001
+
+
+
+
+
+
+# # # Create a new plot...
+plot002 <- plot_ly()
+
+
+# # # Adding errors...
+plot002 <- add_trace(p = plot002,
+                     type = "scatter",
+                     mode = "markers",
+                     x = 1,
+                     y = df_table_mean_sd_intervals$mean,
+                     color = unique(df_table_mean_sd_intervals$color),
+                     colors = df_table_mean_sd_intervals$color,
+                     marker = list(symbol = "line-ew-open",
+                                   size = 50,
+                                   opacity = 1,
+                                   line = list(width = 5)),
+                     error_y = list(type = "data", array = df_table_mean_sd_intervals$sd))
+
+
+# # # Title Settings...
+plot002 <- plotly::layout(p = plot002,
+                          title = "Plot 002 - Mean and standard deviation",
+                          font = list(size = 20),
+                          margin = list(t = 100))
+
+# # # X Axis
+plot002 <-   plotly::layout(p = plot002,
+                            xaxis = list(zeroline = FALSE, 
+                                         title = "",
+                                         showticklabels = FALSE,
+                                         showline = FALSE))
+# # # Y Axis
+plot002 <-   plotly::layout(p = plot002,
+                            yaxis = list(zeroline = FALSE, 
+                                         title = list(text = selected_var_name, 
+                                                      standoff = 20)))
+
+plot002
+
+
+
+
+plot003 <- plot_ly()
+
+plot003 <- add_trace(p = plot003,
+                     type = "scatter",
+                     mode = "markers",
+                     x = 1,
+                     y = df_table_mean_sd_intervals$mean,
+                     color = unique(df_table_mean_sd_intervals$color),
+                     colors = df_table_mean_sd_intervals$color,
+                     marker = list(symbol = "line-ew-open",
+                                   size = 50,
+                                   opacity = 1,
+                                   line = list(width = 5)),
+                     error_y = list(type = "data", array = df_table_mean_sd_intervals$se))
+
+# # # Title and settings...
+plot003 <- plotly::layout(p = plot003,
+                          title = "Plot 003 - Mean and standard error",
+                          font = list(size = 20),
+                          margin = list(t = 100))
+
+# # # X Axis
+plot003 <-   plotly::layout(p = plot003,
+                            xaxis = list(zeroline = FALSE, 
+                                         title = "",
+                                         showticklabels = FALSE,
+                                         showline = FALSE))
+# # # Y Axis
+plot003 <-   plotly::layout(p = plot003,
+                            yaxis = list(zeroline = FALSE, 
+                                         title = list(text = selected_var_name, 
+                                                      standoff = 20)))
+
+# # # Plot output
+plot003
+
+
+
+
+
+# # # New plotly...
+plot004 <- plotly::plot_ly()
+
+# # # Boxplot and info...
+plot004 <- plotly::add_trace(p = plot004,
+                     type = "box",
+                     x = as.factor(1),
+                     color = unique(df_var_position_general$color),
+                     colors = df_var_position_general$color,
+                     lowerfence = df_var_position_general$min,
+                     q1 = df_var_position_general$Q1,
+                     mean = df_var_position_general$mean,
+                     median = df_var_position_general$median,
+                     q3 = df_var_position_general$Q3,
+                     upperfence = df_var_position_general$max,
+                     boxmean = TRUE,
+                     boxpoints = FALSE,
+                     line = list(color = "black", width = 3)
+)
+
+# # # Title and settings...
+plot004 <- plotly::layout(p = plot004,
+                    title = "Plot 004 - Boxplot and mean",
+                    font = list(size = 20),
+                    margin = list(t = 100))
+
+
+# # # X Axis
+plot004 <-   plotly::layout(p = plot004,
+                      xaxis = list(zeroline = FALSE, 
+                                   title = "",
+                                   showticklabels = FALSE,
+                                   showline = FALSE))
+# # # Y Axis
+plot004 <-   plotly::layout(p = plot004,
+                    yaxis = list(zeroline = FALSE, 
+                                 title = list(text = selected_var_name, 
+                                              standoff = 20)))
+
+# # # Output plot004_anova...
+plot004
+
+
+
+
+
+
+
+plot005 <- plotly::plot_ly()
+
+
+# # # Boxplot and info...
+plot005 <- plotly::add_trace(p = plot005,
+                             type = "box",
+                             #y = df_var_position_general$median ,
+                             x = as.factor(1),
+                             color = unique(df_var_position_general$color),
+                             colors = df_var_position_general$color,
+                             lowerfence = df_var_position_general$min,
+                             q1 = df_var_position_general$Q1,
+                             median = df_var_position_general$median,
+                             mean = df_var_position_general$mean,
+                             q3 = df_var_position_general$Q3,
+                             upperfence = df_var_position_general$max,
+                             boxmean = TRUE,
+                             boxpoints = FALSE,            
+                             name = "boxplot",
+
+                             line = list(color = "black", width = 3)
+)
+
+plot005 <- plot005 %>%
+  add_trace(x = as.factor(1),
+            y = minibase[,1],
+            type = "violin",
+            points = "all",
+            name = "violin",
+            color = unique(minibase$color),
+            colors = minibase$color)
+
+
+
+
+# # # Title and settings...
+plot005 <- plotly::layout(p = plot005,
+                                 title = "Plot 005 - Violin plot",
+                                 font = list(size = 20),
+                                 margin = list(t = 100))
+
+
+# # # X Axis
+plot005 <-   plotly::layout(p = plot005,
+                            xaxis = list(zeroline = FALSE, 
+                                         title = "",
+                                         showticklabels = FALSE,
+                                         showline = FALSE))
+# # # Y Axis
+plot005 <-   plotly::layout(p = plot005,
+                            yaxis = list(zeroline = FALSE, 
+                                         title = list(text = selected_var_name, 
+                                                      standoff = 20)))
+
+# # # Output plot004_anova...
+plot005
+
+
+
+
+
+ plot006 <- plotly::plot_ly()
+
+  # Add traces
+  plot006 <- plotly::add_trace(p = plot006,
+                                     type = "violin",
+                                     y = minibase[,1],
+                                     x = as.factor(1),
+                                     showlegend = TRUE,
+                                     side = "positive",
+                                     points = "all",
+                                     #name = "Violinplot",
+                                     color = unique(minibase$color),
+                                     colors = minibase$color)
+
+
+
+  # # # Title and settings...
+  plot006 <- plotly::layout(p = plot006,
+                                  title = "Plot 006 - Scatterplot + Jitter +  Smoothed",
+                                  font = list(size = 20),
+                                  margin = list(t = 100))
+
+
+ 
+# # # X Axis
+plot006 <-   plotly::layout(p = plot006,
+                            xaxis = list(zeroline = FALSE, 
+                                         title = "",
+                                         showticklabels = FALSE,
+                                         showline = FALSE))
+# # # Y Axis
+plot006 <-   plotly::layout(p = plot006,
+                            yaxis = list(zeroline = FALSE, 
+                                         title = list(text = selected_var_name, 
+                                                      standoff = 20)))
+  # # # Output plot003_anova...
+  plot006
+  
+  
+  
+
+
+plot007 <- plotly::plot_ly()
+
+
+  # Add traces
+  plot007 <- plotly::add_trace(p = plot007,
+                                         type = "violin",
+                                         x = minibase[,1],
+                                         showlegend = TRUE,
+                                         side = "positive",
+                                         points = FALSE,
+                                         #name = levels(minibase_mod[,2])[minibase_mod$lvl_order_number],
+                                          color = unique(minibase$color),
+                                         colors = minibase$color)
+
+
+
+  # # # Title and settings...
+  plot007 <- plotly::layout(p = plot007,
+                                      title = "Plot 007 - Smoothed",
+                                      font = list(size = 20),
+                                      margin = list(t = 100))
+
+
+  # # # Without zerolines...
+
+# # # X Axis
+plot007 <-   plotly::layout(p = plot007,
+                          xaxis = list(zeroline = FALSE, 
+                                       title = list(text = selected_var_name, 
+                                                    standoff = 20)))
+
+# # # Y Axis
+plot007 <-   plotly::layout(p = plot007,
+                            yaxis = list(zeroline = FALSE, 
+                                         title = "",
+                                         showticklabels = FALSE,
+                                         showline = FALSE))
+
+  # # # Output plot003_anova...
+  plot007
+  
+  
+  
+
+plot008  <- plotly::plot_ly()
+
+# # # Plot001 - Scatter plot for VR and FACTOR on minibase_mod *****************
+plot008  <- plotly::add_trace(p = plot008 ,
+                              type = "scatter",
+                              mode = "markers+text",
+                              y = minibase[,1],
+                              x = 1,
+                              text = minibase$"id_database",
+                              colors = unique(minibase$color),
+                              color = minibase$color,
+                              #marker = list(size = 15, opacity = 0.7),
+                              textposition = "middle right",
+                              textfont = list(size = 15, color = minibase$color))
+
+
+# # # Title settings...
+plot008 <-   plotly::layout(p = plot008,
+                            title = "Plot 008 - ID database detection",
+                            font = list(size = 20),
+                            margin = list(t = 100))
+
+
+# # # X Axis
+plot008 <-   plotly::layout(p = plot008,
+                            xaxis = list(zeroline = FALSE, 
+                                         title = "",
+                                         showticklabels = FALSE,
+                                         showline = FALSE))
+# # # Y Axis
+plot008 <-   plotly::layout(p = plot008,
+                            yaxis = list(zeroline = FALSE, 
+                                         title = list(text = selected_var_name, 
+                                                      standoff = 20)))
+
+plot008
+
+
+
+
+
+plot009  <- plotly::plot_ly()
+
+# # # Plot001 - Scatter plot for VR and FACTOR on minibase_mod *****************
+plot009  <- plotly::add_trace(p = plot009 ,
+                              type = "scatter",
+                              mode = "markers+text",
+                              y = minibase[,1],
+                              x = 1,
+                              text = minibase$"id_minibase",
+                              colors = unique(minibase$color),
+                              color = minibase$color,
+                              #marker = list(size = 15, opacity = 0.7),
+                              textposition = "middle right",
+                              textfont = list(size = 15, color = minibase$color))
+
+
+# # # Title settings...
+plot009 <-   plotly::layout(p = plot009,
+                            title = "Plot 009 - ID database detection",
+                            font = list(size = 20),
+                            margin = list(t = 100))
+
+
+# # # X Axis
+plot009 <-   plotly::layout(p = plot009,
+                            xaxis = list(zeroline = FALSE, 
+                                         title = "",
+                                         showticklabels = FALSE,
+                                         showline = FALSE))
+# # # Y Axis
+plot009 <-   plotly::layout(p = plot009,
+                            yaxis = list(zeroline = FALSE, 
+                                         title = list(text = selected_var_name, 
+                                                      standoff = 20)))
+
+plot009
+```
+
+
+```{r,  eval = T, include =F}
+# Save all objects!
+save.image(file = "R_results.Rdata")
+```
+

@@ -1,0 +1,178 @@
+---
+title: "Diplo - Semana 08 - ANOVA 1 Factor"
+author: "David Elias Panigo"
+date: "24-05-2024"
+output:
+  html_document:
+    df_print: paged
+---
+
+<br>
+<br>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  var title = document.querySelector('h1.title');
+  var author = document.querySelector('.author');
+  var date = document.querySelector('.date');
+  
+  title.style.display = 'none';
+  author.style.display = 'none';
+  date.style.display = 'none';
+});
+</script>
+
+<div class="image-container">
+  <img src="logo_01_unc_mod.png"      class="inline-image" width="200"  height="100">
+  <img src="logo_02_fcefyn_mod.png"   class="inline-image" width="200"  height="100">
+  <img src="logo_03_efadoc_mod.png"   class="inline-image" width="200"  height="100">
+  <img src="logo_04_rscience_mod.png" class="inline-image" width="200"  height="100">
+</div>
+
+## Summary Report - 2Q
+
+#### Hora de ejecución: `r format(Sys.time(), "%Y-%m-%d %H:%M:%S")`
+#### Sistema operativo: `r Sys.info()["sysname"]`
+#### Versión de R: `r R.version.string`
+<!-- #### Versión de RStudio: `r RStudio.Version()$version` -->
+
+
+<br>
+<br>
+
+
+```{r,  include =FALSE}
+knitr::opts_chunk$set(echo=TRUE, comment=NA)
+library("plotly")
+library("png")
+library("grid")
+library("plotly")
+library("png")
+library("grid")
+library("knitr")
+library("kableExtra")
+
+
+load("R_results.Rdata")
+```
+
+
+
+
+
+### Section 01 of 04 - References for variables
+```{r, include =T, eval = T, echo = F, class.source="bg-success"}
+
+
+# Ejemplo de un data frame
+
+
+# Crear la tabla y aplicar estilos
+knitr::kable(df_selected_vars, caption = "", align = 'c') %>%
+  kableExtra::kable_styling(position = "center", full_width = FALSE, 
+                            bootstrap_options = c("striped", "hover")) %>%
+  kableExtra::row_spec(0, bold = TRUE) %>%  # Negrita para la fila de encabezado
+  kableExtra::row_spec(seq(1, nrow(df_selected_vars), 2), background = "lightblue") %>%  # Color para filas impares
+  kableExtra::row_spec(seq(2, nrow(df_selected_vars), 2), background = "lightgreen") %>%  # Color para filas pares
+  kableExtra::add_footnote("Tabla02: Rerencias", notation = "none")
+
+#knitr::kable(, caption = )
+```
+<br>
+<br>
+
+
+
+### Section 01 of 02 - Position Measurements
+```{r, include =T, eval = T, echo = F, class.source="bg-success"}
+
+
+# Ejemplo de un data frame
+
+
+# Crear la tabla y aplicar estilos
+knitr::kable(df_vr_position_levels, caption = "", align = 'c') %>%
+  kableExtra::kable_styling(position = "center", full_width = FALSE, 
+                            bootstrap_options = c("striped", "hover")) %>%
+  kableExtra::row_spec(0, bold = TRUE) %>%  # Negrita para la fila de encabezado
+  kableExtra::row_spec(seq(1, nrow(df_vr_position_levels), 2), background = "lightblue") %>%  # Color para filas impares
+  kableExtra::row_spec(seq(2, nrow(df_vr_position_levels), 2), background = "lightgreen") %>%  # Color para filas pares
+  kableExtra::add_footnote("Tabla01: Medidas de posición", notation = "none")
+
+#knitr::kable(, caption = )
+```
+<br>
+<br>
+
+### Section 03 of 04 - Dispersion Measurements
+```{r, include =T, eval = T, echo = F, class.source="bg-success"}
+# Crear la tabla y aplicar estilos
+knitr::kable(df_vr_dispersion_levels, caption = "", align = 'c') %>%
+  kableExtra::kable_styling(position = "center", full_width = FALSE, 
+                            bootstrap_options = c("striped", "hover")) %>%
+  kableExtra::row_spec(0, bold = TRUE) %>%  # Negrita para la fila de encabezado
+  kableExtra::row_spec(seq(1, nrow(df_vr_dispersion_levels), 2), background = "lightblue") %>%  # Color para filas impares
+  kableExtra::row_spec(seq(2, nrow(df_vr_dispersion_levels), 2), background = "lightgreen") %>%  # Color para filas pares
+  kableExtra::add_footnote("Tabla02: Medidas de dispersión", notation = "none")
+
+```
+<br>
+<br>
+
+
+### Section 04 of 04 - Graphics
+```{r, include =T, eval = T, echo = F, class.source="bg-success"}
+
+
+plot001_factor
+```
+
+
+<hr style="border-top: 3px solid black;">
+```{r, include =T, eval = T, echo = F, class.source="bg-success"}
+
+
+plot002_factor
+```
+
+
+<hr style="border-top: 3px solid black;">
+```{r, include =T, eval = T, echo = F, class.source="bg-success"}
+
+
+plot003_factor
+```
+
+
+<hr style="border-top: 3px solid black;">
+```{r, include =T, eval = T, echo = F, class.source="bg-success"}
+
+
+plot004_factor
+```
+
+
+<hr style="border-top: 3px solid black;">
+```{r, include =T, eval = T, echo = F, class.source="bg-success"}
+
+
+plot005_factor
+```
+
+
+<hr style="border-top: 3px solid black;">
+```{r, include =T, eval = T, echo = F, class.source="bg-success"}
+
+
+plot006_factor
+```
+
+<hr style="border-top: 3px solid black;">
+```{r, include =T, eval = T, echo = F, class.source="bg-success"}
+
+
+plot003_residuals
+```
+<hr style="border-top: 3px solid black;">
+
+
+

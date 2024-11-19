@@ -1,7 +1,7 @@
 
 
 # # # 01) UI - Selection for 'database'
-module_pack003_summary_s03_QC_ui <- function(id){
+module_pack003_summary_s04_2C_ui <- function(id){
 
   ns <- shiny::NS(id)
 
@@ -27,13 +27,13 @@ module_pack003_summary_s03_QC_ui <- function(id){
         }
       "))
     ),
-    shiny::h1("Summary - QC"),
+    shiny::h1("Summary - 2C"),
     shiny::fluidRow(
       shiny::column(12, uiOutput(ns("box02_var_selector")))
-      ),
+    ),
     shiny::fluidRow(
       shiny::column(12, uiOutput(ns("box05_colores")))
-      ),
+    ),
     shiny::fluidRow(
       shiny::column(12,
                     shiny::textOutput(ns("text_control_general")))),
@@ -56,7 +56,7 @@ module_pack003_summary_s03_QC_ui <- function(id){
 
 
 # Var selection - Render - Show Results
-module_pack003_summary_s03_QC_server <- function(id, vector_all_colnames_database, database){
+module_pack003_summary_s04_2C_server <- function(id, vector_all_colnames_database, database){
 
   moduleServer(
     id,
@@ -168,38 +168,38 @@ module_pack003_summary_s03_QC_server <- function(id, vector_all_colnames_databas
         )
       })
 
-############################
+      ############################
 
 
 
-############################
+      ############################
 
       output$box03_control_de_mision <- renderUI({
 
         ns <- shiny::NS(id)
 
         div(shinydashboard::box(
-              title = "03 - Mission Control",
-              status = "primary",
-              id = ns("my_box03"),
-              solidHeader = TRUE,
-              collapsible = TRUE,
-              collapsed = FALSE,
-              closable = FALSE,
-              width = 12,
-              div(
-                #h2("Generacion de Reportes"), br(),
-                #h3("- Base de datos - OK!"),
-                #h3("- Variable cuantitativa seleccionada - OK!"),
-                #h3("- Reporte y script - OK!"),
-                actionButton(ns("render_report_button"), "Render Report", width = "100%"),
-                downloadButton(outputId = ns('download_button_html'),  label = "HTML", width = "100%", disabled = TRUE),
-                #downloadButton(outputId = ns('download_button_pdf'),   label = "PDF", width = "100%", disabled = TRUE),
-                #downloadButton(outputId = ns('download_button_word'),  label = "WORD", width = "100%", disabled = TRUE),
-                #downloadButton(outputId = ns('download_button_Rcode'), label = "Rcode", width = "100%", disabled = TRUE),
-                downloadButton(outputId = ns('download_button_zip'),   label = "All (ZIP)", width = "100%", disabled = TRUE)
-              )
-            )
+          title = "03 - Mission Control",
+          status = "primary",
+          id = ns("my_box03"),
+          solidHeader = TRUE,
+          collapsible = TRUE,
+          collapsed = FALSE,
+          closable = FALSE,
+          width = 12,
+          div(
+            #h2("Generacion de Reportes"), br(),
+            #h3("- Base de datos - OK!"),
+            #h3("- Variable cuantitativa seleccionada - OK!"),
+            #h3("- Reporte y script - OK!"),
+            actionButton(ns("render_report_button"), "Render Report", width = "100%"),
+            downloadButton(outputId = ns('download_button_html'),  label = "HTML", width = "100%", disabled = TRUE),
+            #downloadButton(outputId = ns('download_button_pdf'),   label = "PDF", width = "100%", disabled = TRUE),
+            #downloadButton(outputId = ns('download_button_word'),  label = "WORD", width = "100%", disabled = TRUE),
+            #downloadButton(outputId = ns('download_button_Rcode'), label = "Rcode", width = "100%", disabled = TRUE),
+            downloadButton(outputId = ns('download_button_zip'),   label = "All (ZIP)", width = "100%", disabled = TRUE)
+          )
+        )
         )
       })
 
@@ -223,11 +223,10 @@ module_pack003_summary_s03_QC_server <- function(id, vector_all_colnames_databas
           closable = FALSE,
           width = 12,
           div(
-            fluidRow(
-              column(6, uiOutput(ns("color_pickers"))),
-              column(6, tableOutput(ns("df_color_info")))
+            uiOutput(ns("color_pickers")),
+            uiOutput(ns("selected_colors")),
+            tableOutput(ns("df_color_info"))
           )
-        )
         )
         )
       })
@@ -339,7 +338,7 @@ module_pack003_summary_s03_QC_server <- function(id, vector_all_colnames_databas
         my_local_file <- file.path("output_temp_folder", my_file)
 
         # Levantamos el html
-        armado_v <- paste('<div style="height: 100%; width: 100%; overflow: hidden;"><iframe style="height: 2000vh; width:100%; border: none;" src="', my_local_file, '"></iframe></div>', sep = "")
+        armado_v <- paste('<div style="height: 100%; width: 100%; overflow: auto;"><iframe style="height: 1000vh; width:100%; border: none;" src="', my_local_file, '"></iframe></div>', sep = "")
 
         return(armado_v)
       })
@@ -359,7 +358,7 @@ module_pack003_summary_s03_QC_server <- function(id, vector_all_colnames_databas
         my_local_file <- file.path("output_temp_folder", my_file)
 
         # Levantamos el html
-        armado_v <- paste('<div style="height: 1000%; width: 100%; overflow: auto;"><iframe style="height: 700vh; width:100%; border: none;" src="', my_local_file, '"></iframe></div>', sep = "")
+        armado_v <- paste('<div style="height: 100%; width: 100%; overflow: auto;"><iframe style="height: 1000vh; width:100%; border: none;" src="', my_local_file, '"></iframe></div>', sep = "")
 
         return(armado_v)
       })
@@ -372,7 +371,7 @@ module_pack003_summary_s03_QC_server <- function(id, vector_all_colnames_databas
 
         div(
           tabsetPanel(
-            selected = 2,
+            selected = 1,
             tabPanel(title = "Código original", value = 1,
                      fluidRow(
                        column(12,
@@ -496,7 +495,7 @@ module_pack003_summary_s03_QC_server <- function(id, vector_all_colnames_databas
 
         # # # Detalles para este caso en particular
         the_package_name <- "Revelio"
-        selected_folder <- "pack03_summary_03_qc"
+        selected_folder <- "pack03_summary_04_2c"
 
         # # # Sigue el resto...
         special_folder_package <- file.path("extdata", selected_folder)

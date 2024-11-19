@@ -38,7 +38,12 @@ app_001_revelio <- function(){
         br(),
         shinydashboard::menuItem(text = "Database", tabName = "tab02_database", icon = shiny::icon("th")),
         br(),
-        shinydashboard::menuItem(text = "Summary", tabName = "tab03_summary", icon = shiny::icon("th")),
+        shinydashboard::menuItem(text = "Summary", tabName = "tab03_summary", icon = shiny::icon("th"),
+                                 shinydashboard::menuSubItem(text = "1Q", tabName = "tab03_sub_1Q"),
+                                 shinydashboard::menuSubItem(text = "2Q", tabName = "tab03_sub_2Q"),
+                                 shinydashboard::menuSubItem(text = "1C", tabName = "tab03_sub_1C"),
+                                 shinydashboard::menuSubItem(text = "2C", tabName = "tab03_sub_2C"),
+                                 shinydashboard::menuSubItem(text = "QC", tabName = "tab03_sub_QC")),
         br(),
         shinydashboard::menuItem(text = "MLR", tabName = "tab04_mlr", icon = shiny::icon("th")),
         br(),
@@ -71,9 +76,16 @@ app_001_revelio <- function(){
                 #dataTableOutput("df_database")) # Final - tab_clase99
 
 
-
-        shinydashboard::tabItem(tabName = "tab03_summary",
-                module_pack003_summary_s03_QC_ui("space03_summary_03")),
+        shinydashboard::tabItem(tabName = "tab03_sub_1Q",
+              module_pack003_summary_s01_1Q_ui("space03_summary_01_1Q")),
+        shinydashboard::tabItem(tabName = "tab03_sub_2Q",
+              module_pack003_summary_s02_2Q_ui("space03_summary_02_2Q")),
+        shinydashboard::tabItem(tabName = "tab03_sub_1C",
+              module_pack003_summary_s03_1C_ui("space03_summary_03_1C")),
+        shinydashboard::tabItem(tabName = "tab03_sub_2C",
+              module_pack003_summary_s04_2C_ui("space03_summary_04_2C")),
+        shinydashboard::tabItem(tabName = "tab03_sub_QC",
+              module_pack003_summary_s05_QC_ui("space03_summary_05_QC")),
 
         shinydashboard::tabItem(tabName = "tab04_mlr",
                                 module_pack004_mlr_ui("space04_mlr")),
@@ -160,8 +172,17 @@ app_001_revelio <- function(){
 
 
     # Pack 003) Summary
-    module_pack003_summary_s03_QC_server(id = "space03_summary_03",
-                                         vector_all_colnames_database, database)
+    module_pack003_summary_s01_1Q_server(id = "space03_summary_01_1Q",
+           vector_all_colnames_database, database)
+    module_pack003_summary_s02_2Q_server(id = "space03_summary_02_2Q",
+           vector_all_colnames_database, database)
+    module_pack003_summary_s03_1C_server(id = "space03_summary_03_1C",
+           vector_all_colnames_database, database)
+    module_pack003_summary_s04_2C_server(id = "space03_summary_04_2C",
+           vector_all_colnames_database, database)
+    module_pack003_summary_s05_QC_server(id = "space03_summary_05_QC",
+           vector_all_colnames_database, database)
+
 
     module_pack004_mlr_server(id = "space04_mlr",
                                          vector_all_colnames_database, database)
