@@ -1,0 +1,69 @@
+menus:
+  - name: "Normality test"
+    options:
+      - label: "Shapiro-Wilk test"
+        value: "pearson"
+
+  - name: "Homogeneity test"
+    options:
+      - label: "Bartlett test"
+        value: "pearson"
+      - label: "F test"
+        value: "pearson"
+
+  - name: "Correlation"
+    options:
+      - label: "Pearson"
+        value: "pearson"
+      - label: "Speraman"
+        value: "spearman"
+      - label: "Pearson and Spearman - Selection by Person requeriments"
+        value: "spearman"
+
+  - name: "Chi Squared test"
+    options:
+      - label: "Classic Chi Squared test"
+        value: "pearson"
+      - label: "Exact Chi Squared test"
+        value: "spearman"
+      - label: "Classic and Exact - Selection by requeriments"
+        value: "spearman"
+
+  - name: "General Linear Models - Fixed Effects"
+    options:
+      - label: "Anova 1 Way"
+        value: "fm001_s001"
+      - label: "Anova 1 Way and 1 Block"
+        value: "regresion_lineal_simple"
+      - label: "Anova 2 Ways"
+        value: "regresion_lineal_multiple"
+      - label: "Simple Linear Regresion"
+        value: "regresion_lineal_multiple"
+      - label: "Double Linear Regresion"
+        value: "regresion_lineal_multiple"
+      - label: "Multiple Linear Regresion (MLR)"
+        value: "regresion_lineal_multiple"
+      - label: "Forward Selection - Multiple Linear Regresion"
+        value: "regresion_lineal_multiple"
+      - label: "Backward Selection - Multiple Linear Regresion"
+        value: "regresion_lineal_multiple"
+      - label: "Selection from all models - Multiple Linear Regresion"
+        value: "regresion_lineal_multiple"
+
+  - name: "General Linear Models - Random Effects"
+  - name: "General Linear Models - Mixed Effects"
+  - name: "Generalized Linear Models - Fixed Effects"
+  - name: "Generalized Linear Models - Random Effects"
+  - name: "Generalized Linear Models - Mixed Effects"
+  - name: "Mixed Generalized Linear Models - Fixed Effects"
+  - name: "Mixed Generalized Linear Models - Random Effects"
+  - name: "Mixed Generalized Linear Models - Mixed Effects"
+  - name: "Free Distributions Models"
+  - name: "Multivariate"
+  - name: "Sulvival"
+  - name: "Categorized data"
+
+
+
+
+

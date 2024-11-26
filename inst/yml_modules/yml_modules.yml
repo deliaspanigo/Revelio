@@ -1,0 +1,10 @@
+modules:
+  fm001_s001:
+    ui: "module_fm001_s001_ui"
+    server: "module_fm001_s001_server"
+  fm002_s002:
+    ui: "module_fm002_s002_ui"
+    server: "module_fm002_s002_server"
+  fm003_s003:
+    ui: "module_fm003_s003_ui"
+    server: "module_fm003_s003_server"

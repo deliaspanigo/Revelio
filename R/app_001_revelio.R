@@ -21,7 +21,12 @@ app_001_revelio <- function(){
   library(rmarkdown)
   library(tools)
   library(plotly)
+  library(yaml)
+
   library(Revelio)
+
+  #print(menu_data)
+
   #ruta_css <- system.file("www", "estilos.css", package = "miPaquete")
 
   #includeCSS(ruta_css)
@@ -37,6 +42,12 @@ app_001_revelio <- function(){
         shinydashboard::menuItem(text = "Inicio", tabName = "tab01_intro", icon = shiny::icon("th")),
         br(),
         shinydashboard::menuItem(text = "Database", tabName = "tab02_database", icon = shiny::icon("th")),
+        br(),
+        shinydashboard::menuItem(text = "Standard Processing", tabName = "tab03_statistics", icon = shiny::icon("th")),
+        br(),
+        shinydashboard::menuItem(text = "Combinated Processing", tabName = "tab03_statistics", icon = shiny::icon("th")),
+        br(),
+        shinydashboard::menuItem(text = "Advanced Processing", tabName = "tab03_statistics", icon = shiny::icon("th")),
         br(),
         shinydashboard::menuItem(text = "Summary", tabName = "tab03_summary", icon = shiny::icon("th"),
                                  shinydashboard::menuSubItem(text = "1Q", tabName = "tab03_sub_1Q"),
@@ -60,22 +71,58 @@ app_001_revelio <- function(){
     ),
     shinydashboard::dashboardBody(
 
+
       # Incluir CSS personalizado
       htmltools::includeCSS(system.file("www/style_app.css", package = "Revelio")),
       shinyjs::useShinyjs(),
 
       shinydashboard::tabItems(
 
+        # Pack001 - Intro ------------------------------------------------------
         shinydashboard::tabItem(tabName = "tab01_intro",
-                                module_pack001_intro_ui("space01_intro")), # Final - tab_clase99
+                    module_pack001_intro_ui("space01_intro")), # Final - tab_clase99
 
-
+        # Pack002 - Database----------------------------------------------------
         shinydashboard::tabItem(tabName = "tab02_database",
-                module_pack002_import_s00_general_ui("space02_database_00"),
-                uiOutput("salida_general")), #,
+                module_pack002_import_s00_general_p01_ui("space02_database_00"),
+                module_pack002_import_s00_general_p02_ui("space02_database_00")), #,
                 #dataTableOutput("df_database")) # Final - tab_clase99
 
+        # Master Pack Selector -------------------------------------------------
+        shinydashboard::tabItem(tabName = "tab03_statistics",
+                module_super01_module_selection_ui("super"),
+                uiOutput("selected_fms_ui")
+         #                        div(
+         #  selectInput(inputId = "sui_pack", label = "Seleccion de pack",
+         #              choices = c("Summary", "Test", "Theory", "Distributions")),
+         #
+         #  conditionalPanel(condition = "input.sui_pack == 'Summary'",
+         #                   selectInput(inputId = "sui_summary",
+         #                               label = "Summary opts",
+         #                               choices = c("A", "B", "C"))),
+         #  conditionalPanel(condition = "input.sui_pack == 'Test'",
+         #                   radioButtons(inputId = "sui_family",
+         #                               label = "Test opts",
+         #                               choices = c("Classic tools for 1 var",
+         #                                           "Classic tools for 1 var by 2 groups",
+         #                                           "Correlation",
+         #                                           "Chi Squared",
+         #                                           "General Linear Models",
+         #                                           "Mixed General Linear Models",
+         #                                           "Generalized Linear Models",
+         #                                           "Mixed Generalized Linear Models",
+         #                                           "Tools for categorical data",
+         #                                           "Free distribution Statistics",
+         #                                           "Sobrevida")),
+         # conditionalPanel(condition = "input.sui_family == 'General Linear Models'",
+         #                  radioButtons(inputId = "aver", label = "asda", choices = c("Fixed", "Random", "Mix")))
+         #  )
+         #  )
+         ),
 
+
+
+        # Pack002 - Database----------------------------------------------------
         shinydashboard::tabItem(tabName = "tab03_sub_1Q",
               module_pack003_summary_s01_1Q_ui("space03_summary_01_1Q")),
         shinydashboard::tabItem(tabName = "tab03_sub_2Q",
@@ -114,62 +161,98 @@ app_001_revelio <- function(){
   # Definir la lógica del servidor
   server <- function(input, output) {
 
-    database <- reactiveVal(NULL)
-
     # Pack 001) Intro
     module_pack001_intro_server("space_intro")
 
+    #----------------------------------------------------------
 
-    # Pack 002) Import database
-    sui_data_source <- module_pack002_import_s00_general_server(id = "space02_database_00")
-
-    # Reactive values to store the database from each module
-    rv <- reactiveValues(
-      xlsx = NULL,
-      csv = NULL,
-      revelio = NULL,
-      r = NULL
-    )
-
-    observeEvent(sui_data_source(), {
-
-      # Call each module server and store the reactive database in rv
-      rv$xlsx    <- module_pack002_import_s01_xlsx_server(id = "space02_database_01", sui_data_source)
-      rv$csv     <- module_pack002_import_s02_csv_server(id = "space02_database_02", sui_data_source)
-      rv$revelio <- module_pack002_import_s03_revelio_server(id = "space02_database_03", sui_data_source)
-      rv$r       <- module_pack002_import_s04_r_server(id = "space02_database_04", sui_data_source)
-
-    })
-
-    database <- reactive({
-      req(sui_data_source())
-      switch(sui_data_source(),
-             "source_xlsx" = rv$xlsx(),
-             "source_csv" = rv$csv(),
-             "source_revelio" = rv$revelio(),
-             "source_r" = rv$r())
-    })
-
-    output$salida_general <- renderUI({
-      req(sui_data_source())
-
-      switch(sui_data_source(),
-             "source_xlsx" = module_pack002_import_s01_xlsx_ui("space02_database_01"),
-             "source_csv" = module_pack002_import_s02_csv_ui("space02_database_02"),
-             "source_revelio" = module_pack002_import_s03_revelio_ui("space02_database_03"),
-             "source_r" = module_pack002_import_s04_r_ui("space02_database_04"))
-
-    })
-    # output$df_database <- renderDataTable({
-    #   req(database())
-    #   database()
-    # })
+    # Pack 002) Import Database
+    sui_data_source <- module_pack002_import_s00_general_p01_server(id = "space02_database_00")
+    database        <- module_pack002_import_s00_general_p02_server(id = "space02_database_00", sui_data_source)
 
     vector_all_colnames_database <- reactive({
       req(database())
       colnames(database())
     })
 
+    #----------------------------------------------------------
+
+    sui_fms <- module_super01_module_selection_server("super")
+
+    modules_list <- yaml::read_yaml("inst/yml_modules/yml_modules.yml")
+    print(modules_list)
+
+    # Módulos de fallback
+    fallback_ui <- module_fm999_s999_ui
+    fallback_server <- module_fm999_s999_server
+
+    # Construir las listas de módulos con manejo de fallback
+    module_ui_list <- lapply(modules_list$modules, function(x) {
+      if (exists(x$ui)) {
+        get(x$ui)  # Obtiene la función si existe
+      } else {
+        warning("No se encontró el módulo UI: ", x$ui, ". Usando módulo de fallback.")
+        fallback_ui  # Usa el módulo predeterminado
+      }
+    })
+    names(module_ui_list) <- names(modules_list$modules)
+
+    module_server_list <- lapply(modules_list$modules, function(x) {
+      if (exists(x$server)) {
+        get(x$server)  # Obtiene la función si existe
+      } else {
+        warning("No se encontró el módulo Server: ", x$server, ". Usando módulo de fallback.")
+        fallback_server  # Usa el módulo predeterminado
+      }
+    })
+    names(module_server_list) <- names(modules_list$modules)
+
+    # Agregar el módulo de fallback como un caso genérico
+    module_ui_list$fallback <- fallback_ui
+    module_server_list$fallback <- fallback_server
+
+    observeEvent(sui_fms(), {
+      selected_module_server <- module_server_list[[sui_fms()]]
+
+      if (!is.null(selected_module_server)) {
+        selected_module_server(id = sui_fms(), vector_all_colnames_database, database)
+      } else {
+        warning("Módulo no encontrado para: ", sui_fms())
+      }
+    })
+
+    output$selected_fms_ui <- renderUI({
+      selected_module_ui <- module_ui_list[[sui_fms()]]
+
+      if (!is.null(selected_module_ui)) {
+        selected_module_ui(id = sui_fms())
+      } else {
+        div("Módulo no encontrado para: ", sui_fms())
+      }
+    })
+
+    # observeEvent(sui_fms(),{
+    #
+    #   lala <- "fm001_s001"
+    #   mi_sentencia <- "module_MY_FMS_server(id = 'super2', vector_all_colnames_database, database)"
+    #   mi_sentencia <- gsub(pattern = "MY_FMS", replacement = lala, x = mi_sentencia)
+    #   eval(parse(text = mi_sentencia))
+    #
+    # })
+    #
+    #
+    #
+    # output$selected_fms_ui <- renderUI({
+    #
+    #   lala <- "fm001_s001"
+    #   mi_sentencia <- "module_MY_FMS_ui(id = 'super2')"
+    #   mi_sentencia <- gsub(pattern = "MY_FMS", replacement = lala, x = mi_sentencia)
+    #   eval(parse(text = mi_sentencia))
+    #
+    #   #module_fm001_s001_ui("super2")
+    # })
+
+    #----------------------------------------------------------
 
     # Pack 003) Summary
     module_pack003_summary_s01_1Q_server(id = "space03_summary_01_1Q",
