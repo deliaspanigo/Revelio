@@ -139,7 +139,7 @@ module_fm001_s001_ui <- function(id){
                br(),
                uiOutput(ns("order_and_color_pickers")),
                #uiOutput(ns("selected_colors")),
-               #tableOutput(ns("df_color_info")),
+               tableOutput(ns("df_color_info")),
                p(shiny::textOutput(ns("text_control_02")))
 
       ),
@@ -147,6 +147,7 @@ module_fm001_s001_ui <- function(id){
                h3("Contenido del Tab 3"),
                p("Este es el contenido del tercer tab."),
                uiOutput(ns("control_de_mision")),
+               uiOutput(ns("section04_download")),
                p(shiny::textOutput(ns("text_control_03"))),
                shinycssloaders::withSpinner(uiOutput(ns("report_view")))
       ),
@@ -154,6 +155,7 @@ module_fm001_s001_ui <- function(id){
                h3("Contenido del Tab 4"),
                p("Este es el contenido del cuartto tab."),
                p("Acá ban los render y descargas, o solo descargas.")
+
       )
     )
   )
@@ -287,15 +289,13 @@ module_fm001_s001_server <- function(id, vector_all_colnames_database, database)
           "vector_orig_color" = my_color
         )
         return(df_output)
-
       })
 
 
       output$order_and_color_pickers <- renderUI({
-        req(df_original_info())
+        req(control_01(), df_original_info())
 
         vec_opt_original_colors <- df_original_info()$"vector_orig_color"
-
         vec_opt_original_categories <- df_original_info()$"vector_orig_number"
         names(vec_opt_original_categories) <-  df_original_info()$"vector_orig_level"
         value_amount_categories <- length(vec_opt_original_categories)
@@ -306,18 +306,15 @@ module_fm001_s001_server <- function(id, vector_all_colnames_database, database)
                                          label = paste0("Category order ", i, " - "),
                                          choices = vec_opt_original_categories,
                                          selected = vec_opt_original_categories[i])),
-
             column(4, colourpicker::colourInput(inputId = ns(paste0("color", i)),
                                                 label = paste("Color", i), value = vec_opt_original_colors[i]))
-
           )
         })
         do.call(tagList, color_inputs)
       })
 
-
       output$selected_colors <- renderUI({
-        req(df_original_info())
+        req(control_01(), df_original_info())
 
         num_colors <- nrow(df_original_info())
 
@@ -329,45 +326,41 @@ module_fm001_s001_server <- function(id, vector_all_colnames_database, database)
       })
 
       df_new_info <- reactive({
-        req(df_original_info())
+        req(control_01(), df_original_info())
 
         # Original info
         vector_orig_level  <- df_original_info()$"vector_orig_level"
         vector_orig_number <- df_original_info()$"vector_orig_number"
         vector_orig_color  <- df_original_info()$"vector_orig_color"
 
-        num_colors <- length(df_original_info())
+        num_colors <- nrow(df_original_info())
 
-        vector_new_level <- c()
-        vector_pos <- sapply(1:num_colors, function(i) {
+        vector_new_level <- sapply(1:num_colors, function(i) {
           req(input[[paste0("pos", i)]])
-          the_pos <- input[[paste0("pos", i)]]
+          input[[paste0("pos", i)]]
         })
-        vector_pos <- as.numeric(as.character(vector_pos))
-        vector_new_level <- vector_orig_level[vector_pos]
+        vector_new_level <- as.numeric(as.character(vector_new_level))
+        vector_new_level <- vector_orig_level[vector_new_level]
 
-        vector_new_number <- c()
         vector_new_number <- match(vector_orig_level, vector_new_level)
 
-        vector_new_color <- c()
         vector_new_color <- sapply(1:num_colors, function(i) {
-          color <- input[[paste0("color", i)]]
+          input[[paste0("color", i)]]
         })
 
         df_output <- data.frame(
-          "vector_new_level" = vector_new_level,
+          "vector_new_level" =  vector_new_level,
           "vector_new_number" = vector_new_number,
-          "vector_new_color" = vector_new_color
+          "vector_new_color" =  vector_new_color
         )
         return(df_output)
       })
 
       output$df_color_info <- renderTable({
-        req(df_new_info())
+        req(control_01(), df_new_info())
         df_new_info()
-
-
       })
+
 
 
       control_02 <- reactive({
@@ -380,7 +373,7 @@ module_fm001_s001_server <- function(id, vector_all_colnames_database, database)
 
         amount_ok_02 <- all(df_new_info()$"vector_new_level" %in% df_original_info()$"vector_orig_level")
         validate(
-          need(amount_ok_02,   'ERROR 004: Some of the categories do not belong to the database..'),
+          need(amount_ok_02,   'ERROR 004: Some of the categories do not belong to the database.'),
           errorClass = "ERROR"
         )
 
@@ -405,38 +398,37 @@ module_fm001_s001_server <- function(id, vector_all_colnames_database, database)
               div(
                 fluidRow(
                   column(3, actionButton(ns("render_report_button"),
-                                         "Render Report", width = "100%", disabled = TRUE))),
+                                         "Render Report", width = "100%", disabled = TRUE)))
 
-                fluidRow(
-                  column(1, downloadButton(outputId = ns('download_button_html'),
-                                           label = "HTML", width = "100%", disabled = FALSE)),
-                  column(1, downloadButton(outputId = ns('download_button_zip'),
-                                           label = "All (ZIP)", width = "100%", disabled = TRUE))
-                )
+
               )
 
 
       })
 
 
+      output$section04_download <- renderUI({
+
+        fluidRow(
+          column(1, downloadButton(outputId = ns('download_button_html'),
+                                   label = "HTML", width = "100%", disabled = FALSE)),
+          column(1, downloadButton(outputId = ns('download_button_zip'),
+                                   label = "All (ZIP)", width = "100%", disabled = TRUE))
+        )
+      })
 
       render_button_status  <- shiny::reactiveVal(FALSE)
       render_button_counter <- shiny::reactiveVal(0)
 
-      observeEvent(input$selected_vr_name, {
+      observeEvent(list(input$selected_vr_name, input$selected_factor_name,
+                        df_original_info(), df_new_info()), {
+
         render_button_status(FALSE)
         render_button_counter(0)
 
-        #shinyjs::disable("render_report_button")
-        #runjs(sprintf('$("#%s").css({"background-color": "grey", "color": "white", "border": "none", "padding": "10px 20px", "text-align": "center", "text-decoration": "none", "display": "inline-block", "font-size": "16px", "margin": "4px 2px", "cursor": "pointer", "border-radius": "12px"});', ns("render_report_button")))
+
       })
 
-      observeEvent(input$selected_factor_name, {
-        render_button_status(FALSE)
-        render_button_counter(0)
-        #shinyjs::disable("render_report_button")
-        #runjs(sprintf('$("#%s").css({"background-color": "grey", "color": "white", "border": "none", "padding": "10px 20px", "text-align": "center", "text-decoration": "none", "display": "inline-block", "font-size": "16px", "margin": "4px 2px", "cursor": "pointer", "border-radius": "12px"});', ns("render_report_button")))
-      })
 
       observeEvent(input$render_report_button, {
 
@@ -449,7 +441,7 @@ module_fm001_s001_server <- function(id, vector_all_colnames_database, database)
 
       observeEvent(control_02(),{
 
-        render_button_status(TRUE)
+        if (control_02()) render_button_status(TRUE)
 
       })
 
@@ -514,7 +506,8 @@ module_fm001_s001_server <- function(id, vector_all_colnames_database, database)
         check_cantidad_files_package <- length(list.files(input_folder_package)) > 0
 
         input_folder_master <- ifelse(check_cantidad_files_package, input_folder_package, input_folder_local)
-        as.character(input_folder_master)
+        input_folder_master <- as.character(input_folder_master)
+        input_folder_master
       })
 
       # Nombre de los archivos originales
@@ -543,18 +536,27 @@ module_fm001_s001_server <- function(id, vector_all_colnames_database, database)
       special_path_output_rmd_report <- reactiveVal()
       special_path_output_html_report <- reactiveVal()
 
+
       observeEvent(input$render_report_button, {
-        req(control_03())
+        req(control_03(), df_new_info())
 
         original_time <- format(Sys.time(), "%Y-%m-%d %H:%M:%S")
         execution_time <- gsub("[[:punct:]]", "_", original_time)
         execution_time <- gsub(" ", "_", execution_time)
 
-        new_temp_folder <- tempdir()
-        new_sub_folder <- paste0("Rsience_FOLDER_", execution_time)
-        output_folder_temp <- file.path(new_temp_folder, new_sub_folder)
+        # Usar el directorio temporal directamente
+        output_folder_temp <- tempdir()
+
+        # Verificar y eliminar archivos existentes en el directorio temporal
+        if (dir.exists(output_folder_temp)) {
+          files <- list.files(output_folder_temp, full.names = TRUE)
+          if (length(files) > 0) {
+            file.remove(files)
+          }
+        }
+
         special_path_output_folder(output_folder_temp)
-        dir.create(output_folder_temp)
+        dir.create(output_folder_temp, showWarnings = FALSE)
 
         original_files <- list.files(input_folder_master(), full.names = TRUE)
         file.copy(original_files, output_folder_temp, overwrite = TRUE)
@@ -572,11 +574,13 @@ module_fm001_s001_server <- function(id, vector_all_colnames_database, database)
 
         output_path_rmd <- grep("_CODE", chance_name_path, value = TRUE)
         output_path_html <- gsub("\\.Rmd$", ".html", output_path_rmd)
+        if (file.exists(output_path_html)) file.remove(output_path_html)
         special_path_output_html_code(output_path_html)
         rmarkdown::render(output_path_rmd, rmarkdown::html_document(), output_file = output_path_html, envir = render_env)
 
         output_path_rmd2 <- grep("_REPORT", chance_name_path, value = TRUE)
         output_path_html2 <- gsub("\\.Rmd$", ".html", output_path_rmd2)
+        if (file.exists(output_path_html2)) file.remove(output_path_html2)
         special_path_output_html_report(output_path_html2)
         rmarkdown::render(output_path_rmd2, rmarkdown::html_document(), output_file = output_path_html2, envir = render_env)
       })
@@ -608,41 +612,46 @@ module_fm001_s001_server <- function(id, vector_all_colnames_database, database)
 
       output$htmlviewer_temporal <- renderText({
 
-        req(control_02(), special_path_output_folder(), special_path_output_html_code())
+        req(control_03(), special_path_output_folder(), special_path_output_html_code(), render_button_status())
 
         # # # Definimos como un "alias" o un "bindeo".
         # A la carpeta temporal le damos como un "alias".
         # Esto es por que los HTML no pueden ser tomados de cualquier lado.
+        print(special_path_output_folder())
         my_path <- special_path_output_folder()
         addResourcePath(prefix = "output_temp_folder", directoryPath = my_path)
+
+        print(special_path_output_html_code())
 
         # Armamos ahora un path con el "alias" como folder.
         my_file <- basename(special_path_output_html_code())
         my_local_file <- file.path("output_temp_folder", my_file)
 
         # Levantamos el html
-        armado_v <- paste('<div style="height: 100%; width: 100%; overflow: auto;"><iframe style="height: 1000vh; width:100%; border: none;" src="', my_local_file, '"></iframe></div>', sep = "")
-
+        armado_v <- paste('<div style="height: 100%; width: 100%; overflow: auto;"><iframe style="height: 2000vh; width:100%; border: none;" src="', my_local_file, '"></iframe></div>', sep = "")
+        #special_path_output_html_code(NULL)
         return(armado_v)
       })
 
       output$htmlviewer_temporal2 <- renderText({
 
-        req(control_02(), special_path_output_folder(), special_path_output_html_report())
+        req(control_03(), special_path_output_folder(), special_path_output_html_report(), render_button_status())
 
         # # # Definimos como un "alias" o un "bindeo".
         # A la carpeta temporal le damos como un "alias".
         # Esto es por que los HTML no pueden ser tomados de cualquier lado.
+        print(special_path_output_folder())
         my_path <- special_path_output_folder()
         addResourcePath(prefix = "output_temp_folder", directoryPath = my_path)
 
+        print(special_path_output_html_report())
         # Armamos ahora un path con el "alias" como folder.
         my_file <- basename(special_path_output_html_report())
         my_local_file <- file.path("output_temp_folder", my_file)
 
         # Levantamos el html
         armado_v <- paste('<div style="height: 100%; width: 100%; overflow: auto;"><iframe style="height: 1000vh; width:100%; border: none;" src="', my_local_file, '"></iframe></div>', sep = "")
-
+        #special_path_output_html_report(NULL)
         return(armado_v)
       })
 
