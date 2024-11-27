@@ -556,7 +556,7 @@ module_fm001_s001_server <- function(id, vector_all_colnames_database, database)
         }
 
         special_path_output_folder(output_folder_temp)
-        dir.create(output_folder_temp, showWarnings = FALSE)
+        #dir.create(output_folder_temp, showWarnings = FALSE)
 
         original_files <- list.files(input_folder_master(), full.names = TRUE)
         file.copy(original_files, output_folder_temp, overwrite = TRUE)
