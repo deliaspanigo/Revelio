@@ -545,7 +545,14 @@ module_fm001_s001_server <- function(id, vector_all_colnames_database, database)
         execution_time <- gsub(" ", "_", execution_time)
 
         # Usar el directorio temporal directamente
-        output_folder_temp <- tempdir()
+        my_temp_folder <- tempdir()
+
+        # Generar 3 números y 2 letras al azar
+        random_numbers <- paste0(sample(0:9, 3, replace = TRUE), collapse = "")
+        random_letters <- paste0(sample(LETTERS, 2, replace = TRUE), collapse = "")
+
+        new_sub_folder <- paste0("Revelio_FOLDER_", execution_time, random_numbers, random_letters)
+        output_folder_temp <- file.path(my_temp_folder, new_sub_folder)
 
         # Verificar y eliminar archivos existentes en el directorio temporal
         if (dir.exists(output_folder_temp)) {
@@ -553,7 +560,9 @@ module_fm001_s001_server <- function(id, vector_all_colnames_database, database)
           if (length(files) > 0) {
             file.remove(files)
           }
-        }
+        } else     dir.create(output_folder_temp, showWarnings = FALSE)
+
+
 
         special_path_output_folder(output_folder_temp)
         #dir.create(output_folder_temp, showWarnings = FALSE)
