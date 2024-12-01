@@ -26,6 +26,12 @@ app_001_revelio <- function(){
 
   library(Revelio)
 
+  menu01_summary <- yaml::read_yaml("inst/yml_menu/menu01_summary.yml")
+  menu02_standard_proc <- yaml::read_yaml("inst/yml_menu/menu02_standard_proc.yml")
+
+  menu03_combinated_proc <- yaml::read_yaml("inst/yml_menu/menu03_combinated_proc.yml")
+  menu04_advanced_proc <- yaml::read_yaml("inst/yml_menu/menu04_advanced_proc.yml")
+
   #print(menu_data)
 
   #ruta_css <- system.file("www", "estilos.css", package = "miPaquete")
@@ -43,6 +49,8 @@ app_001_revelio <- function(){
         shinydashboard::menuItem(text = "Inicio", tabName = "tab01_intro", icon = shiny::icon("th")),
         br(),
         shinydashboard::menuItem(text = "Database", tabName = "tab02_database", icon = shiny::icon("th")),
+        br(),
+        shinydashboard::menuItem(text = "Summary", tabName = "tab04_summary", icon = shiny::icon("th")),
         br(),
         shinydashboard::menuItem(text = "Standard Processing", tabName = "tab03_statistics", icon = shiny::icon("th")),
         br(),
@@ -89,10 +97,25 @@ app_001_revelio <- function(){
                 module_pack002_import_s00_general_p02_ui("space02_database_00")), #,
                 #dataTableOutput("df_database")) # Final - tab_clase99
 
+        # Master Pack Selector - 01 - Summary -------------------------------------------------
+        shinydashboard::tabItem(tabName = "tab04_summary",
+                                box(
+                                  title = "Summary",
+                                  status = "primary",
+                                  id = "my_box01",
+                                  solidHeader = TRUE,
+                                  collapsible = TRUE,
+                                  collapsed = FALSE,
+                                  #closable = TRUE,# Colapsado por defecto
+                                  width = 12,
+                                  module_super01_module_selection_ui("super01")),
+                                  br(),
+                                  uiOutput("selected_super01_summary_ui")
+        ),
         # Master Pack Selector -------------------------------------------------
         shinydashboard::tabItem(tabName = "tab03_statistics",
                   box(
-                      title = "Analysis",
+                      title = "Standard Processing",
                       status = "primary",
                       id = "my_box03",
                       solidHeader = TRUE,
@@ -101,33 +124,8 @@ app_001_revelio <- function(){
                       #closable = TRUE,# Colapsado por defecto
                       width = 12,
                       module_super01_module_selection_ui("super")),
+                      br(),
                       uiOutput("selected_fms_ui")
-         #                        div(
-         #  selectInput(inputId = "sui_pack", label = "Seleccion de pack",
-         #              choices = c("Summary", "Test", "Theory", "Distributions")),
-         #
-         #  conditionalPanel(condition = "input.sui_pack == 'Summary'",
-         #                   selectInput(inputId = "sui_summary",
-         #                               label = "Summary opts",
-         #                               choices = c("A", "B", "C"))),
-         #  conditionalPanel(condition = "input.sui_pack == 'Test'",
-         #                   radioButtons(inputId = "sui_family",
-         #                               label = "Test opts",
-         #                               choices = c("Classic tools for 1 var",
-         #                                           "Classic tools for 1 var by 2 groups",
-         #                                           "Correlation",
-         #                                           "Chi Squared",
-         #                                           "General Linear Models",
-         #                                           "Mixed General Linear Models",
-         #                                           "Generalized Linear Models",
-         #                                           "Mixed Generalized Linear Models",
-         #                                           "Tools for categorical data",
-         #                                           "Free distribution Statistics",
-         #                                           "Sobrevida")),
-         # conditionalPanel(condition = "input.sui_family == 'General Linear Models'",
-         #                  radioButtons(inputId = "aver", label = "asda", choices = c("Fixed", "Random", "Mix")))
-         #  )
-         #  )
          ),
 
 
@@ -187,10 +185,8 @@ app_001_revelio <- function(){
 
     #----------------------------------------------------------
 
-    sui_fms <- module_super01_module_selection_server("super")
-
+    # # # Internal Load - All modules
     modules_list <- yaml::read_yaml("inst/yml_modules/yml_modules.yml")
-    print(modules_list)
 
     # Módulos de fallback
     fallback_ui <- module_fm999_s999_ui
@@ -220,6 +216,34 @@ app_001_revelio <- function(){
     # Agregar el módulo de fallback como un caso genérico
     module_ui_list$fallback <- fallback_ui
     module_server_list$fallback <- fallback_server
+
+    #----------------------------------------------------------
+
+    sui_super01_summary <- module_super01_module_selection_server("super01", menu_yml = menu01_summary)
+
+    observeEvent(sui_super01_summary(), {
+      selected_module_server <- module_server_list[[sui_super01_summary()]]
+
+      if (!is.null(selected_module_server)) {
+        selected_module_server(id = sui_super01_summary(), vector_all_colnames_database, database)
+      } else {
+        warning("Módulo no encontrado para: ", sui_super01_summary())
+      }
+    })
+
+    output$selected_super01_summary_ui <- renderUI({
+      selected_module_ui <- module_ui_list[[sui_super01_summary()]]
+
+      if (!is.null(selected_module_ui)) {
+        selected_module_ui(id = sui_super01_summary())
+      } else {
+        div("Módulo no encontrado para: ", sui_super01_summary())
+      }
+    })
+
+    #----------------------------------------------------------
+
+    sui_fms <- module_super01_module_selection_server("super", menu_yml = menu02_standard_proc)
 
     observeEvent(sui_fms(), {
       selected_module_server <- module_server_list[[sui_fms()]]

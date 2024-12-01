@@ -1,4 +1,29 @@
 modules:
+  sp001_s001:
+    file: "module_sp001_s001_summary_1q.R"
+    ui: "module_sp001_s001_ui"
+    server: "module_sp001_s001_server"
+    
+  sp001_s002:
+    file: "module_sp001_s002_summary_2q.R"
+    ui: "module_sp001_s002_ui"
+    server: "module_sp001_s002_server"
+    
+  sp001_s003:
+    file: "module_sp001_s003_summary_1c.R"
+    ui: "module_sp001_s003_ui"
+    server: "module_sp001_s003_server"
+    
+  sp001_s004:
+    file: "module_sp001_s004_summary_2c.R"
+    ui: "module_sp001_s004_ui"
+    server: "module_sp001_s004_server"
+    
+  sp001_s005:
+    file: "module_sp001_s005_summary_qc.R"
+    ui: "module_sp001_s005_ui"
+    server: "module_sp001_s005_server"    
+        
   fm001_s001:
     ui: "module_fm001_s001_ui"
     server: "module_fm001_s001_server"

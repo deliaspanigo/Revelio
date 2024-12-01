@@ -1,0 +1,31 @@
+menus:
+  - name: "1Q"
+    options:
+      - label: "Standard"
+        value: "sp001_s001"
+
+  - name: "2Q"
+    options:
+      - label: "Standard"
+        value: "sp001_s002"
+
+  - name: "1C"
+    options:
+      - label: "Standard"
+        value: "sp001_s003"
+
+
+  - name: "2C"
+    options:
+      - label: "Standard"
+        value: "sp001_s004"
+
+  - name: "QC"
+    options:
+      - label: "Standard"
+        value: "sp001_s005"
+
+
+
+
+

@@ -1,6 +1,6 @@
 
 
-module_fm001_s001_ui <- function(id){
+module_sp001_s003_ui <- function(id){
 
   ns <- shiny::NS(id)
 
@@ -14,18 +14,18 @@ module_fm001_s001_ui <- function(id){
         font-weight: bold;
       }
     ")),
-      tags$style(HTML("
+    tags$style(HTML("
       .shiny-output-error-ERROR {
         color: #ff0000;
         font-weight: bold;
       }
     ")),
-      tags$style(HTML("
+    tags$style(HTML("
         .content-wrapper, .right-side {
           overflow-y: hidden !important;
         }
       ")),
-      tags$style(HTML("
+    tags$style(HTML("
         .nav-tabs {
           width: 100%;
           display: flex;
@@ -58,7 +58,7 @@ module_fm001_s001_ui <- function(id){
         }
       "))
     ),
-    shiny::h1("General Linear Models (Fixed) - Anova 1 Way"),
+    shiny::h1("Summary - 1C - Standard"),
     tabsetPanel(
       tabPanel("Variable selection",
                fluidRow(br()),
@@ -116,7 +116,7 @@ module_fm001_s001_ui <- function(id){
 
 
 # Var selection - Render - Show Results
-module_fm001_s001_server <- function(id, vector_all_colnames_database, database){
+module_sp001_s003_server <- function(id, vector_all_colnames_database, database){
 
   moduleServer(
     id,
@@ -476,8 +476,8 @@ module_fm001_s001_server <- function(id, vector_all_colnames_database, database)
 
 
 
-##                 downloadButton(outputId = ns('download_button_zip'),
-#                                label = "All (ZIP)", width = "100%", disabled = TRUE)
+                 ##                 downloadButton(outputId = ns('download_button_zip'),
+                 #                                label = "All (ZIP)", width = "100%", disabled = TRUE)
           )
         )
       })
@@ -646,8 +646,8 @@ module_fm001_s001_server <- function(id, vector_all_colnames_database, database)
 
 
         fn_replace_code_in_rmd(rmd_file = input_path_file03_rmd_new(),
-                            old_code = "all_code",
-                            new_code = all_code)
+                               old_code = "all_code",
+                               new_code = all_code)
 
         rmarkdown::render(input = input_path_file03_rmd_new(),
                           output_format = rmarkdown::html_document(),
@@ -717,53 +717,53 @@ module_fm001_s001_server <- function(id, vector_all_colnames_database, database)
       ######################################################
 
 
-        download_counter_output_file02_code_HTML <- reactiveVal(0)
+      download_counter_output_file02_code_HTML <- reactiveVal(0)
 
 
-        output$download_button_output_file02_code_HTML <- downloadHandler(
-          filename = function() {
-            basename(output_path02_code_HTML())
-          },
-          content = function(file) {
-            #file.copy(output_path_html(), file, overwrite = TRUE)
-            file.copy(output_path02_code_HTML(), file, overwrite = TRUE)
-            download_counter_output_file02_code_HTML(download_counter_output_file02_code_HTML() + 1)
-          }
-        )
+      output$download_button_output_file02_code_HTML <- downloadHandler(
+        filename = function() {
+          basename(output_path02_code_HTML())
+        },
+        content = function(file) {
+          #file.copy(output_path_html(), file, overwrite = TRUE)
+          file.copy(output_path02_code_HTML(), file, overwrite = TRUE)
+          download_counter_output_file02_code_HTML(download_counter_output_file02_code_HTML() + 1)
+        }
+      )
 
-        observeEvent(output_path02_code_HTML(),{
-          req(output_path02_code_HTML())
+      observeEvent(output_path02_code_HTML(),{
+        req(output_path02_code_HTML())
 
-          if(file.exists(output_path02_code_HTML())){
+        if(file.exists(output_path02_code_HTML())){
+          shinyjs::enable("download_button_output_file02_code_HTML")
+          runjs(sprintf('$("#%s").css({"background-color": "orange", "color": "white", "border": "none", "padding": "10px 20px", "text-align": "center", "text-decoration": "none", "display": "inline-block", "font-size": "16px", "margin": "4px 2px", "cursor": "pointer", "border-radius": "12px"});', ns("download_button_output_file02_code_HTML")))
+        }
+
+      })
+
+
+      observeEvent(list(count_general(), download_counter_output_file02_code_HTML()),{
+        #req(download_counter_file01_rmd_s04_rcode())
+
+        the_cons01 <- download_counter_output_file02_code_HTML()==0 && count_general()==0
+        the_cons02 <- download_counter_output_file02_code_HTML()>=1 && count_general()==0
+        the_cons03 <- download_counter_output_file02_code_HTML()==0 && count_general()==1
+        the_cons04 <- download_counter_output_file02_code_HTML()>=1 && count_general()==1
+
+        #print(the_cons)
+        if(the_cons01 | the_cons02) {
+          shinyjs::disable("download_button_output_file02_code_HTML")
+          runjs(sprintf('$("#%s").css({"background-color": "grey", "color": "white", "border": "none", "padding": "10px 20px", "text-align": "center", "text-decoration": "none", "display": "inline-block", "font-size": "16px", "margin": "4px 2px", "cursor": "pointer", "border-radius": "12px"});', ns("download_button_output_file02_code_HTML")))
+        } else
+          if(the_cons03){
             shinyjs::enable("download_button_output_file02_code_HTML")
             runjs(sprintf('$("#%s").css({"background-color": "orange", "color": "white", "border": "none", "padding": "10px 20px", "text-align": "center", "text-decoration": "none", "display": "inline-block", "font-size": "16px", "margin": "4px 2px", "cursor": "pointer", "border-radius": "12px"});', ns("download_button_output_file02_code_HTML")))
-          }
-
-        })
-
-
-        observeEvent(list(count_general(), download_counter_output_file02_code_HTML()),{
-          #req(download_counter_file01_rmd_s04_rcode())
-
-          the_cons01 <- download_counter_output_file02_code_HTML()==0 && count_general()==0
-          the_cons02 <- download_counter_output_file02_code_HTML()>=1 && count_general()==0
-          the_cons03 <- download_counter_output_file02_code_HTML()==0 && count_general()==1
-          the_cons04 <- download_counter_output_file02_code_HTML()>=1 && count_general()==1
-
-          #print(the_cons)
-          if(the_cons01 | the_cons02) {
-            shinyjs::disable("download_button_output_file02_code_HTML")
-            runjs(sprintf('$("#%s").css({"background-color": "grey", "color": "white", "border": "none", "padding": "10px 20px", "text-align": "center", "text-decoration": "none", "display": "inline-block", "font-size": "16px", "margin": "4px 2px", "cursor": "pointer", "border-radius": "12px"});', ns("download_button_output_file02_code_HTML")))
           } else
-            if(the_cons03){
+            if(the_cons04){
               shinyjs::enable("download_button_output_file02_code_HTML")
-              runjs(sprintf('$("#%s").css({"background-color": "orange", "color": "white", "border": "none", "padding": "10px 20px", "text-align": "center", "text-decoration": "none", "display": "inline-block", "font-size": "16px", "margin": "4px 2px", "cursor": "pointer", "border-radius": "12px"});', ns("download_button_output_file02_code_HTML")))
-            } else
-              if(the_cons04){
-                shinyjs::enable("download_button_output_file02_code_HTML")
-                runjs(sprintf('$("#%s").css({"background-color": "green", "color": "white", "border": "none", "padding": "10px 20px", "text-align": "center", "text-decoration": "none", "display": "inline-block", "font-size": "16px", "margin": "4px 2px", "cursor": "pointer", "border-radius": "12px"});', ns("download_button_output_file02_code_HTML")))
-              }
-        })
+              runjs(sprintf('$("#%s").css({"background-color": "green", "color": "white", "border": "none", "padding": "10px 20px", "text-align": "center", "text-decoration": "none", "display": "inline-block", "font-size": "16px", "margin": "4px 2px", "cursor": "pointer", "border-radius": "12px"});', ns("download_button_output_file02_code_HTML")))
+            }
+      })
 
 
 
