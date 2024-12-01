@@ -67,10 +67,7 @@ module_sp001_s003_ui <- function(id){
                         selectInput(inputId = ns("selected_name_var01"),
                                     label = "Response Variable",
                                     choices = NULL)),
-                 column(3,
-                        selectInput(inputId = ns("selected_name_var02"),
-                                    label = "Factor",
-                                    choices = NULL)),
+
                  column(3,
                         selectInput(inputId = ns("alpha_value"),
                                     label = "Alpha value",
@@ -87,9 +84,9 @@ module_sp001_s003_ui <- function(id){
                and are assigned a color equidistant from the color wheel in sexagecimal format."),
                p("You can change the order of the categories and the assigned color."),
                br(),
-               uiOutput(ns("order_and_color_pickers")),
+               uiOutput(ns("color_picker")),
                #uiOutput(ns("selected_colors")),
-               tableOutput(ns("df_color_info")),
+               #tableOutput(ns("df_color_info")),
                p(shiny::textOutput(ns("text_control_02")))
 
       ),
@@ -173,15 +170,7 @@ module_sp001_s003_server <- function(id, vector_all_colnames_database, database)
                           selected = vector_opt[1])
       })
 
-      observe({
-        req(standard_info_var_selection())
-        vector_opt <- standard_info_var_selection()$vector_options
 
-        updateSelectInput(session = session,
-                          inputId = "selected_name_var02",
-                          choices = vector_opt,
-                          selected = vector_opt[1])
-      })
 
       observe({
         vector_alpha_external <- c("0.10 (10%)", "0.05 (5%)", "0.01 (1%)")
@@ -198,35 +187,32 @@ module_sp001_s003_server <- function(id, vector_all_colnames_database, database)
 
         validate(
           need(!is.null(input$selected_name_var01),   ''),
-          need(!is.null(input$selected_name_var02),   ''),
+          #need(!is.null(input$selected_name_var02),   ''),
           errorClass = "ERROR"
         )
 
         validate(
           need(input$selected_name_var01 != "", 'Select a response variable from your dataset.'),
-          need(input$selected_name_var02 != "", 'Select a factor from your dataset.'),
+          #need(input$selected_name_var02 != "", 'Select a factor from your dataset.'),
           errorClass = "WARNING"
         )
 
 
 
         check_vr <- sum(vector_all_colnames_database() == input$selected_name_var01) == 1
-        check_factor <- sum(vector_all_colnames_database() == input$selected_name_var02) == 1
+        #check_factor <- sum(vector_all_colnames_database() == input$selected_name_var02) == 1
 
         validate(
           need(check_vr,     'Error 001: The selected response variable does not belong to the database.'),
-          need(check_factor, 'Error 002: The selected factor does not belong to the database.'),
+          #need(check_factor, 'Error 002: The selected factor does not belong to the database.'),
           errorClass = "ERROR"
         )
 
 
-        validate(
-          need(input$selected_name_var01 != input$selected_name_var02, 'The response variable and the factor must be different variables. Change your choice of variables.'),
-          errorClass = "ERROR"
-        )
+
         return(TRUE)
 
-      }) %>% bindCache(input$"selected_name_var01", input$"selected_name_var02")
+      }) %>% bindCache(input$"selected_name_var01")
 
 
       output$text_control_01 <- renderText({
@@ -238,94 +224,18 @@ module_sp001_s003_server <- function(id, vector_all_colnames_database, database)
 
       # # # Step 02 - Basic Details ---------------------------------------
 
-      # Expresión reactiva para obtener información original
-      df_original_info <- reactive({
-        req(control_01())
-
-        my_level <- levels(as.factor(as.character(database()[,input$"selected_name_var02"])))
-        my_number <- 1:length(my_level)
-        my_color <- rainbow(max(my_number))
-
-        df_output <- data.frame(
-          "vector_orig_level" = my_level,
-          "vector_orig_number" = my_number,
-          "vector_orig_color" = my_color
-        )
-        return(df_output)
-      }) %>% bindCache(database(), input$"selected_name_var02")
-
       # Renderizar UI para selectores de orden y color
-      output$order_and_color_pickers <- renderUI({
-        req(control_01(), df_original_info())
+      output$color_picker <- renderUI({
+        #req(control_01())
 
-        vec_opt_original_colors <- df_original_info()$"vector_orig_color"
-        vec_opt_original_categories <- df_original_info()$"vector_orig_number"
-        names(vec_opt_original_categories) <-  df_original_info()$"vector_orig_level"
-        value_amount_categories <- length(vec_opt_original_categories)
 
-        color_inputs <- lapply(1:value_amount_categories, function(i) {
-          fluidRow(
-            column(4, shiny::selectInput(inputId = ns(paste0("pos", i)),
-                                         label = paste0("Category order ", i, " - "),
-                                         choices = vec_opt_original_categories,
-                                         selected = vec_opt_original_categories[i])),
-            column(4, colourpicker::colourInput(inputId = ns(paste0("color", i)),
-                                                label = paste("Color", i), value = vec_opt_original_colors[i]))
-          )
-        })
-        do.call(tagList, color_inputs)
-      }) %>% bindCache(df_original_info())
+        colourpicker::colourInput(inputId = ns("my_color"),
+                                  label = paste("Color"),
+                                  value = "#FF0000")
 
-      # Renderizar UI para mostrar colores seleccionados
-      output$selected_colors <- renderUI({
-        req(control_01(), df_original_info())
-
-        num_colors <- nrow(df_original_info())
-
-        selected_colors <- lapply(1:num_colors, function(i) {
-          color <- input[[paste0("color", i)]]
-          tags$p(paste("Color", i, "seleccionado:"), tags$span(style = paste("color:", color), color))
-        })
-        do.call(tagList, selected_colors)
-      }) %>% bindCache(df_original_info())
-
-      # Expresión reactiva para obtener nueva información
-      df_new_info <- reactive({
-        req(control_01(), df_original_info())
-
-        # Original info
-        vector_orig_level  <- df_original_info()$"vector_orig_level"
-        vector_orig_number <- df_original_info()$"vector_orig_number"
-        vector_orig_color  <- df_original_info()$"vector_orig_color"
-
-        num_colors <- nrow(df_original_info())
-
-        vector_new_level <- sapply(1:num_colors, function(i) {
-          req(input[[paste0("pos", i)]])
-          input[[paste0("pos", i)]]
-        })
-        vector_new_level <- as.numeric(as.character(vector_new_level))
-        vector_new_level <- vector_orig_level[vector_new_level]
-
-        vector_new_number <- match(vector_orig_level, vector_new_level)
-
-        vector_new_color <- sapply(1:num_colors, function(i) {
-          input[[paste0("color", i)]]
-        })
-
-        df_output <- data.frame(
-          "vector_new_level" =  vector_new_level,
-          "vector_new_number" = vector_new_number,
-          "vector_new_color" =  vector_new_color
-        )
-        return(df_output)
       })
 
-      # Renderizar tabla para mostrar nueva información
-      output$df_color_info <- renderTable({
-        req(control_01(), df_new_info())
-        df_new_info()
-      }) %>% bindCache(df_new_info())
+
 
 
 
@@ -333,20 +243,10 @@ module_sp001_s003_server <- function(id, vector_all_colnames_database, database)
 
         req(control_01())
 
-        amount_ok_01 <- max(table(df_new_info()$"vector_new_level")) == 1
-        validate(
-          need(amount_ok_01,   'ERROR 003: Each category must be detailed only once.'),
-          errorClass = "ERROR"
-        )
 
-        amount_ok_02 <- all(df_new_info()$"vector_new_level" %in% df_original_info()$"vector_orig_level")
-        validate(
-          need(amount_ok_02,   'ERROR 004: Some of the categories do not belong to the database.'),
-          errorClass = "ERROR"
-        )
 
         return(TRUE)
-      }) %>% bindCache(df_new_info())
+      })
 
 
       output$text_control_02 <- renderText({
@@ -381,8 +281,7 @@ module_sp001_s003_server <- function(id, vector_all_colnames_database, database)
 
 
       # Reset values if something change from previous inputs
-      observeEvent(list(input$selected_name_var01, input$selected_name_var02,
-                        df_original_info(), df_new_info()), {
+      observeEvent(list(input$selected_name_var01), {
 
                           check_reset_render_opts(TRUE)
 
@@ -492,7 +391,7 @@ module_sp001_s003_server <- function(id, vector_all_colnames_database, database)
       # Special folder
       input_folder_master <- reactive({
         the_package_name <- "Revelio"
-        selected_folder <- "fm001_s001"
+        selected_folder <- "sp001_s003"
 
         special_folder_package <- file.path("extdata", selected_folder)
         special_folder_local <- file.path("inst", "extdata", selected_folder)
@@ -513,7 +412,7 @@ module_sp001_s003_server <- function(id, vector_all_colnames_database, database)
       all_files_master <- reactive({
         req(input_folder_master())
         list.files(input_folder_master())
-      })  %>% bindCache(df_new_info())
+      })  %>% bindCache(input_folder_master())
 
       # Nombre correspondiente para los archivos modificados
       all_files_mod <- reactive({
@@ -527,7 +426,7 @@ module_sp001_s003_server <- function(id, vector_all_colnames_database, database)
         vector_R_new <- grep("_CODE", gsub("\\.Rmd$", ".R", vector_rmd_mod), value = TRUE)
         vector_RData_new <- "R_objects_new.RData"
         c(vector_html_new, vector_R_new, vector_R_new, vector_RData_new)
-      }) %>% bindCache(df_new_info())
+      }) %>% bindCache(all_files_mod())
 
 
       # Crear objetos reactivos para render_env y change_name_path
@@ -537,7 +436,7 @@ module_sp001_s003_server <- function(id, vector_all_colnames_database, database)
 
       # Primera parte: Manejar la creación del directorio temporal y la copia de archivos
       observeEvent(input$render_report_button, {
-        req(control_03(), df_new_info())
+        req(control_03(), input$my_color)
 
         # The time
         original_time <- format(Sys.time(), "%Y-%m-%d %H:%M:%S")
@@ -579,9 +478,9 @@ module_sp001_s003_server <- function(id, vector_all_colnames_database, database)
         env <- new.env()
         env$database <- database()
         env$selected_name_var01 <- input$selected_name_var01
-        env$selected_name_var02 <- input$selected_name_var02
-        env$mis_colores <- df_new_info()$vector_new_color
-        env$mis_categorias <- df_new_info()$vector_new_level
+        #env$selected_name_var02 <- "cyl"###input$selected_name_var01###
+        env$mis_colores <- input$my_color
+        #env$mis_categorias <- df_new_info()$vector_new_level
 
         # Guardar el entorno de renderizado y change_name_path en los objetos reactivos
         render_env(env)

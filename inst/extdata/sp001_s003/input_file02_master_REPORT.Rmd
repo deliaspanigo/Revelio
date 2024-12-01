@@ -29,7 +29,8 @@ document.addEventListener('DOMContentLoaded', function() {
   <img src="logo_04_rscience_mod.png" class="inline-image" width="200"  height="100">
 </div>
 
-## Summary Report - (QC) - Position and dispersion measures for a quantitative variable by groups
+
+## Summary Report - 1C
 
 #### Hora de ejecución: `r format(Sys.time(), "%Y-%m-%d %H:%M:%S")`
 #### Sistema operativo: `r Sys.info()["sysname"]`
@@ -68,13 +69,14 @@ load("R_results.Rdata")
 
 
 # Crear la tabla y aplicar estilos
-knitr::kable(df_selected_vars, caption = "", align = 'c') %>%
-  kableExtra::kable_styling(position = "center", full_width = FALSE, 
+knitr::kable(df_selected_var, caption = "", align = 'c') %>%
+  kableExtra::kable_styling(position = "center", full_width = FALSE,
                             bootstrap_options = c("striped", "hover")) %>%
   kableExtra::row_spec(0, bold = TRUE) %>%  # Negrita para la fila de encabezado
-  kableExtra::row_spec(seq(1, nrow(df_selected_vars), 2), background = "lightblue") %>%  # Color para filas impares
-  kableExtra::row_spec(seq(2, nrow(df_selected_vars), 2), background = "lightgreen") %>%  # Color para filas pares
-  kableExtra::add_footnote("Tabla02: Rerencias", notation = "none")
+  kableExtra::row_spec(seq(1, nrow(df_selected_var), 2), background = "lightblue") #%>%  # Color para filas impares
+  #
+  # kableExtra::row_spec(seq(2, nrow(df_selected_var), 2), background = "lightgreen") %>%  # Color para filas pares
+  # kableExtra::add_footnote("Tabla02: Rerencias", notation = "none")
 
 #knitr::kable(, caption = )
 ```
@@ -91,13 +93,13 @@ knitr::kable(df_selected_vars, caption = "", align = 'c') %>%
 
 
 # Crear la tabla y aplicar estilos
-knitr::kable(df_vr_position_levels, caption = "", align = 'c') %>%
-  kableExtra::kable_styling(position = "center", full_width = FALSE, 
+knitr::kable(df_var_position_general, caption = "", align = 'c') %>%
+  kableExtra::kable_styling(position = "center", full_width = FALSE,
                             bootstrap_options = c("striped", "hover")) %>%
   kableExtra::row_spec(0, bold = TRUE) %>%  # Negrita para la fila de encabezado
-  kableExtra::row_spec(seq(1, nrow(df_vr_position_levels), 2), background = "lightblue") %>%  # Color para filas impares
-  kableExtra::row_spec(seq(2, nrow(df_vr_position_levels), 2), background = "lightgreen") %>%  # Color para filas pares
-  kableExtra::add_footnote("Tabla01: Medidas de posición", notation = "none")
+  kableExtra::row_spec(seq(1, nrow(df_var_position_general), 2), background = "lightblue") #%>%  # Color para filas impares
+  # kableExtra::row_spec(seq(2, nrow(df_var_position_general), 2), background = "lightgreen") %>%  # Color para filas pares
+  # kableExtra::add_footnote("Tabla01: Medidas de posición", notation = "none")
 
 #knitr::kable(, caption = )
 ```
@@ -107,13 +109,13 @@ knitr::kable(df_vr_position_levels, caption = "", align = 'c') %>%
 ### Section 03 of 04 - Dispersion Measurements
 ```{r, include =T, eval = T, echo = F, class.source="bg-success"}
 # Crear la tabla y aplicar estilos
-knitr::kable(df_vr_dispersion_levels, caption = "", align = 'c') %>%
-  kableExtra::kable_styling(position = "center", full_width = FALSE, 
+knitr::kable(df_var_dispersion_general, caption = "", align = 'c') %>%
+  kableExtra::kable_styling(position = "center", full_width = FALSE,
                             bootstrap_options = c("striped", "hover")) %>%
   kableExtra::row_spec(0, bold = TRUE) %>%  # Negrita para la fila de encabezado
-  kableExtra::row_spec(seq(1, nrow(df_vr_dispersion_levels), 2), background = "lightblue") %>%  # Color para filas impares
-  kableExtra::row_spec(seq(2, nrow(df_vr_dispersion_levels), 2), background = "lightgreen") %>%  # Color para filas pares
-  kableExtra::add_footnote("Tabla02: Medidas de dispersión", notation = "none")
+  kableExtra::row_spec(seq(1, nrow(df_var_dispersion_general), 2), background = "lightblue")# %>%  # Color para filas impares
+  #kableExtra::row_spec(seq(2, nrow(df_var_dispersion_general), 2), background = "lightgreen") %>%  # Color para filas pares
+  #kableExtra::add_footnote("Tabla02: Medidas de dispersión", notation = "none")
 
 ```
 <br>
@@ -124,56 +126,89 @@ knitr::kable(df_vr_dispersion_levels, caption = "", align = 'c') %>%
 ```{r, include =T, eval = T, echo = F, class.source="bg-success"}
 
 
-plot001_factor
+plot001
 ```
 
 
 <hr style="border-top: 3px solid black;">
+
+
 ```{r, include =T, eval = T, echo = F, class.source="bg-success"}
 
 
-plot002_factor
+plot002
 ```
 
 
 <hr style="border-top: 3px solid black;">
+
 ```{r, include =T, eval = T, echo = F, class.source="bg-success"}
 
 
-plot003_factor
+plot003
 ```
 
 
 <hr style="border-top: 3px solid black;">
+
+
 ```{r, include =T, eval = T, echo = F, class.source="bg-success"}
 
 
-plot004_factor
+plot004
 ```
 
 
 <hr style="border-top: 3px solid black;">
+
 ```{r, include =T, eval = T, echo = F, class.source="bg-success"}
 
 
-plot005_factor
+plot005
 ```
 
 
 <hr style="border-top: 3px solid black;">
+
 ```{r, include =T, eval = T, echo = F, class.source="bg-success"}
 
 
-plot006_factor
+plot006
 ```
 
+
 <hr style="border-top: 3px solid black;">
+
+
 ```{r, include =T, eval = T, echo = F, class.source="bg-success"}
 
 
-plot003_residuals
+plot007
 ```
+
+
 <hr style="border-top: 3px solid black;">
+
+
+```{r, include =T, eval = T, echo = F, class.source="bg-success"}
+
+
+plot008
+```
+
+
+<hr style="border-top: 3px solid black;">
+
+
+```{r, include =T, eval = T, echo = F, class.source="bg-success"}
+
+
+plot009
+```
+
+
+<hr style="border-top: 3px solid black;">
+
 
 
 

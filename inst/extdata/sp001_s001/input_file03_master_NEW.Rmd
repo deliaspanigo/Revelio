@@ -28,7 +28,8 @@ document.addEventListener('DOMContentLoaded', function() {
   <img src="logo_04_rscience_mod.png" class="inline-image" width="200"  height="100">
 </div>
 
-## Summary Report - (QC) - Position and dispersion measures for a quantitative variable by groups
+## Summary Report - (1Q) - Frecuency Tables
+
 
 ## CODIGO
 

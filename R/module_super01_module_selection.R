@@ -35,7 +35,7 @@ module_super01_module_selection_server <- function(id, menu_yml) {
         req(menu_yml$menus)
         choices <- sapply(menu_yml$menus, `[[`, "name")
         choices <- c("Select a tools..." = "", choices)
-        print(choices)
+        #print(choices)
         updateSelectInput(session = session,
                            inputId = "main_menu",
                            choices = choices,

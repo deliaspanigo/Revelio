@@ -63,12 +63,12 @@ module_sp001_s001_ui <- function(id){
       tabPanel("Variable selection",
                fluidRow(br()),
                fluidRow(
+                 # column(3,
+                 #        selectInput(inputId = ns("selected_name_var01"),
+                 #                    label = "Response Variable",
+                 #                    choices = NULL)),
                  column(3,
                         selectInput(inputId = ns("selected_name_var01"),
-                                    label = "Response Variable",
-                                    choices = NULL)),
-                 column(3,
-                        selectInput(inputId = ns("selected_name_var02"),
                                     label = "Factor",
                                     choices = NULL)),
                  column(3,
@@ -163,22 +163,22 @@ module_sp001_s001_server <- function(id, vector_all_colnames_database, database)
         return(output_list)
       }) %>% bindCache(vector_all_colnames_database())
 
+      # observe({
+      #   req(standard_info_var_selection())
+      #   vector_opt <- standard_info_var_selection()$vector_options
+      #
+      #   updateSelectInput(session = session,
+      #                     inputId = "selected_name_var01",
+      #                     choices = vector_opt,
+      #                     selected = vector_opt[1])
+      # })
+
       observe({
         req(standard_info_var_selection())
         vector_opt <- standard_info_var_selection()$vector_options
 
         updateSelectInput(session = session,
                           inputId = "selected_name_var01",
-                          choices = vector_opt,
-                          selected = vector_opt[1])
-      })
-
-      observe({
-        req(standard_info_var_selection())
-        vector_opt <- standard_info_var_selection()$vector_options
-
-        updateSelectInput(session = session,
-                          inputId = "selected_name_var02",
                           choices = vector_opt,
                           selected = vector_opt[1])
       })
@@ -197,36 +197,36 @@ module_sp001_s001_server <- function(id, vector_all_colnames_database, database)
       control_01 <- reactive({
 
         validate(
+          #need(!is.null(input$selected_name_var01),   ''),
           need(!is.null(input$selected_name_var01),   ''),
-          need(!is.null(input$selected_name_var02),   ''),
           errorClass = "ERROR"
         )
 
         validate(
-          need(input$selected_name_var01 != "", 'Select a response variable from your dataset.'),
-          need(input$selected_name_var02 != "", 'Select a factor from your dataset.'),
+          #need(input$selected_name_var01 != "", 'Select a response variable from your dataset.'),
+          need(input$selected_name_var01 != "", 'Select a factor from your dataset.'),
           errorClass = "WARNING"
         )
 
 
 
-        check_vr <- sum(vector_all_colnames_database() == input$selected_name_var01) == 1
-        check_factor <- sum(vector_all_colnames_database() == input$selected_name_var02) == 1
+        #check_vr <- sum(vector_all_colnames_database() == input$selected_name_var01) == 1
+        check_factor <- sum(vector_all_colnames_database() == input$selected_name_var01) == 1
 
         validate(
-          need(check_vr,     'Error 001: The selected response variable does not belong to the database.'),
+          #need(check_vr,     'Error 001: The selected response variable does not belong to the database.'),
           need(check_factor, 'Error 002: The selected factor does not belong to the database.'),
           errorClass = "ERROR"
         )
 
 
-        validate(
-          need(input$selected_name_var01 != input$selected_name_var02, 'The response variable and the factor must be different variables. Change your choice of variables.'),
-          errorClass = "ERROR"
-        )
+        # validate(
+        #   need(input$selected_name_var01 != input$selected_name_var01, 'The response variable and the factor must be different variables. Change your choice of variables.'),
+        #   errorClass = "ERROR"
+        # )
         return(TRUE)
 
-      }) %>% bindCache(input$"selected_name_var01", input$"selected_name_var02")
+      }) %>% bindCache(input$"selected_name_var01")
 
 
       output$text_control_01 <- renderText({
@@ -242,7 +242,7 @@ module_sp001_s001_server <- function(id, vector_all_colnames_database, database)
       df_original_info <- reactive({
         req(control_01())
 
-        my_level <- levels(as.factor(as.character(database()[,input$"selected_name_var02"])))
+        my_level <- levels(as.factor(as.character(database()[,input$"selected_name_var01"])))
         my_number <- 1:length(my_level)
         my_color <- rainbow(max(my_number))
 
@@ -252,7 +252,7 @@ module_sp001_s001_server <- function(id, vector_all_colnames_database, database)
           "vector_orig_color" = my_color
         )
         return(df_output)
-      }) %>% bindCache(database(), input$"selected_name_var02")
+      }) %>% bindCache(database(), input$"selected_name_var01")
 
       # Renderizar UI para selectores de orden y color
       output$order_and_color_pickers <- renderUI({
@@ -381,7 +381,7 @@ module_sp001_s001_server <- function(id, vector_all_colnames_database, database)
 
 
       # Reset values if something change from previous inputs
-      observeEvent(list(input$selected_name_var01, input$selected_name_var02,
+      observeEvent(list(input$selected_name_var01, input$selected_name_var01,
                         df_original_info(), df_new_info()), {
 
                           check_reset_render_opts(TRUE)
@@ -492,7 +492,7 @@ module_sp001_s001_server <- function(id, vector_all_colnames_database, database)
       # Special folder
       input_folder_master <- reactive({
         the_package_name <- "Revelio"
-        selected_folder <- "fm001_s001"
+        selected_folder <- "sp001_s001"
 
         special_folder_package <- file.path("extdata", selected_folder)
         special_folder_local <- file.path("inst", "extdata", selected_folder)
@@ -578,8 +578,8 @@ module_sp001_s001_server <- function(id, vector_all_colnames_database, database)
         # Crear el entorno de renderizado
         env <- new.env()
         env$database <- database()
+        #env$selected_name_var01 <- "mpg"
         env$selected_name_var01 <- input$selected_name_var01
-        env$selected_name_var02 <- input$selected_name_var02
         env$mis_colores <- df_new_info()$vector_new_color
         env$mis_categorias <- df_new_info()$vector_new_level
 

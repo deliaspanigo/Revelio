@@ -492,7 +492,7 @@ module_sp001_s005_server <- function(id, vector_all_colnames_database, database)
       # Special folder
       input_folder_master <- reactive({
         the_package_name <- "Revelio"
-        selected_folder <- "fm001_s001"
+        selected_folder <- "sp001_s005"
 
         special_folder_package <- file.path("extdata", selected_folder)
         special_folder_local <- file.path("inst", "extdata", selected_folder)
