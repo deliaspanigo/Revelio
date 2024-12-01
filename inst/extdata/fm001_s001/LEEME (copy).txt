@@ -1,4 +1,94 @@
 
+library(knitr)
+
+# Función para extraer código R de un archivo .Rmd
+extract_r_code <- function(rmd_file, chunk_names = NULL) {
+  # Leer el archivo .Rmd
+  lines <- readLines(rmd_file)
+
+  # Inicializar variables
+  in_chunk <- FALSE
+  chunk_code <- list()
+  current_chunk <- NULL
+
+  # Recorrer las líneas del archivo
+  for (line in lines) {
+    # Detectar el inicio de un chunk
+    if (grepl("^```\\{r", line)) {
+      in_chunk <- TRUE
+      current_chunk <- sub("^```\\{r\\s*(\\w*).*", "\\1", line)
+      chunk_code[[current_chunk]] <- c()
+    }
+
+    # Detectar el final de un chunk
+    if (grepl("^```$", line) && in_chunk) {
+      in_chunk <- FALSE
+      current_chunk <- NULL
+    }
+
+    # Si estamos dentro de un chunk, agregar el código
+    if (in_chunk && !grepl("^```\\{r", line)) {
+      chunk_code[[current_chunk]] <- c(chunk_code[[current_chunk]], line)
+    }
+  }
+
+  # Filtrar los chunks si se especificaron nombres de chunks
+  if (!is.null(chunk_names)) {
+    chunk_code <- chunk_code[chunk_names]
+  }
+
+  return(chunk_code)
+}
+
+# # # 01) UI - Selection for 'database'
+module_fm001_s001_ui2 <- function(id){
+
+  ns <- shiny::NS(id)
+
+
+
+  div(
+    tags$head(
+      tags$style(HTML("
+      .shiny-output-error-WARNING {
+        color: #0000ff;
+        font-weight: bold;
+      }
+    ")),
+      tags$style(HTML("
+      .shiny-output-error-ERROR {
+        color: #ff0000;
+        font-weight: bold;
+      }
+    ")),
+      tags$style(HTML("
+        .content-wrapper, .right-side {
+          overflow-y: hidden !important;
+        }
+      "))
+    ),
+    shiny::h1("General Linear Models - Fixed Effects - Anova 1 Way"),
+    shiny::fluidRow(
+      shiny::column(3, uiOutput(ns("box02_var_selector"))),
+      shiny::column(9, uiOutput(ns("box05_colores")))
+    ),
+    shiny::fluidRow(
+      shiny::column(12,
+                    shiny::textOutput(ns("text_control_general")))),
+    # Espacio para los selectores de color dinámicos
+
+    # Mostrar los colores seleccionados
+    uiOutput(ns("control_de_mision")),
+    shiny::fluidRow(
+      shiny::column(12,
+                    shinycssloaders::withSpinner(uiOutput(ns("report_view"))),
+                    br(), br(), br()
+      )
+    )
+  )
+
+
+}
 
 module_fm001_s001_ui <- function(id){
 
@@ -64,11 +154,11 @@ module_fm001_s001_ui <- function(id){
                fluidRow(br()),
                fluidRow(
                  column(3,
-                        selectInput(inputId = ns("selected_name_var01"),
+                        selectInput(inputId = ns("selected_vr_name"),
                                     label = "Response Variable",
                                     choices = NULL)),
                  column(3,
-                        selectInput(inputId = ns("selected_name_var02"),
+                        selectInput(inputId = ns("selected_factor_name"),
                                     label = "Factor",
                                     choices = NULL)),
                  column(3,
@@ -78,7 +168,7 @@ module_fm001_s001_ui <- function(id){
                  )
                ),
                fluidRow(
-                 column(9, p(shiny::textOutput(ns("text_control_01"))))
+                 column(9, p(shiny::textOutput(ns("text_control_general"))))
                )
       ),
       tabPanel("Basic Details",
@@ -93,7 +183,7 @@ module_fm001_s001_ui <- function(id){
                p(shiny::textOutput(ns("text_control_02")))
 
       ),
-      tabPanel("Report",
+      tabPanel("Reports",
                h3("Contenido del Tab 3"),
                p("Este es el contenido del tercer tab."),
                uiOutput(ns("control_de_mision")),
@@ -167,7 +257,7 @@ module_fm001_s001_server <- function(id, vector_all_colnames_database, database)
         vector_opt <- standard_info_var_selection()$vector_options
 
         updateSelectInput(session = session,
-                          inputId = "selected_name_var01",
+                          inputId = "selected_vr_name",
                           choices = vector_opt,
                           selected = vector_opt[1])
       })
@@ -177,7 +267,7 @@ module_fm001_s001_server <- function(id, vector_all_colnames_database, database)
         vector_opt <- standard_info_var_selection()$vector_options
 
         updateSelectInput(session = session,
-                          inputId = "selected_name_var02",
+                          inputId = "selected_factor_name",
                           choices = vector_opt,
                           selected = vector_opt[1])
       })
@@ -196,21 +286,21 @@ module_fm001_s001_server <- function(id, vector_all_colnames_database, database)
       control_01 <- reactive({
 
         validate(
-          need(!is.null(input$selected_name_var01),   ''),
-          need(!is.null(input$selected_name_var02),   ''),
+          need(!is.null(input$selected_vr_name),   ''),
+          need(!is.null(input$selected_factor_name),   ''),
           errorClass = "ERROR"
         )
 
         validate(
-          need(input$selected_name_var01 != "", 'Select a response variable from your dataset.'),
-          need(input$selected_name_var02 != "", 'Select a factor from your dataset.'),
+          need(input$selected_vr_name != "", 'Select a response variable from your dataset.'),
+          need(input$selected_factor_name != "", 'Select a factor from your dataset.'),
           errorClass = "WARNING"
         )
 
 
 
-        check_vr <- sum(vector_all_colnames_database() == input$selected_name_var01) == 1
-        check_factor <- sum(vector_all_colnames_database() == input$selected_name_var02) == 1
+        check_vr <- sum(vector_all_colnames_database() == input$selected_vr_name) == 1
+        check_factor <- sum(vector_all_colnames_database() == input$selected_factor_name) == 1
 
         validate(
           need(check_vr,     'Error 001: The selected response variable does not belong to the database.'),
@@ -220,15 +310,15 @@ module_fm001_s001_server <- function(id, vector_all_colnames_database, database)
 
 
         validate(
-          need(input$selected_name_var01 != input$selected_name_var02, 'The response variable and the factor must be different variables. Change your choice of variables.'),
+          need(input$selected_vr_name != input$selected_factor_name, 'The response variable and the factor must be different variables. Change your choice of variables.'),
           errorClass = "ERROR"
         )
         return(TRUE)
 
-      }) %>% bindCache(input$"selected_name_var01", input$"selected_name_var02")
+      }) %>% bindCache(input$"selected_vr_name", input$"selected_factor_name")
 
 
-      output$text_control_01 <- renderText({
+      output$text_control_general <- renderText({
         req(control_01())
         ""
       })
@@ -241,7 +331,7 @@ module_fm001_s001_server <- function(id, vector_all_colnames_database, database)
       df_original_info <- reactive({
         req(control_01())
 
-        my_level <- levels(as.factor(as.character(database()[,input$"selected_name_var02"])))
+        my_level <- levels(as.factor(as.character(database()[,input$"selected_factor_name"])))
         my_number <- 1:length(my_level)
         my_color <- rainbow(max(my_number))
 
@@ -251,7 +341,7 @@ module_fm001_s001_server <- function(id, vector_all_colnames_database, database)
           "vector_orig_color" = my_color
         )
         return(df_output)
-      }) %>% bindCache(database(), input$"selected_name_var02")
+      }) %>% bindCache(database(), input$"selected_factor_name")
 
       # Renderizar UI para selectores de orden y color
       output$order_and_color_pickers <- renderUI({
@@ -380,7 +470,7 @@ module_fm001_s001_server <- function(id, vector_all_colnames_database, database)
 
 
       # Reset values if something change from previous inputs
-      observeEvent(list(input$selected_name_var01, input$selected_name_var02,
+      observeEvent(list(input$selected_vr_name, input$selected_factor_name,
                         df_original_info(), df_new_info()), {
 
                           check_reset_render_opts(TRUE)
@@ -464,19 +554,14 @@ module_fm001_s001_server <- function(id, vector_all_colnames_database, database)
 
         fluidRow(
           column(12,
-                 downloadButton(outputId = ns('download_button_output_file01_code_R'),
+                 downloadButton(outputId = ns('download_button_file01_rmd_s04_rcode'),
                                 label = "R", width = "100%", disabled = TRUE),
-                 downloadButton(outputId = ns('download_button_output_file02_code_HTML'),
-                                label = "HTML - R Code", width = "100%", disabled = TRUE),
-                 downloadButton(outputId = ns('download_button_output_file03_outputs_HTML'),
-                                label = "HTML - R Outputs", width = "100%", disabled = TRUE),
-                 downloadButton(outputId = ns('download_button_output_file04_report_HTML'),
-                                label = "HTML - Report", width = "100%", disabled = TRUE)
-
-
-
-##                 downloadButton(outputId = ns('download_button_zip'),
-#                                label = "All (ZIP)", width = "100%", disabled = TRUE)
+                 downloadButton(outputId = ns('download_button_file01_report_s02_html'),
+                                label = "HTML - Original", width = "100%", disabled = TRUE),
+                 downloadButton(outputId = ns('download_button_file02_report_s02_html'),
+                                label = "HTML - Report", width = "100%", disabled = TRUE),
+                 downloadButton(outputId = ns('download_button_zip'),
+                                label = "All (ZIP)", width = "100%", disabled = TRUE)
           )
         )
       })
@@ -571,27 +656,26 @@ module_fm001_s001_server <- function(id, vector_all_colnames_database, database)
         file.copy(original_files, output_folder_temp, overwrite = TRUE)
 
         original_name_path <- file.path(output_folder_temp, all_files_master())
-        change_name_path <- file.path(output_folder_temp, all_files_mod())
-        file.rename(original_name_path, change_name_path)
+        change_name_path_val <- file.path(output_folder_temp, all_files_mod())
+        file.rename(original_name_path, change_name_path_val)
 
         # Crear el entorno de renderizado
         env <- new.env()
         env$database <- database()
-        env$selected_name_var01 <- input$selected_name_var01
-        env$selected_name_var02 <- input$selected_name_var02
+        env$selected_vr_name <- input$selected_vr_name
+        env$selected_factor_name <- input$selected_factor_name
         env$mis_colores <- df_new_info()$vector_new_color
         env$mis_categorias <- df_new_info()$vector_new_level
 
         # Guardar el entorno de renderizado y change_name_path en los objetos reactivos
         render_env(env)
-        change_name_path(change_name_path)
+        change_name_path(change_name_path_val)
       })
 
 
       # # # Input Paths - Master Files
       input_path_file01_rmd_code <- reactiveVal()
       input_path_file02_rmd_report <- reactiveVal()
-      input_path_file03_rmd_new <- reactiveVal()
 
 
 
@@ -609,28 +693,23 @@ module_fm001_s001_server <- function(id, vector_all_colnames_database, database)
 
 
       # Segunda parte: Manejar la generación de los informes usando render_env y change_name_path
-      count_general <- reactiveVal(0)
-
       observeEvent(list(render_env(), change_name_path()), {
-        req(render_env(), change_name_path(), special_path_output_folder())
+        req(render_env(), change_name_path())
 
 
-        count_general(0)
 
         # Input files
-        input_path_file01_rmd_code   <- grep("_CODE",   change_name_path(), value = TRUE)
-        input_path_file02_rmd_report <- grep("_REPORT", change_name_path(), value = TRUE)
-        input_path_file03_rmd_new    <- grep("_NEW",    change_name_path(), value = TRUE)
+        input_path_file01_rmd_code <- grep("_CODE",   change_name_path_val(), value = TRUE)
+        input_path_file02_rmd_report <- grep("_REPORT", change_name_path_val(), value = TRUE)
 
         input_path_file01_rmd_code(input_path_file01_rmd_code)
         input_path_file02_rmd_report(input_path_file02_rmd_report)
-        input_path_file03_rmd_new(input_path_file03_rmd_new)
 
 
         # Delete output files if exists.
         output_paths <- c(output_path01_code_R(),
                           output_path02_code_HTML(),
-                          output_path03_outputs_HTML(),
+                          output_path03_output_HTML(),
                           output_path04_report_HTML())
         files_to_remove <- output_paths[file.exists(output_paths)]
         if(length(files_to_remove)) sapply(files_to_remove, file.remove)
@@ -638,25 +717,15 @@ module_fm001_s001_server <- function(id, vector_all_colnames_database, database)
 
         # Output 01 - file01_code.R
         chunk_names <- c("chunk_rcode")  # Nombres de los chunks que deseas extraer
-        the_code <- fn_extract_r_code(input_path_file01_rmd_code(), chunk_names)
+        the_code <- extract_r_code(input_path_file01_rmd_code(), chunk_names)
         all_code <- unlist(the_code)
-        brio::writeLines(text = all_code, con = output_path01_code_R())
-
-
-
-        fn_replace_code_in_rmd(rmd_file = input_path_file03_rmd_new(),
-                            old_code = "all_code",
-                            new_code = all_code)
-
-        rmarkdown::render(input = input_path_file03_rmd_new(),
-                          output_format = rmarkdown::html_document(),
-                          output_file = output_path02_code_HTML())
+        brio::writeLines(text = all_code, con = output_file01_code_R())
 
 
 
         # Output 03 - file03_outputs.html
         rmarkdown::render(input = input_path_file01_rmd_code(),
-                          output_format = rmarkdown::html_document(),
+                          rmarkdown::html_document(),
                           output_file = output_path03_outputs_HTML(),
                           envir = render_env())
 
@@ -667,7 +736,6 @@ module_fm001_s001_server <- function(id, vector_all_colnames_database, database)
                           output_file = output_path04_report_HTML(),
                           envir = render_env())
 
-        count_general(count_general()+1)
 
       })
 
@@ -687,85 +755,69 @@ module_fm001_s001_server <- function(id, vector_all_colnames_database, database)
         }
       )
 
+      observeEvent(output_path01_code_R(),{
+          req(output_path01_code_R())
 
-      observeEvent(list(count_general(), download_counter_output_file01_code_R()),{
+        if(file.exists(output_path01_code_R())){
+        shinyjs::enable("download_button_output_file01_code_R")
+        runjs(sprintf('$("#%s").css({"background-color": "orange", "color": "white", "border": "none", "padding": "10px 20px", "text-align": "center", "text-decoration": "none", "display": "inline-block", "font-size": "16px", "margin": "4px 2px", "cursor": "pointer", "border-radius": "12px"});', ns("download_button_output_file01_code_R")))
+        }
+
+      })
+
+
+      observeEvent(download_counter_output_file01_code_R(),{
         #req(download_counter_file01_rmd_s04_rcode())
 
-        the_cons01 <- download_counter_output_file01_code_R()==0 && count_general()==0
-        the_cons02 <- download_counter_output_file01_code_R()>=1 && count_general()==0
-        the_cons03 <- download_counter_output_file01_code_R()==0 && count_general()==1
-        the_cons04 <- download_counter_output_file01_code_R()>=1 && count_general()==1
-
-        #print(the_cons)
-        if(the_cons01 | the_cons02) {
-          shinyjs::disable("download_button_output_file01_code_R")
-          runjs(sprintf('$("#%s").css({"background-color": "grey", "color": "white", "border": "none", "padding": "10px 20px", "text-align": "center", "text-decoration": "none", "display": "inline-block", "font-size": "16px", "margin": "4px 2px", "cursor": "pointer", "border-radius": "12px"});', ns("download_button_output_file01_code_R")))
-        } else
-          if(the_cons03){
-            shinyjs::enable("download_button_output_file01_code_R")
-            runjs(sprintf('$("#%s").css({"background-color": "orange", "color": "white", "border": "none", "padding": "10px 20px", "text-align": "center", "text-decoration": "none", "display": "inline-block", "font-size": "16px", "margin": "4px 2px", "cursor": "pointer", "border-radius": "12px"});', ns("download_button_output_file01_code_R")))
-          } else
-            if(the_cons04){
-              shinyjs::enable("download_button_output_file01_code_R")
-              runjs(sprintf('$("#%s").css({"background-color": "green", "color": "white", "border": "none", "padding": "10px 20px", "text-align": "center", "text-decoration": "none", "display": "inline-block", "font-size": "16px", "margin": "4px 2px", "cursor": "pointer", "border-radius": "12px"});', ns("download_button_output_file01_code_R")))
-            }
+        the_cons <- download_counter_output_file01_code_R()>=1
+        print(the_cons)
+        if(the_cons ){
+          #shinyjs::enable("download_button_file01_rmd_s04_rcode")
+          runjs(sprintf('$("#%s").css({"background-color": "green", "color": "white", "border": "none", "padding": "10px 20px", "text-align": "center", "text-decoration": "none", "display": "inline-block", "font-size": "16px", "margin": "4px 2px", "cursor": "pointer", "border-radius": "12px"});', ns("download_button_output_file01_code_R")))
+        }
       })
 
 
 
       ######################################################
 
-
-        download_counter_output_file02_code_HTML <- reactiveVal(0)
-
-
-        output$download_button_output_file02_code_HTML <- downloadHandler(
-          filename = function() {
-            basename(output_path02_code_HTML())
-          },
-          content = function(file) {
-            #file.copy(output_path_html(), file, overwrite = TRUE)
-            file.copy(output_path02_code_HTML(), file, overwrite = TRUE)
-            download_counter_output_file02_code_HTML(download_counter_output_file02_code_HTML() + 1)
-          }
-        )
-
-        observeEvent(output_path02_code_HTML(),{
-          req(output_path02_code_HTML())
-
-          if(file.exists(output_path02_code_HTML())){
-            shinyjs::enable("download_button_output_file02_code_HTML")
-            runjs(sprintf('$("#%s").css({"background-color": "orange", "color": "white", "border": "none", "padding": "10px 20px", "text-align": "center", "text-decoration": "none", "display": "inline-block", "font-size": "16px", "margin": "4px 2px", "cursor": "pointer", "border-radius": "12px"});', ns("download_button_output_file02_code_HTML")))
-          }
-
-        })
+      if(FALSE){
+      download_counter_output_file02_code_HTML <- reactiveVal(0)
 
 
-        observeEvent(list(count_general(), download_counter_output_file02_code_HTML()),{
-          #req(download_counter_file01_rmd_s04_rcode())
+      output$download_button_output_file02_code_HTML <- downloadHandler(
+        filename = function() {
+          basename(output_path02_code_HTML())
+        },
+        content = function(file) {
+          #file.copy(output_path_html(), file, overwrite = TRUE)
+          file.copy(output_path02_code_HTML(), file, overwrite = TRUE)
+          download_counter_output_file02_code_HTML(download_counter_output_file02_code_HTML() + 1)
+        }
+      )
 
-          the_cons01 <- download_counter_output_file02_code_HTML()==0 && count_general()==0
-          the_cons02 <- download_counter_output_file02_code_HTML()>=1 && count_general()==0
-          the_cons03 <- download_counter_output_file02_code_HTML()==0 && count_general()==1
-          the_cons04 <- download_counter_output_file02_code_HTML()>=1 && count_general()==1
+      observeEvent(output_path02_code_HTML(),{
+        req(output_path02_code_HTML())
 
-          #print(the_cons)
-          if(the_cons01 | the_cons02) {
-            shinyjs::disable("download_button_output_file02_code_HTML")
-            runjs(sprintf('$("#%s").css({"background-color": "grey", "color": "white", "border": "none", "padding": "10px 20px", "text-align": "center", "text-decoration": "none", "display": "inline-block", "font-size": "16px", "margin": "4px 2px", "cursor": "pointer", "border-radius": "12px"});', ns("download_button_output_file02_code_HTML")))
-          } else
-            if(the_cons03){
-              shinyjs::enable("download_button_output_file02_code_HTML")
-              runjs(sprintf('$("#%s").css({"background-color": "orange", "color": "white", "border": "none", "padding": "10px 20px", "text-align": "center", "text-decoration": "none", "display": "inline-block", "font-size": "16px", "margin": "4px 2px", "cursor": "pointer", "border-radius": "12px"});', ns("download_button_output_file02_code_HTML")))
-            } else
-              if(the_cons04){
-                shinyjs::enable("download_button_output_file02_code_HTML")
-                runjs(sprintf('$("#%s").css({"background-color": "green", "color": "white", "border": "none", "padding": "10px 20px", "text-align": "center", "text-decoration": "none", "display": "inline-block", "font-size": "16px", "margin": "4px 2px", "cursor": "pointer", "border-radius": "12px"});', ns("download_button_output_file02_code_HTML")))
-              }
-        })
+        if(file.exists(output_path02_code_HTML())){
+          shinyjs::enable("download_button_output_file02_code_HTML")
+          runjs(sprintf('$("#%s").css({"background-color": "orange", "color": "white", "border": "none", "padding": "10px 20px", "text-align": "center", "text-decoration": "none", "display": "inline-block", "font-size": "16px", "margin": "4px 2px", "cursor": "pointer", "border-radius": "12px"});', ns("download_button_output_file02_code_HTML")))
+        }
+
+      })
 
 
+      observeEvent(download_counter_output_file02_code_HTML(),{
+        #req(download_counter_file01_rmd_s04_rcode())
 
+        the_cons <- download_counter_output_file02_code_HTML()>=1
+        print(the_cons)
+        if(the_cons ){
+          #shinyjs::enable("download_button_file01_rmd_s04_rcode")
+          runjs(sprintf('$("#%s").css({"background-color": "green", "color": "white", "border": "none", "padding": "10px 20px", "text-align": "center", "text-decoration": "none", "display": "inline-block", "font-size": "16px", "margin": "4px 2px", "cursor": "pointer", "border-radius": "12px"});', ns("download_button_output_file02_code_HTML")))
+        }
+      })
+      }
 
       ######################################################
 
@@ -784,87 +836,53 @@ module_fm001_s001_server <- function(id, vector_all_colnames_database, database)
         }
       )
 
-      observeEvent(list(count_general(), download_counter_output_file03_outputs_HTML()),{
-        #req(download_counter_file01_rmd_s04_rcode())
+      observeEvent(output_path03_outputs_HTML(),{
+        req(output_path03_outputs_HTML())
 
-        the_cons01 <- download_counter_output_file03_outputs_HTML()==0 && count_general()==0
-        the_cons02 <- download_counter_output_file03_outputs_HTML()>=1 && count_general()==0
-        the_cons03 <- download_counter_output_file03_outputs_HTML()==0 && count_general()==1
-        the_cons04 <- download_counter_output_file03_outputs_HTML()>=1 && count_general()==1
+        if(file.exists(output_path03_outputs_HTML())){
+          shinyjs::enable("download_button_output_file03_outputs_HTML")
+          runjs(sprintf('$("#%s").css({"background-color": "orange", "color": "white", "border": "none", "padding": "10px 20px", "text-align": "center", "text-decoration": "none", "display": "inline-block", "font-size": "16px", "margin": "4px 2px", "cursor": "pointer", "border-radius": "12px"});', ns("download_button_output_file03_outputs_HTML")))
+        }
 
-        #print(the_cons)
-        if(the_cons01 | the_cons02) {
-          shinyjs::disable("download_button_output_file03_outputs_HTML")
-          runjs(sprintf('$("#%s").css({"background-color": "grey", "color": "white", "border": "none", "padding": "10px 20px", "text-align": "center", "text-decoration": "none", "display": "inline-block", "font-size": "16px", "margin": "4px 2px", "cursor": "pointer", "border-radius": "12px"});', ns("download_button_output_file03_outputs_HTML")))
-        } else
-          if(the_cons03){
-            shinyjs::enable("download_button_output_file03_outputs_HTML")
-            runjs(sprintf('$("#%s").css({"background-color": "orange", "color": "white", "border": "none", "padding": "10px 20px", "text-align": "center", "text-decoration": "none", "display": "inline-block", "font-size": "16px", "margin": "4px 2px", "cursor": "pointer", "border-radius": "12px"});', ns("download_button_output_file03_outputs_HTML")))
-          } else
-            if(the_cons04){
-              shinyjs::enable("download_button_output_file03_outputs_HTML")
-              runjs(sprintf('$("#%s").css({"background-color": "green", "color": "white", "border": "none", "padding": "10px 20px", "text-align": "center", "text-decoration": "none", "display": "inline-block", "font-size": "16px", "margin": "4px 2px", "cursor": "pointer", "border-radius": "12px"});', ns("download_button_output_file03_outputs_HTML")))
-            }
       })
 
+
+      observeEvent(download_counter_output_file03_outputs_HTML(),{
+        #req(download_counter_file01_rmd_s04_rcode())
+
+        the_cons <- download_counter_output_file03_outputs_HTML()>=1
+        print(the_cons)
+        if(the_cons ){
+          #shinyjs::enable("download_button_file01_rmd_s04_rcode")
+          runjs(sprintf('$("#%s").css({"background-color": "green", "color": "white", "border": "none", "padding": "10px 20px", "text-align": "center", "text-decoration": "none", "display": "inline-block", "font-size": "16px", "margin": "4px 2px", "cursor": "pointer", "border-radius": "12px"});', ns("download_button_output_file03_outputs_HTML")))
+        }
+      })
 
 
 
       ##################################################################
-
-
-      download_counter_output_file04_report_HTML <- reactiveVal(0)
-
-
-      output$download_button_output_file04_report_HTML <- downloadHandler(
-        filename = function() {
-          basename(output_path04_report_HTML())
-        },
-        content = function(file) {
-          #file.copy(output_path_html(), file, overwrite = TRUE)
-          file.copy(output_path04_report_HTML(), file, overwrite = TRUE)
-          download_counter_output_file04_report_HTML(download_counter_output_file04_report_HTML() + 1)
-        }
-      )
-
-      observeEvent(list(count_general(), download_counter_output_file04_report_HTML()),{
-        #req(download_counter_file01_rmd_s04_rcode())
-
-        the_cons01 <- download_counter_output_file04_report_HTML()==0 && count_general()==0
-        the_cons02 <- download_counter_output_file04_report_HTML()>=1 && count_general()==0
-        the_cons03 <- download_counter_output_file04_report_HTML()==0 && count_general()==1
-        the_cons04 <- download_counter_output_file04_report_HTML()>=1 && count_general()==1
-
-        #print(the_cons)
-        if(the_cons01) {
-          shinyjs::disable("download_button_output_file04_report_HTML")
-          runjs(sprintf('$("#%s").css({"background-color": "grey", "color": "white", "border": "none", "padding": "10px 20px", "text-align": "center", "text-decoration": "none", "display": "inline-block", "font-size": "16px", "margin": "4px 2px", "cursor": "pointer", "border-radius": "12px"});', ns("download_button_output_file04_report_HTML")))
-        } else
-          if(the_cons02 | the_cons03){
-            shinyjs::enable("download_button_output_file04_report_HTML")
-            runjs(sprintf('$("#%s").css({"background-color": "orange", "color": "white", "border": "none", "padding": "10px 20px", "text-align": "center", "text-decoration": "none", "display": "inline-block", "font-size": "16px", "margin": "4px 2px", "cursor": "pointer", "border-radius": "12px"});', ns("download_button_output_file04_report_HTML")))
-          } else
-            if(the_cons03){
-              shinyjs::enable("download_button_output_file04_report_HTML")
-              runjs(sprintf('$("#%s").css({"background-color": "green", "color": "white", "border": "none", "padding": "10px 20px", "text-align": "center", "text-decoration": "none", "display": "inline-block", "font-size": "16px", "margin": "4px 2px", "cursor": "pointer", "border-radius": "12px"});', ns("download_button_output_file04_report_HTML")))
-            }
-      })
-
-
-
-
-      ##################################################################
-      observeEvent(check_reset_render_opts(), {
-
-        if(check_reset_render_opts()){
-
-
-          count_general(0)
-
-        }
-
-
-      })
+      # observeEvent(check_reset_render_opts(), {
+      #
+      #   if(check_reset_render_opts()){
+      #
+      #
+      #     download_counter_file01_rmd_s04_rcode(0)
+      #     shinyjs::disable("download_button_file01_rmd_s04_rcode")
+      #     runjs(sprintf('$("#%s").css({"background-color": "grey", "color": "white", "border": "none", "padding": "10px 20px", "text-align": "center", "text-decoration": "none", "display": "inline-block", "font-size": "16px", "margin": "4px 2px", "cursor": "pointer", "border-radius": "12px"});', ns("download_button_file01_rmd_s04_rcode")))
+      #
+      #     download_counter_file01_rmd_s02_html(0)
+      #     shinyjs::disable("download_button_file01_report_s02_html")
+      #     runjs(sprintf('$("#%s").css({"background-color": "grey", "color": "white", "border": "none", "padding": "10px 20px", "text-align": "center", "text-decoration": "none", "display": "inline-block", "font-size": "16px", "margin": "4px 2px", "cursor": "pointer", "border-radius": "12px"});', ns("download_button_file01_report_s02_html")))
+      #
+      #     download_counter_file02_report_s02_html(0)
+      #     shinyjs::disable("download_button_file02_report_s02_html")
+      #     runjs(sprintf('$("#%s").css({"background-color": "grey", "color": "white", "border": "none", "padding": "10px 20px", "text-align": "center", "text-decoration": "none", "display": "inline-block", "font-size": "16px", "margin": "4px 2px", "cursor": "pointer", "border-radius": "12px"});', ns("download_button_file02_report_s02_html")))
+      #
+      #
+      #   }
+      #
+      #
+      # })
       # download_counter_file02_report_s03_word <- reactiveVal()
       #
       # observeEvent(spo_file02_report_s03_word(),{
@@ -888,45 +906,21 @@ module_fm001_s001_server <- function(id, vector_all_colnames_database, database)
       # )
 
       ##################################################################
-
-      output$htmlviewer_temporal02 <- renderText({
-
-        req(control_03(), special_path_output_folder(), output_path02_code_HTML(), render_button_status())
-
-        # # # Definimos como un "alias" o un "bindeo".
-        # A la carpeta temporal le damos como un "alias".
-        # Esto es por que los HTML no pueden ser tomados de cualquier lado.
-        #print(special_path_output_folder())
-        my_path <- special_path_output_folder()
-        addResourcePath(prefix = "output_temp_folder", directoryPath = my_path)
-
-        #print(spo_file01_rmd_s02_html())
-
-        # Armamos ahora un path con el "alias" como folder.
-        my_file <- basename(output_path02_code_HTML())
-        my_local_file <- file.path("output_temp_folder", my_file)
-
-        # Levantamos el html
-        armado_v <- paste('<div style="height: 100%; width: 100%; overflow: auto;"><iframe style="height: 2000vh; width:100%; border: none;" src="', my_local_file, '"></iframe></div>', sep = "")
-        #spo_file01_rmd_s02_html(NULL)
-        return(armado_v)
-      })
-
       output$htmlviewer_temporal <- renderText({
 
-        req(control_03(), special_path_output_folder(), output_path03_outputs_HTML(), render_button_status())
+        req(control_03(), special_path_output_folder(), spo_file01_rmd_s02_html(), render_button_status())
 
         # # # Definimos como un "alias" o un "bindeo".
         # A la carpeta temporal le damos como un "alias".
         # Esto es por que los HTML no pueden ser tomados de cualquier lado.
-        #print(special_path_output_folder())
+        print(special_path_output_folder())
         my_path <- special_path_output_folder()
         addResourcePath(prefix = "output_temp_folder", directoryPath = my_path)
 
-        #print(spo_file01_rmd_s02_html())
+        print(spo_file01_rmd_s02_html())
 
         # Armamos ahora un path con el "alias" como folder.
-        my_file <- basename(output_path03_outputs_HTML())
+        my_file <- basename(spo_file01_rmd_s02_html())
         my_local_file <- file.path("output_temp_folder", my_file)
 
         # Levantamos el html
@@ -937,18 +931,18 @@ module_fm001_s001_server <- function(id, vector_all_colnames_database, database)
 
       output$htmlviewer_temporal2 <- renderText({
 
-        req(control_03(), special_path_output_folder(), output_path04_report_HTML(), render_button_status())
+        req(control_03(), special_path_output_folder(), spo_file02_report_s02_html(), render_button_status())
 
         # # # Definimos como un "alias" o un "bindeo".
         # A la carpeta temporal le damos como un "alias".
         # Esto es por que los HTML no pueden ser tomados de cualquier lado.
-        #print(special_path_output_folder())
+        print(special_path_output_folder())
         my_path <- special_path_output_folder()
         addResourcePath(prefix = "output_temp_folder", directoryPath = my_path)
 
         #print(spo_file02_report_s02_html())
         # Armamos ahora un path con el "alias" como folder.
-        my_file <- basename(output_path04_report_HTML())
+        my_file <- basename(spo_file02_report_s02_html())
         my_local_file <- file.path("output_temp_folder", my_file)
 
         # Levantamos el html
@@ -967,19 +961,13 @@ module_fm001_s001_server <- function(id, vector_all_colnames_database, database)
         div(
           tabsetPanel(
             selected = 1,
-            tabPanel(title = "R Code", value = 1,
-                     fluidRow(
-                       column(12,
-                              shinycssloaders::withSpinner(htmlOutput(ns("htmlviewer_temporal02"))))
-                     )
-            ),
-            tabPanel(title = "R Code and Outputs", value = 2,
+            tabPanel(title = "Código original", value = 1,
                      fluidRow(
                        column(12,
                               shinycssloaders::withSpinner(htmlOutput(ns("htmlviewer_temporal"))))
                      )
             ),
-            tabPanel(title = "Report", value = 3,
+            tabPanel(title = "Resumen", value = 2,
                      fluidRow(
                        column(12,
                               shinycssloaders::withSpinner(htmlOutput(ns("htmlviewer_temporal2"))))
@@ -996,6 +984,7 @@ module_fm001_s001_server <- function(id, vector_all_colnames_database, database)
     }
   )
 }
+
 
 
 

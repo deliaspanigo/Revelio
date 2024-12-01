@@ -17,6 +17,7 @@ app_001_revelio <- function(){
   library(DT)
   library(openxlsx)
   library(shinyjs)
+  library(magrittr) # %>%
   library(markdown)
   library(rmarkdown)
   library(tools)
@@ -90,8 +91,17 @@ app_001_revelio <- function(){
 
         # Master Pack Selector -------------------------------------------------
         shinydashboard::tabItem(tabName = "tab03_statistics",
-                module_super01_module_selection_ui("super"),
-                uiOutput("selected_fms_ui")
+                  box(
+                      title = "Analysis",
+                      status = "primary",
+                      id = "my_box03",
+                      solidHeader = TRUE,
+                      collapsible = TRUE,
+                      collapsed = FALSE,
+                      #closable = TRUE,# Colapsado por defecto
+                      width = 12,
+                      module_super01_module_selection_ui("super")),
+                      uiOutput("selected_fms_ui")
          #                        div(
          #  selectInput(inputId = "sui_pack", label = "Seleccion de pack",
          #              choices = c("Summary", "Test", "Theory", "Distributions")),

@@ -1,50 +1,3 @@
----
-title: "Diplo - Semana 08 - ANOVA 1 Factor"
-author: "David Elias Panigo"
-date: "24-05-2024"
-output:
-  html_document:
-    df_print: paged
----
-
-<br>
-<br>
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-  var title = document.querySelector('h1.title');
-  var author = document.querySelector('.author');
-  var date = document.querySelector('.date');
-  
-  title.style.display = 'none';
-  author.style.display = 'none';
-  date.style.display = 'none';
-});
-</script>
-
-<div class="image-container">
-  <img src="logo_01_unc_mod.png"      class="inline-image" width="200"  height="100">
-  <img src="logo_02_fcefyn_mod.png"   class="inline-image" width="200"  height="100">
-  <img src="logo_03_efadoc_mod.png"   class="inline-image" width="200"  height="100">
-  <img src="logo_04_rscience_mod.png" class="inline-image" width="200"  height="100">
-</div>
-
-## Summary Report - (QC) - Position and dispersion measures for a quantitative variable by groups
-
-#### Hora de ejecución: `r format(Sys.time(), "%Y-%m-%d %H:%M:%S")`
-#### Sistema operativo: `r Sys.info()["sysname"]`
-#### Versión de R: `r R.version.string`
-<!-- #### Versión de RStudio: `r RStudio.Version()$version` -->
-
-
-<br>
-<br>
-
-```{r,  include =FALSE}
-knitr::opts_chunk$set(echo=TRUE, comment=NA)
-```
-
-### Section 01 of 15 - Libraries
-```{r, include =T, eval = T, class.source="bg-success"}
 ### Section 01 of 15 - Libraries
 library("stats")      # General Linear Models, Shapiro test and Bartlett test.
 library("agricolae")  # Tukey test
@@ -542,11 +495,3 @@ plot003_residuals <- plotly::plot_ly()
 
   # # # Output plot003_anova...
   plot003_residuals
-```
-
-
-```{r,  eval = T, include =F}
-# Save all objects!
-save.image(file = "R_results.Rdata")
-```
-
