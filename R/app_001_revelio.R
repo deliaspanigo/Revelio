@@ -193,7 +193,8 @@ app_001_revelio <- function(){
     #----------------------------------------------------------
 
     # # # Internal Load - All modules
-    modules_list <- yaml::read_yaml("inst/yml_modules/yml_modules.yml")
+    #modules_list <- yaml::read_yaml("inst/yml_modules/yml_modules.yml")
+    modules_list <-  fn_import_special_yml2("yml_modules.yml")
 
     # Módulos de fallback
     fallback_ui <- module_fm999_s999_ui

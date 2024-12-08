@@ -1,10 +1,10 @@
 
-fn_import_special_yml <- function(selected_yml){
+fn_import_special_yml2 <- function(selected_yml){
 
 
   the_package_name <- "Revelio"
-  special_folder_package <- file.path("yml_menu")
-  special_folder_local <- file.path("inst", "yml_menu")
+  special_folder_package <- file.path("yml_modules")
+  special_folder_local <- file.path("inst", "yml_modules")
 
   input_path_package <- base::system.file(package = the_package_name)
   input_folder_package <- file.path(input_path_package, special_folder_package)
