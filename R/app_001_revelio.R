@@ -26,11 +26,18 @@ app_001_revelio <- function(){
 
   library(Revelio)
 
-  menu01_summary <- yaml::read_yaml("inst/yml_menu/menu01_summary.yml")
-  menu02_standard_proc <- yaml::read_yaml("inst/yml_menu/menu02_standard_proc.yml")
+  #menu01_summary <- yaml::read_yaml("inst/yml_menu/menu01_summary.yml")
 
-  menu03_combinated_proc <- yaml::read_yaml("inst/yml_menu/menu03_combinated_proc.yml")
-  menu04_advanced_proc <- yaml::read_yaml("inst/yml_menu/menu04_advanced_proc.yml")
+  #menu02_standard_proc <- yaml::read_yaml("inst/yml_menu/menu02_standard_proc.yml")
+
+  #menu03_combinated_proc <- yaml::read_yaml("inst/yml_menu/menu03_combinated_proc.yml")
+  #menu04_advanced_proc <- yaml::read_yaml("inst/yml_menu/menu04_advanced_proc.yml")
+
+  menu01_summary         <- fn_import_special_yml("menu01_summary.yml")
+  menu02_standard_proc   <- fn_import_special_yml("menu02_standard_proc.yml")
+  menu03_combinated_proc <- fn_import_special_yml("menu03_combinated_proc.yml")
+  menu04_advanced_proc   <- fn_import_special_yml("menu04_advanced_proc.yml")
+
 
   #print(menu_data)
 
