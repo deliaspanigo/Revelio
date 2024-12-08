@@ -14,7 +14,7 @@ fn_import_special_yml <- function(selected_yml){
   input_path_file_local <-   file.path(input_folder_local, selected_yml)
 
   selected_input_path_file <- c()
-  if(file.exists(input_path_file_package)) selected_input_path_file <- input_path_file_packages else
+  if(file.exists(input_path_file_package)) selected_input_path_file <- input_path_file_package else
     if(file.exists(input_path_file_local)) selected_input_path_file <- input_path_file_local
 
 
