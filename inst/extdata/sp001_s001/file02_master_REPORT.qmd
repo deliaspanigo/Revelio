@@ -1,0 +1,54 @@
+---
+title: "My Document"
+knitr:
+  opts_chunk:
+    dpi: 600
+    message: FALSE
+    warning: FALSE
+    echo: TRUE
+    eval: TRUE
+    cache: FALSE
+    comment: ">"
+    tidyverse-quiet: TRUE
+format:
+  html:
+    theme: 
+      light: cerulean 
+      dark: cyborg
+    toc: true
+    toc-depth: 3
+    toc-location: left
+    number-sections: true
+    code-fold: show
+    code-overflow: scroll
+    code-line-numbers: false
+    code-link: true
+    code-copy: true
+    code-tools: true
+    self-contained: false
+    smooth-scroll: true 
+    
+---
+Written by David Elías Panigo [`r fontawesome::fa(name = "link")`](https://jeremy-selva.netlify.app/){target="_blank"} [`r fontawesome::fa(name = "linkedin")`](https://www.linkedin.com/in/deliaspanigo/){target="_blank"} [`r fontawesome::fa(name = "github")`](https://github.com/deliaspanigo/){target="_blank"} [`r fontawesome::fa(name = "fab fa-x-twitter")`](https://twitter.com/JauntyJJS){target="_blank"}
+
+
+<br>
+<br>
+![Elephant01](logo_01_unc_mod.png){width=150}
+![Elephant02](logo_02_fcefyn_mod.png){width=150}
+![Elephant03](logo_03_efadoc_mod.png){width=150}
+![Elephant04](logo_04_rscience_mod.png){width=140}
+
+
+
+```{r, include =T, eval = T, class.source="bg-success"}
+# # Cargar la lista desde el archivo RDS
+# entorno <- readRDS("entorno_completo.rds")
+# 
+# # Restaurar los objetos en el entorno actual
+# list2env(entorno, envir = .GlobalEnv)
+# 
+# database
+mtcars
+```
+

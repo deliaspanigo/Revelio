@@ -11,17 +11,18 @@
 app_001_revelio <- function(){
 
   library(colourpicker)
+  library(DT)
+  library(openxlsx)
+  library(magrittr) # %>%
+  library(markdown)
+  library(plotly)
+  library(quarto)
+  library(rmarkdown)
   library(stringr)
   library(shiny)
   library(shinydashboard)
-  library(DT)
-  library(openxlsx)
   library(shinyjs)
-  library(magrittr) # %>%
-  library(markdown)
-  library(rmarkdown)
   library(tools)
-  library(plotly)
   library(yaml)
 
   library(Revelio)

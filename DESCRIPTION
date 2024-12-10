@@ -18,17 +18,19 @@ Imports:
   igraph,
   kableExtra,
   knitr,
+  magrittr,
   markdown,
   openxlsx,
   plotly,
   png,
+  quarto,
   rmarkdown,
   shiny,
   shinydashboard,
-  stringr,
-  shiny,
   shinycssloaders,
   shinyjs,
-  tools
+  stringr,
+  tools,
+  yaml
 Depends: 
     R (>= 4.0.0)

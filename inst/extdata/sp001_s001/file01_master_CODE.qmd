@@ -1,49 +1,56 @@
 ---
-title: "Diplo - Semana 08 - ANOVA 1 Factor"
-author: "David Elias Panigo"
-date: "24-05-2024"
-output:
-  html_document:
-    df_print: paged
+title: "My Document"
+knitr:
+  opts_chunk:
+    dpi: 600
+    message: FALSE
+    warning: FALSE
+    echo: TRUE
+    eval: TRUE
+    cache: FALSE
+    comment: ">"
+    tidyverse-quiet: TRUE
+format:
+  html:
+    theme: 
+      light: cerulean 
+      dark: cyborg
+    toc: true
+    toc-depth: 3
+    toc-location: left
+    number-sections: true
+    code-fold: show
+    code-overflow: scroll
+    code-line-numbers: false
+    code-link: true
+    code-copy: true
+    code-tools: true
+    self-contained: true
+    smooth-scroll: true 
 ---
 
-<br>
-<br>
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-  var title = document.querySelector('h1.title');
-  var author = document.querySelector('.author');
-  var date = document.querySelector('.date');
-  
-  title.style.display = 'none';
-  author.style.display = 'none';
-  date.style.display = 'none';
-});
-</script>
-
-<div class="image-container">
-  <img src="logo_01_unc_mod.png"      class="inline-image" width="200"  height="100">
-  <img src="logo_02_fcefyn_mod.png"   class="inline-image" width="200"  height="100">
-  <img src="logo_03_efadoc_mod.png"   class="inline-image" width="200"  height="100">
-  <img src="logo_04_rscience_mod.png" class="inline-image" width="200"  height="100">
-</div>
-
-## Summary Report - (1Q) - Frecuency Tables
-
-#### Hora de ejecución: `r format(Sys.time(), "%Y-%m-%d %H:%M:%S")`
-#### Sistema operativo: `r Sys.info()["sysname"]`
-#### Versión de R: `r R.version.string`
-<!-- #### Versión de RStudio: `r RStudio.Version()$version` -->
+Written by David Elías Panigo [`r fontawesome::fa(name = "link")`](https://jeremy-selva.netlify.app/){target="_blank"} [`r fontawesome::fa(name = "linkedin")`](https://www.linkedin.com/in/deliaspanigo/){target="_blank"} [`r fontawesome::fa(name = "github")`](https://github.com/deliaspanigo/){target="_blank"} [`r fontawesome::fa(name = "fab fa-x-twitter")`](https://twitter.com/JauntyJJS){target="_blank"}
 
 
 <br>
 <br>
+![Elephant01](logo_01_unc_master.png){width=150}
+![Elephant02](logo_02_fcefyn_master.png){width=150}
+![Elephant03](logo_03_efadoc_master.png){width=150}
+![Elephant04](logo_04_rscience_master.png){width=140}
+
+
 
 ```{r,  include =FALSE}
-knitr::opts_chunk$set(echo=TRUE, comment=NA)
+
+database <- mtcars # as.data.frame(params$database)
+selected_name_var01 <- "cyl" #params$selected_name_var01
+mis_categorias <- levels(as.factor(database[,selected_name_var01]))
+mis_colores <- rainbow(length(mis_categorias))
+
 ```
 
-### Section 01 of 15 - Libraries
+
 ```{r chunk_rcode, include =T, eval = T, class.source="bg-success"}
 ### Section 01 of 15 - Libraries
 library("stats")      # General Linear Models, Shapiro test and Bartlett test.
@@ -71,16 +78,16 @@ vector_all_var_names <- colnames(database)
 vector_rol_vars <- c("Qualitative")
 
 
-  # # # Selected vars info as dataframe
-  df_selected_vars <- data.frame(
-    "order" = 1,
-    "var_name" = selected_name_var01,
-    "var_number" = match(selected_name_var01, vector_all_var_names),
-    "var_letter" = openxlsx::int2col(match(selected_name_var01, vector_all_var_names)),
-    "var_role" = vector_rol_vars,
-    "doble_reference" = paste0(vector_rol_vars, "(", selected_name_var01, ")")
-  )
-  df_selected_vars
+# # # Selected vars info as dataframe
+df_selected_vars <- data.frame(
+  "order" = 1,
+  "var_name" = selected_name_var01,
+  "var_number" = match(selected_name_var01, vector_all_var_names),
+  "var_letter" = openxlsx::int2col(match(selected_name_var01, vector_all_var_names)),
+  "var_role" = vector_rol_vars,
+  "doble_reference" = paste0(vector_rol_vars, "(", selected_name_var01, ")")
+)
+df_selected_vars
 
 
 ### Section 04 of 15 - Var selection
@@ -262,8 +269,13 @@ plot005
 ```
 
 
-```{r,  eval = T, include =F}
-# Save all objects!
-#save.image(file = "R_results.Rdata")
+
+
+```{r,  include =FALSE}
+# Empaquetar todos los objetos en una lista
+entorno <- mget(ls())
+
+# Guardar la lista como un archivo RDS
+saveRDS(entorno, file = "entorno_completo.rds")
 ```
 

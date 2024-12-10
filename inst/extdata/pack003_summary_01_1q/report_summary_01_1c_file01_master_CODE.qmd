@@ -1,3 +1,67 @@
+---
+title: "My Document"
+params:
+  database: null
+  selected_name_var01: null
+knitr:
+  opts_chunk:
+    dpi: 600
+    message: FALSE
+    warning: FALSE
+    echo: TRUE
+    eval: TRUE
+    cache: FALSE
+    comment: ">"
+    tidyverse-quiet: TRUE
+format:
+  html:
+    theme: 
+      light: cerulean 
+      dark: cyborg
+    toc: true
+    toc-depth: 3
+    toc-location: left
+    number-sections: true
+    code-fold: show
+    code-overflow: scroll
+    code-line-numbers: false
+    code-link: true
+    code-copy: true
+    code-tools: true
+    self-contained: false
+    smooth-scroll: true 
+    
+---
+
+Written by David Elías Panigo [`r fontawesome::fa(name = "link")`](https://jeremy-selva.netlify.app/){target="_blank"} [`r fontawesome::fa(name = "linkedin")`](https://www.linkedin.com/in/deliaspanigo/){target="_blank"} [`r fontawesome::fa(name = "github")`](https://github.com/deliaspanigo/){target="_blank"} [`r fontawesome::fa(name = "fab fa-x-twitter")`](https://twitter.com/JauntyJJS){target="_blank"}
+
+
+<br>
+<br>
+![Elephant01](logo_01_unc_mod.png){width=150}
+![Elephant02](logo_02_fcefyn_mod.png){width=150}
+![Elephant03](logo_03_efadoc_mod.png){width=150}
+![Elephant04](logo_04_rscience_mod.png){width=140}
+
+
+
+## Summary Report - 1Q
+
+#### Hora de ejecución: `r format(Sys.time(), "%Y-%m-%d %H:%M:%S")`
+#### Sistema operativo: `r Sys.info()["sysname"]`
+#### Versión de R: `r R.version.string`
+<!-- #### Versión de RStudio: `r RStudio.Version()$version` -->
+
+
+<br>
+<br>
+
+```{r,  include =FALSE}
+knitr::opts_chunk$set(echo=TRUE, comment=NA)
+```
+
+### Section 01 of 15 - Libraries
+```{r, include =T, eval = T, class.source="bg-success"}
 ### Section 01 of 15 - Libraries
 library("stats")      # General Linear Models, Shapiro test and Bartlett test.
 library("agricolae")  # Tukey test
@@ -328,7 +392,6 @@ df_vr_dispersion_levels
                                      lowerfence = df_table_factor_plot004$min,
                                      q1 = df_table_factor_plot004$Q1,
                                      median = df_table_factor_plot004$median,
-                                     mean = df_table_factor_plot004$mean,
                                      q3 = df_table_factor_plot004$Q3,
                                      upperfence = df_table_factor_plot004$max,
                                      boxmean = TRUE,
@@ -376,7 +439,6 @@ plot005_factor <- plotly::add_trace(p = plot005_factor,
                                     colors = df_table_factor_plot005$color,
                                     lowerfence = df_table_factor_plot005$min,
                                     q1 = df_table_factor_plot005$Q1,
-                                    mean = df_table_factor_plot005$mean,
                                     median = df_table_factor_plot005$median,
                                     q3 = df_table_factor_plot005$Q3,
                                     upperfence = df_table_factor_plot005$max,
@@ -495,3 +557,11 @@ plot003_residuals <- plotly::plot_ly()
 
   # # # Output plot003_anova...
   plot003_residuals
+```
+
+
+```{r,  eval = T, include =F}
+# Save all objects!
+save.image(file = "R_results.Rdata")
+```
+

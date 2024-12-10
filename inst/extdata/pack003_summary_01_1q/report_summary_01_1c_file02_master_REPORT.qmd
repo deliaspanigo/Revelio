@@ -1,10 +1,10 @@
 ---
 title: "Diplo - Semana 08 - ANOVA 1 Factor"
-author: "David Elias Panigo"
-date: "24-05-2024"
-output:
-  html_document:
-    df_print: paged
+format:
+  html:
+    toc: true
+    number-sections: true
+    css: styles.css
 ---
 
 <br>
