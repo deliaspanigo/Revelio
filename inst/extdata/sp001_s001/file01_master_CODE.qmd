@@ -1,5 +1,11 @@
 ---
-title: "My Document"
+title: "Summary - 1Q"
+params:
+  database: null
+  str_selected_name_var01: null
+  str_vector_order_categories: null
+  str_vector_colors: null
+
 knitr:
   opts_chunk:
     dpi: 600
@@ -41,17 +47,10 @@ Written by David Elías Panigo [`r fontawesome::fa(name = "link")`](https://jere
 
 
 
-```{r,  include =FALSE}
 
-database <- mtcars # as.data.frame(params$database)
-selected_name_var01 <- "cyl" #params$selected_name_var01
-mis_categorias <- levels(as.factor(database[,selected_name_var01]))
-mis_colores <- rainbow(length(mis_categorias))
+## Section 01 of 15 - Libraries
+```{r , include =T, eval = T, class.source="bg-success"}
 
-```
-
-
-```{r chunk_rcode, include =T, eval = T, class.source="bg-success"}
 ### Section 01 of 15 - Libraries
 library("stats")      # General Linear Models, Shapiro test and Bartlett test.
 library("agricolae")  # Tukey test
@@ -59,20 +58,31 @@ library("gplots")     # Graphics
 library("plotly")
 library("openxlsx")
 
+```
+<br>
+<br>
 
-### Section 02 of 15 - Load database
-database
+## Section 02 of 15 - Import database - Input 01 of 04
+```{r , include =T, eval = T, class.source="bg-success"}
 
+### Section 02 of 15 - Import database - Input 01 of 04 ------------------------
+# Import database
+database <- mtcars
 
-### Section  04 de 15 - Var selection
+# First 5 rows from database
+head(x=database, n=5)
 
-# Name for each selected var
+```
+<br>
+<br>
 
-selected_name_var01 <- selected_name_var01
+## Section  03 de 15 - Var selection - Input 02 of 03
+```{r , include =T, eval = T, class.source="bg-success"}
 
-
-
-### Section 04 of 15 - Var selection
+### Section  03 de 15 - Var selection - Input 02 of 03 -------------------------
+# Selected qualitative var name
+selected_name_var01 <- _str_selected_name_var01_
+selected_name_var01
 
 vector_all_var_names <- colnames(database)
 vector_rol_vars <- c("Qualitative")
@@ -85,30 +95,45 @@ df_selected_vars <- data.frame(
   "var_number" = match(selected_name_var01, vector_all_var_names),
   "var_letter" = openxlsx::int2col(match(selected_name_var01, vector_all_var_names)),
   "var_role" = vector_rol_vars,
-  "doble_reference" = paste0(vector_rol_vars, "(", selected_name_var01, ")")
+  "doble_reference" = paste0(vector_rol_vars, "(", selected_name_var01, ")"),
+  stringsAsFactors = FALSE
 )
 df_selected_vars
 
+```
+<br>
+<br>
 
-### Section 04 of 15 - Var selection
+## Section  03 de 15 - Var categories order - Input 03 of 04
+```{r , include =T, eval = T, class.source="bg-success"}
 
 
-# Definir el nuevo orden de los niveles usando un vector con los niveles ordenados
-nuevo_orden_categorias <- mis_categorias
-nuevo_orden_categorias
+
+### Section  03 de 15 - Var categories order - Input 03 of 04 ------------------
+database[,selected_name_var01] <- as.factor(database[,selected_name_var01])
+vector_old_order_categories <- levels(database[,selected_name_var01])
+vector_old_order_categories
+
+vector_new_order_categories <- _str_vector_order_categories_
+vector_new_order_categories
+
 
 # Cambiar el orden de los niveles del factor
-database[,selected_name_var01] <- factor(database[,selected_name_var01], levels = nuevo_orden_categorias)
+database[,selected_name_var01] <- factor(x = database[,selected_name_var01], 
+                                         levels = vector_new_order_categories)
+levels(database[,selected_name_var01])
+
+
+### Section  04 de 15 - Categories color - Input 04 of 04 --------------------------------
+vector_colors <- _str_vector_colors_
+vector_colors
 
 
 
-### Section  05 de 15 - minibase
+### Section  05 de 15 - minibase -----------------------------------------------
 
 # Selected vars with full data on rows only
 minibase <- na.omit(database[selected_name_var01])
-
-# Factor must be a factor on R enviroment.
-#minibase[,selected_name_var01] <- as.factor(as.character(minibase[,selected_name_var01]))
 
 # Show first 5 rows
 head(x=minibase, n=5)
@@ -117,22 +142,38 @@ head(x=minibase, n=5)
 df_show_n <- data.frame(
   "object" = c("database", "minibase"),
   "n_col" = c(ncol(database), ncol(minibase)),
-  "n_row" = c(nrow(database), nrow(minibase))
+  "n_row" = c(nrow(database), nrow(minibase)),
+  stringsAsFactors = FALSE
 )
 df_show_n
 
 
 
-
-# Calcular las frecuencias absolutas
-# Calcular las frecuencias absolutas
+### Section  05 de 15 - Frequencies --------------------------------------------
 original_table <- table(minibase[,selected_name_var01])
+original_table
+
 vector_frec_abs <- as.vector(original_table)
+names(vector_frec_abs) <- names(original_table)
+vector_frec_abs
+
 vector_n <- rep(sum(vector_frec_abs), length(vector_frec_abs))
+vector_n
+
 vector_frec_quotient <- paste0(vector_frec_abs, "/", vector_n)
+names(vector_frec_quotient) <- names(original_table)
+vector_frec_quotient
+
+
 vector_frec_rel <- vector_frec_abs/vector_n
+vector_frec_rel
+
 vector_porc01 <- vector_frec_rel * 100
+vector_porc01
+
 vector_porc02 <- paste0(vector_porc01, "%")
+names(vector_porc02) <- names(vector_porc01)
+vector_porc02
 
 # Combinar los resultados en una tabla
 df_freq_table01 <- data.frame(
@@ -143,13 +184,15 @@ df_freq_table01 <- data.frame(
   Relative_Freq = vector_frec_rel,
   Percentage = vector_porc01,
   Percentage2 = vector_porc02,
-  Color = mis_colores
+  Color = vector_colors,
+  stringsAsFactors = FALSE
 )
 
 df_freq_table01[,"Category"] <- factor(df_freq_table01[,"Category"], levels = df_freq_table01[,"Category"])
-
 df_freq_table01
 
+
+### Section  05 de 15 - Acumulative Frequencies --------------------------------
 vector_frec_abs_acum <- cumsum(vector_frec_abs)
 vector_frec_quotient_acum <- paste0(vector_frec_abs_acum, "/", vector_n)
 vector_frec_rel_acum <- vector_frec_abs_acum / vector_n
@@ -165,11 +208,15 @@ df_freq_table02 <- data.frame(
   Relative_Freq_Acum = vector_frec_rel_acum,
   Percentage_Acum = vector_porc01_acum,
   Percentage2_Acum = vector_porc02_acum,
-  Color = mis_colores
+  Color = vector_colors,
+  stringsAsFactors = FALSE
 )
-
+df_freq_table02[,"Category"] <- factor(df_freq_table02[,"Category"], levels = df_freq_table02[,"Category"])
 df_freq_table02
 
+
+
+### Section  05 de 15 - Plots Frequencies --------------------------------------------
 # Plot001 
 selected_col01 <- 2
 plot001 <- plot_ly(

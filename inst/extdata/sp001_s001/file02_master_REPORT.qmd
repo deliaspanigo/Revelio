@@ -1,12 +1,14 @@
 ---
-title: "My Document"
+title: "Summary - 1Q"
+
 knitr:
   opts_chunk:
     dpi: 600
     message: FALSE
     warning: FALSE
-    echo: TRUE
+    echo: FALSE
     eval: TRUE
+    include: TRUE
     cache: FALSE
     comment: ">"
     tidyverse-quiet: TRUE
@@ -25,30 +27,107 @@ format:
     code-link: true
     code-copy: true
     code-tools: true
-    self-contained: false
+    self-contained: true
     smooth-scroll: true 
-    
 ---
+
 Written by David Elías Panigo [`r fontawesome::fa(name = "link")`](https://jeremy-selva.netlify.app/){target="_blank"} [`r fontawesome::fa(name = "linkedin")`](https://www.linkedin.com/in/deliaspanigo/){target="_blank"} [`r fontawesome::fa(name = "github")`](https://github.com/deliaspanigo/){target="_blank"} [`r fontawesome::fa(name = "fab fa-x-twitter")`](https://twitter.com/JauntyJJS){target="_blank"}
 
 
 <br>
 <br>
-![Elephant01](logo_01_unc_mod.png){width=150}
-![Elephant02](logo_02_fcefyn_mod.png){width=150}
-![Elephant03](logo_03_efadoc_mod.png){width=150}
-![Elephant04](logo_04_rscience_mod.png){width=140}
+![Elephant01](logo_01_unc_master.png){width=150}
+![Elephant02](logo_02_fcefyn_master.png){width=150}
+![Elephant03](logo_03_efadoc_master.png){width=150}
+![Elephant04](logo_04_rscience_master.png){width=140}
 
 
 
-```{r, include =T, eval = T, class.source="bg-success"}
+
+```{r, echo = FALSE, include = FALSE, class.source="bg-success"}
 # # Cargar la lista desde el archivo RDS
-# entorno <- readRDS("entorno_completo.rds")
+library("dplyr")
+library("knitr")
+library("kableExtra")
+
+entorno <- readRDS("entorno_completo.rds")
 # 
 # # Restaurar los objetos en el entorno actual
-# list2env(entorno, envir = .GlobalEnv)
-# 
-# database
-mtcars
+list2env(entorno, envir = .GlobalEnv)
+
 ```
 
+
+```{r, class.source="bg-success"}
+my_table <- df_freq_table01
+
+knitr::kable(my_table, caption = "", align = 'c') %>%
+  kableExtra::kable_styling(position = "center", full_width = FALSE, 
+                            bootstrap_options = c("striped", "hover")) %>%
+  kableExtra::row_spec(0, bold = TRUE) %>%  # Negrita para la fila de encabezado
+  kableExtra::row_spec(seq(1, nrow(my_table), 2), background = "lightblue") %>%  # Color para filas impares
+  kableExtra::row_spec(seq(2, nrow(my_table), 2), background = "lightgreen") %>%  # Color para filas pares
+  kableExtra::add_footnote("", notation = "none")
+
+remove(my_table)
+
+```
+
+
+```{r, class.source="bg-success"}
+
+my_table <- df_freq_table02
+
+knitr::kable(my_table, caption = "", align = 'c') %>%
+  kableExtra::kable_styling(position = "center", full_width = FALSE, 
+                            bootstrap_options = c("striped", "hover")) %>%
+  kableExtra::row_spec(0, bold = TRUE) %>%  # Negrita para la fila de encabezado
+  kableExtra::row_spec(seq(1, nrow(my_table), 2), background = "lightblue") %>%  # Color para filas impares
+  kableExtra::row_spec(seq(2, nrow(my_table), 2), background = "lightgreen") %>%  # Color para filas pares
+  kableExtra::add_footnote("", notation = "none")
+
+remove(my_table)
+
+```
+
+
+
+```{r, class.source="bg-success"}
+
+plot001
+
+```
+
+<hr style="border-top: 3px solid black;">
+
+```{r, class.source="bg-success"}
+
+plot002
+
+```
+
+<hr style="border-top: 3px solid black;">
+
+```{r, class.source="bg-success"}
+
+plot003
+
+```
+
+<hr style="border-top: 3px solid black;">
+
+```{r, class.source="bg-success"}
+
+plot004
+
+```
+
+<hr style="border-top: 3px solid black;">
+
+```{r, class.source="bg-success"}
+
+plot005
+
+```
+
+<hr style="border-top: 3px solid black;">
