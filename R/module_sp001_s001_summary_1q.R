@@ -104,753 +104,7 @@ module_sp001_s001_server <- function(id, vector_all_colnames_database, database)
       output_list_03 <- module_sp001_s001_server_p03(id, database, output_list_01, output_list_02)
       module_sp001_s001_server_p04(id, database, output_list_01, output_list_02, output_list_03)
 
-      # mega_step <- reactiveVal(1)
-      # observeEvent(input$"tabset_step",{
-      #
-      #   if(input$"tabset_step" == 1) if(mega_step() == 0) mega_Step(1) else
-      #     if(input$"tabset_step" == 2) if(mega_step() == 1) mega_Step(2) else
-      #       if(input$"tabset_step" == 3) if(mega_step() == 2) mega_Step(3)
-      #
-      # })
 
-
-
-
-
-
-  #
-  #
-  #     # # # Step 03 - Report button ---------------------------------------
-  #
-  #
-  #     output$"gate03_report_button" <- renderUI({
-  #       req(control_02())
-  #
-  #       div(
-  #         h3("Clic to Render Report!"),
-  #         br(),
-  #         fluidRow(
-  #           column(3, actionButton(ns("render_report_button"),
-  #                                  "Render Report", width = "100%", disabled = TRUE))),
-  #
-  #
-  #
-  #         uiOutput(ns("section04_download")),
-  #
-  #         shinycssloaders::withSpinner(uiOutput(ns("report_view")))
-  #       )
-  #
-  #     })
-  #
-  #
-  #
-  #
-  #
-  #
-  #     # Default values
-  #     render_button_status    <- shiny::reactiveVal(FALSE)
-  #     render_button_counter   <- shiny::reactiveVal(0)
-  #     check_reset_render_opts <- shiny::reactiveVal(FALSE)
-  #
-  #
-  #     # Reset values if something change from previous inputs
-  #     observeEvent(the_bag_info(), {
-  #         req(the_bag_info())
-  #
-  #         check_reset_render_opts(TRUE)
-  #
-  #                       })
-  #
-  #
-  #     observeEvent(check_reset_render_opts(), {
-  #
-  #       if(check_reset_render_opts()){
-  #         render_button_status(FALSE)
-  #         render_button_counter(0)
-  #         check_reset_render_opts(FALSE)
-  #       }
-  #
-  #       req(control_02())
-  #       if(!check_reset_render_opts()){
-  #         render_button_status(TRUE)
-  #       }
-  #
-  #     })
-  #
-  #
-  #     observeEvent(input$render_report_button, {
-  #
-  #       # Todo lo anterior tiene que estar OK.
-  #       req(render_button_status())
-  #
-  #       render_button_counter(render_button_counter() + 1)
-  #     })
-  #
-  #
-  #
-  #
-  #
-  #     observeEvent(list(input$render_report_button, render_button_counter(), render_button_status()),{
-  #
-  #       the_way01 <- render_button_counter() == 0 && !render_button_status()
-  #       the_way02 <- render_button_counter() == 0 && render_button_status()
-  #       the_way03 <- render_button_counter() >= 1 && render_button_status()
-  #
-  #
-  #       if(the_way01){
-  #         runjs(sprintf('$("#%s").css({"background-color": "grey", "color": "white", "border": "none", "padding": "10px 20px", "text-align": "center", "text-decoration": "none", "display": "inline-block", "font-size": "16px", "margin": "4px 2px", "cursor": "pointer", "border-radius": "12px"});', ns("render_report_button")))
-  #         shinyjs::disable("render_report_button")
-  #
-  #       } else
-  #
-  #
-  #         # Todo lo anterior tiene que estar OK.
-  #         if(the_way02){
-  #           runjs(sprintf('$("#%s").css({"background-color": "orange", "color": "white", "border": "none", "padding": "10px 20px", "text-align": "center", "text-decoration": "none", "display": "inline-block", "font-size": "16px", "margin": "4px 2px", "cursor": "pointer", "border-radius": "12px"});', ns("render_report_button")))
-  #           shinyjs::enable("render_report_button")
-  #
-  #         } else
-  #
-  #           #load_button_counter(load_button_counter() + 1)
-  #           if(the_way03){
-  #             shinyjs::disable("render_report_button")
-  #             runjs(sprintf('$("#%s").css({"background-color": "green",  "color": "white", "border": "none", "padding": "10px 20px", "text-align": "center", "text-decoration": "none", "display": "inline-block", "font-size": "16px", "margin": "4px 2px", "cursor": "pointer", "border-radius": "12px"});', ns("render_report_button")))
-  #           }
-  #     })
-  #
-  #
-  #     control_03 <- reactive({
-  #
-  #       req(render_button_status(), render_button_counter()>0)
-  #       #print(control_02())
-  #       # validate(
-  #       #   need(!check_reset_render_opts() && render_button_counter()==0,   'Categories and colors must be selected.'),
-  #       #   errorClass = "WARNING"
-  #       # )
-  #
-  #       # validate(
-  #       #   need(!is.null(control_02()), 'Falta elegir.'),
-  #       #   errorClass = "WARNING"
-  #       # )
-  #
-  #       return(TRUE)
-  #     })
-  #
-  #
-  #     output$text_control_03 <- renderText({
-  #       req(control_01())
-  #       req(control_02())
-  #       req(control_03())
-  #       ""
-  #     })
-  #     # # # Step 04 - Download buttons ---------------------------------------
-  #
-  #     output$section04_download <- renderUI({
-  #       req(control_01())
-  #       req(control_02())
-  #       req(control_03())
-  #
-  #       div(
-  #       fluidRow(
-  #         column(12,
-  #                downloadButton(outputId = ns('download_button_output_file01'),
-  #                               label = "R Code and Outputs", width = "100%", disabled = TRUE),
-  #                actionButton(ns("open_html01"), "Abrir HTML en Nueva Ventana"),            # Botón para abrir el HTML
-  #                # Manejador de mensajes en el lado del cliente
-  #                tags$script(HTML(paste0("
-  #     Shiny.addCustomMessageHandler('openHtml', function(htmlPath) {
-  #       window.open(htmlPath, '_blank');
-  #     });
-  #   ")))
-  #
-  #         )
-  #       ),
-  #       fluidRow(
-  #         column(12,
-  #                downloadButton(outputId = ns('download_button_output_file02'),
-  #                               label = "Special Report", width = "100%", disabled = TRUE),
-  #                actionButton(ns("open_html02"), "Abrir HTML en Nueva Ventana"),            # Botón para abrir el HTML
-  #                # Manejador de mensajes en el lado del cliente
-  #                tags$script(HTML(paste0("
-  #     Shiny.addCustomMessageHandler('openHtml', function(htmlPath) {
-  #       window.open(htmlPath, '_blank');
-  #     });
-  #   ")))
-  #
-  #         )
-  #       )
-  #       )
-  #     })
-  #
-  #
-  #
-  #
-  #
-  #
-  #     # # # Step 04 - Reports ---------------------------------------
-  #
-  #     # Special folder
-  #     input_folder_master <- reactive({
-  #       the_package_name <- "Revelio"
-  #       selected_folder <- "sp001_s001"
-  #
-  #       special_folder_package <- file.path("extdata", selected_folder)
-  #       special_folder_local <- file.path("inst", "extdata", selected_folder)
-  #
-  #       input_path_package <- base::system.file(package = the_package_name)
-  #       input_folder_package <- file.path(input_path_package, special_folder_package)
-  #       input_folder_local <- file.path(getwd(), special_folder_local)
-  #
-  #       check_cantidad_files_local <- length(list.files(input_folder_local)) > 0
-  #       check_cantidad_files_package <- length(list.files(input_folder_package)) > 0
-  #
-  #       input_folder_master <- ifelse(check_cantidad_files_package, input_folder_package, input_folder_local)
-  #       input_folder_master <- as.character(input_folder_master)
-  #       input_folder_master
-  #     })
-  #
-  #     # Nombre de los archivos originales
-  #     all_files_master <- reactive({
-  #       req(input_folder_master())
-  #       list.files(input_folder_master())
-  #     })  %>% bindCache(df_new_info())
-  #
-  #
-  #     # A partir del clic en "render button"
-  #     step_chain <- reactiveVal(0)
-  #     # 1) Hora de ejecucion
-  #     # 2) Carpeta temporal nueva
-  #     # 3) Copiamos los archivos originales a la carpeta temporal nueva
-  #     # 4) Entorno de trabajo con objetos de R
-  #     # 5) Path and files01
-  #     # 6) Substituir elementos de los archivos qmd file01
-  #     # 7) Renderizar archivo qmd file01
-  #     # 8) Renderizar archivo qmd file02
-  #
-  #     # Crear objetos reactivos para render_env y change_name_path
-  #
-  #
-  #     # Primera parte: Manejar la creación del directorio temporal y la copia de archivos
-  #     observeEvent(input$render_report_button, {
-  #       req(control_03(), df_new_info())
-  #       step_chain(1)
-  #       #print(step_chain())
-  #
-  #     })
-  #
-  #     # 1) Hora de ejecucion
-  #     the_time <- reactiveVal()
-  #     observeEvent(step_chain(), {
-  #
-  #       req(step_chain() == 1)
-  #       print(step_chain())
-  #
-  #       # The time
-  #       original_time <- format(Sys.time(), "%Y-%m-%d %H:%M:%S")
-  #       execution_time <- gsub("[[:punct:]]", "_", original_time)
-  #       execution_time <- gsub(" ", "_", execution_time)
-  #       the_time(execution_time)
-  #
-  #       step_chain(step_chain() + 1)
-  #     })
-  #
-  #
-  #     # 2) Carpeta temporal nueva
-  #     special_path_output_folder <- reactiveVal()
-  #     observeEvent(step_chain(), {
-  #       req(step_chain() == 2,  the_time())
-  #       print(step_chain())
-  #
-  #       # Usar el directorio temporal directamente
-  #       my_temp_folder <- tempdir()
-  #
-  #       # Generar 3 números y 2 letras al azar
-  #       random_numbers <- paste0(sample(0:9, 3, replace = TRUE), collapse = "")
-  #       random_letters <- paste0(sample(LETTERS, 2, replace = TRUE), collapse = "")
-  #
-  #       new_sub_folder <- paste0("Revelio_FOLDER_",  the_time(), random_numbers, random_letters)
-  #       output_folder_temp <- file.path(my_temp_folder, new_sub_folder)
-  #
-  #       # Si ya existe la carpeta, verificar y eliminar archivos existentes.
-  #       # Si no existe la creamos.
-  #       if (dir.exists(output_folder_temp)) {
-  #         files <- list.files(output_folder_temp, full.names = TRUE)
-  #         if (length(files) > 0) {
-  #           file.remove(files)
-  #         }
-  #       } else {
-  #         dir.create(output_folder_temp, showWarnings = FALSE)
-  #       }
-  #
-  #       # The new folder
-  #       special_path_output_folder(output_folder_temp)
-  #
-  #       step_chain(step_chain() + 1)
-  #
-  #
-  #     })
-  #
-  #
-  #     # 3) Copiamos los archivos originales a la carpeta temporal nueva
-  #     observeEvent(step_chain(), {
-  #       req(step_chain() == 3, special_path_output_folder())
-  #       print(step_chain())
-  #
-  #
-  #
-  #       original_files <- list.files(input_folder_master(), full.names = TRUE)
-  #       file.copy(original_files, special_path_output_folder(), overwrite = TRUE)
-  #
-  #       step_chain(step_chain() + 1)
-  #
-  #     })
-  #
-  #
-  #     # 4) Entorno de trabajo con objetos de R
-  #     render_env <- reactiveVal()
-  #     observeEvent(step_chain(), {
-  #       req(step_chain() == 4)
-  #       print(step_chain())
-  #
-  #
-  #       # Crear el entorno de renderizado
-  #       my_env <- list()
-  #       my_env$database <- database()
-  #       #env$selected_name_var01 <- "mpg"
-  #       my_env$str_selected_name_var01 <- paste0( "\"", input$selected_name_var01, "\"")
-  #       my_env$str_vector_order_categories <-  paste0("c(", paste(shQuote(df_new_info()$vector_new_level), collapse = ", "), ")")
-  #       my_env$str_vector_colors <- paste0("c(", paste(shQuote(df_new_info()$vector_new_color), collapse = ", "), ")")
-  #
-  #       #my_env$mis_categorias <- df_new_info()$vector_new_level
-  #
-  #
-  #       #print(my_env$str_selected_name_var01)
-  #       #my_env$selected_name_var01 <- input$selected_name_var01
-  #       #my_env$mis_colores <- df_new_info()$vector_new_color
-  #
-  #       # Guardar el entorno de renderizado y change_name_path en los objetos reactivos
-  #       render_env(my_env)
-  #
-  #       step_chain(step_chain() + 1)
-  #
-  #     })
-  #
-  #
-  #
-  #
-  #
-  #     # Segunda parte: Manejar la generación de los informes usando render_env y change_name_path
-  #     # 5) Path and files
-  #     input_file01_rmd_code   <- reactiveVal("file01_master_CODE.qmd")
-  #     output_file01_html_code <- reactiveVal("file01_master_CODE.html")
-  #     input_path01_rmd_code   <- reactiveVal()
-  #     output_path01_html_code <- reactiveVal()
-  #     observeEvent(step_chain(), {
-  #       req(step_chain() == 5, special_path_output_folder())
-  #       print(step_chain())
-  #
-  #
-  #       input_path01_rmd_code(file.path(special_path_output_folder(), input_file01_rmd_code()))
-  #       output_path01_html_code(file.path(special_path_output_folder(), output_file01_html_code()))
-  #
-  #
-  #       step_chain(step_chain() + 1)
-  #
-  #     })
-  #
-  #
-  #
-  #     # 6) Substituir elementos de los archivos qmd file01
-  #     observeEvent(step_chain(), {
-  #       req(step_chain() == 6, special_path_output_folder(),  render_env())
-  #
-  #
-  #       # Define la ruta del archivo
-  #       file_path <- input_path01_rmd_code()
-  #
-  #       # Lee el contenido del archivo
-  #       file_content <- readLines(file_path)
-  #
-  #
-  #       # Realiza el reemplazo (por ejemplo, reemplazar "antiguo" por "nuevo")
-  #       file_content <- gsub("_str_selected_name_var01_",  render_env()$str_selected_name_var01, file_content)
-  #       file_content <- gsub("_str_vector_order_categories_",  render_env()$str_vector_order_categories, file_content)
-  #       file_content <- gsub("_str_vector_colors_",  render_env()$str_vector_colors, file_content)
-  #
-  #       # Guarda el contenido modificado en el mismo archivo
-  #       writeLines(file_content, file_path)
-  #
-  #       step_chain(step_chain() + 1)
-  #
-  #
-  #     })
-  #
-  #
-  #
-  #     # 7) Renderizar archivo file01
-  #     count_general01 <- reactiveVal(0)
-  #     observeEvent(step_chain(), {
-  #       req(step_chain() == 7, special_path_output_folder(),  render_env())
-  #
-  #       print(step_chain())
-  #
-  #       # Directorios
-  #       count_general01(0)
-  #       old_wd <- getwd()
-  #       new_wd <- special_path_output_folder()
-  #
-  #       # Crear el directorio si no existe
-  #       if (!dir.exists(new_wd)) dir.create(new_wd, recursive = TRUE)
-  #
-  #       # Cambiar al nuevo directorio y asegurarse de restaurar al salir
-  #       setwd(new_wd)
-  #       on.exit(setwd(old_wd))
-  #
-  #       # Renderizar y manejar errores
-  #       print(render_env())
-  #
-  #
-  #       tryCatch({
-  #         quarto::quarto_render(
-  #           input = input_file01_rmd_code(),
-  #           output_format = "html",
-  #           output_file = output_file01_html_code(),
-  #           execute_params = render_env()
-  #         )
-  #         count_general01(1)  # Incrementar solo si tiene éxito
-  #       }, error = function(e) {
-  #         message("Error en el renderizado file01: ", e$message)
-  #       })
-  #
-  #       step_chain(step_chain() + 1)
-  #
-  #     })
-  #
-  #
-  #
-  #
-  #
-  #     download_counter_output_file01 <- reactiveVal(0)
-  #
-  #
-  #
-  #     output$download_button_output_file01 <- downloadHandler(
-  #       filename = function() {
-  #         basename(output_path01_html_code())
-  #       },
-  #       content = function(file) {
-  #         #file.copy(output_path_html(), file, overwrite = TRUE)
-  #         file.copy(output_path01_html_code(), file, overwrite = TRUE)
-  #         download_counter_output_file01(download_counter_output_file01() + 1)
-  #       }
-  #     )
-  #
-  #
-  #     # Evento para abrir el archivo HTML en una nueva pestaña
-  #     observeEvent(input$open_html01, {
-  #       my_path <- special_path_output_folder()
-  #       addResourcePath(prefix = "output_temp_folder", directoryPath = my_path)
-  #
-  #       #print(spo_file01_rmd_s02_html())
-  #
-  #       # Armamos ahora un path con el "alias" como folder.
-  #       my_file <- basename(output_file01_html_code())
-  #       my_local_file <- file.path("output_temp_folder", my_file)
-  #
-  #
-  #       if (!is.null(my_path) && file.exists(my_path)) {
-  #         # Abre el archivo HTML en la nueva pestaña usando la ruta pública
-  #         # Asegúrate de usar el prefijo 'output'
-  #         #url_to_open <- paste0("output/", basename(html_path))
-  #         browseURL(my_local_file)
-  #         # Si 'browseURL()' no funciona, vale la pena intentar el siguiente enfoque
-  #         session$sendCustomMessage(type = "openHtml", message = my_local_file)
-  #       }
-  #     })
-  #
-  #
-  #
-  #
-  #
-  #     observeEvent(list(count_general01(), download_counter_output_file01(), step_chain()),{
-  #       #req(download_counter_file01_rmd_s04_rcode())
-  #
-  #       the_cons01 <- download_counter_output_file01()==0 && count_general01()==0
-  #       the_cons02 <- download_counter_output_file01()>=1 && count_general01()==0
-  #       the_cons03 <- download_counter_output_file01()==0 && count_general01()==1
-  #       the_cons04 <- download_counter_output_file01()>=1 && count_general01()==1
-  #
-  #       #print(the_cons)
-  #       if(the_cons01 | the_cons02) {
-  #         shinyjs::disable("download_button_output_file01")
-  #         runjs(sprintf('$("#%s").css({"background-color": "grey", "color": "white", "border": "none", "padding": "10px 20px", "text-align": "center", "text-decoration": "none", "display": "inline-block", "font-size": "16px", "margin": "4px 2px", "cursor": "pointer", "border-radius": "12px"});', ns("download_button_output_file01")))
-  #         print("HOLA1 o 2")
-  #       } else
-  #         if(the_cons03){
-  #           shinyjs::enable("download_button_output_file01")
-  #           runjs(sprintf('$("#%s").css({"background-color": "orange", "color": "white", "border": "none", "padding": "10px 20px", "text-align": "center", "text-decoration": "none", "display": "inline-block", "font-size": "16px", "margin": "4px 2px", "cursor": "pointer", "border-radius": "12px"});', ns("download_button_output_file01")))
-  #           print("HOLA3")
-  #         } else
-  #           if(the_cons04){
-  #             shinyjs::enable("download_button_output_file01")
-  #             runjs(sprintf('$("#%s").css({"background-color": "green", "color": "white", "border": "none", "padding": "10px 20px", "text-align": "center", "text-decoration": "none", "display": "inline-block", "font-size": "16px", "margin": "4px 2px", "cursor": "pointer", "border-radius": "12px"});', ns("download_button_output_file01")))
-  #             print("HOLA4")
-  #           }
-  #     })
-  #
-  #
-  #
-  #     output$htmlviewer_temporal01 <- renderText({
-  #
-  #       req(control_03(), special_path_output_folder(), output_file01_html_code(), render_button_status())
-  #
-  #       # # # Definimos como un "alias" o un "bindeo".
-  #       # A la carpeta temporal le damos como un "alias".
-  #       # Esto es por que los HTML no pueden ser tomados de cualquier lado.
-  #       #print(special_path_output_folder())
-  #       my_path <- special_path_output_folder()
-  #       addResourcePath(prefix = "output_temp_folder", directoryPath = my_path)
-  #
-  #       #print(spo_file01_rmd_s02_html())
-  #
-  #       # Armamos ahora un path con el "alias" como folder.
-  #       my_file <- basename(output_file01_html_code())
-  #       my_local_file <- file.path("output_temp_folder", my_file)
-  #
-  #       # Levantamos el html
-  #       armado_v <- paste('<div style="height: 100%; width: 100%; overflow: auto;"><iframe style="height: 2000vh; width:100%; border: none;" src="', my_local_file, '"></iframe></div>', sep = "")
-  #
-  #       # armado_v <- paste(
-  #       #   '<div style="height: calc(100vh - 50px);">',
-  #       #   '<iframe style="height: 100%; width:100%; border: none;" src="', my_local_file, '"></iframe>',
-  #       #   '</div>',
-  #       #   sep = ""
-  #       # )
-  #
-  #       #spo_file01_rmd_s02_html(NULL)
-  #       return(armado_v)
-  #     })
-  #
-  #
-  #
-  #     # # #############################################################################################
-  #
-  #
-  #     # 8) Path and files 02
-  #     input_file02_rmd_code   <- reactiveVal("file02_master_REPORT.qmd")
-  #     output_file02_html_code <- reactiveVal("file02_master_REPORT.html")
-  #     input_path02_rmd_code   <- reactiveVal()
-  #     output_path02_html_code <- reactiveVal()
-  #     observeEvent(step_chain(), {
-  #       req(step_chain() == 8, special_path_output_folder())
-  #       print(step_chain())
-  #
-  #
-  #       input_path02_rmd_code(file.path(special_path_output_folder(), input_file02_rmd_code()))
-  #       output_path02_html_code(file.path(special_path_output_folder(), output_file02_html_code()))
-  #
-  #
-  #       step_chain(step_chain() + 1)
-  #
-  #     })
-  #
-  #
-  #     # 9) Renderizar archivo file02
-  #     count_general02 <- reactiveVal(0)
-  #     observeEvent(step_chain(), {
-  #       req(step_chain() == 9, special_path_output_folder(),  render_env())
-  #
-  #       print(step_chain())
-  #
-  #       # Directorios
-  #       count_general01(0)
-  #       old_wd <- getwd()
-  #       new_wd <- special_path_output_folder()
-  #
-  #       # Crear el directorio si no existe
-  #       if (!dir.exists(new_wd)) dir.create(new_wd, recursive = TRUE)
-  #
-  #       # Cambiar al nuevo directorio y asegurarse de restaurar al salir
-  #       setwd(new_wd)
-  #       on.exit(setwd(old_wd))
-  #
-  #       # Renderizar y manejar errores
-  #       print(render_env())
-  #
-  #
-  #       tryCatch({
-  #         quarto::quarto_render(
-  #           input = input_file02_rmd_code(),
-  #           output_format = "html",
-  #           output_file = output_file02_html_code(),
-  #           execute_params = render_env()
-  #         )
-  #         count_general02(1)  # Incrementar solo si tiene éxito
-  #       }, error = function(e) {
-  #         message("Error en el renderizado file02: ", e$message)
-  #       })
-  #
-  #       step_chain(step_chain() + 1)
-  #
-  #     })
-  #
-  #
-  #     download_counter_output_file02 <- reactiveVal(0)
-  #
-  #
-  #
-  #     output$download_button_output_file02 <- downloadHandler(
-  #       filename = function() {
-  #         basename(output_path02_html_code())
-  #       },
-  #       content = function(file) {
-  #         #file.copy(output_path_html(), file, overwrite = TRUE)
-  #         file.copy(output_path02_html_code(), file, overwrite = TRUE)
-  #         download_counter_output_file02(download_counter_output_file02() + 1)
-  #       }
-  #     )
-  #
-  #
-  #     # Evento para abrir el archivo HTML en una nueva pestaña
-  #     observeEvent(input$open_html02, {
-  #       my_path <- special_path_output_folder()
-  #       addResourcePath(prefix = "output_temp_folder", directoryPath = my_path)
-  #
-  #       #print(spo_file01_rmd_s02_html())
-  #
-  #       # Armamos ahora un path con el "alias" como folder.
-  #       my_file <- basename(output_file02_html_code())
-  #       my_local_file <- file.path("output_temp_folder", my_file)
-  #
-  #
-  #       if (!is.null(my_path) && file.exists(my_path)) {
-  #         # Abre el archivo HTML en la nueva pestaña usando la ruta pública
-  #         # Asegúrate de usar el prefijo 'output'
-  #         #url_to_open <- paste0("output/", basename(html_path))
-  #         browseURL(my_local_file)
-  #         # Si 'browseURL()' no funciona, vale la pena intentar el siguiente enfoque
-  #         session$sendCustomMessage(type = "openHtml", message = my_local_file)
-  #       }
-  #     })
-  #
-  #
-  #
-  #
-  #
-  #     observeEvent(list(count_general02(), download_counter_output_file02(), step_chain()),{
-  #       #req(download_counter_file01_rmd_s04_rcode())
-  #
-  #       the_cons01 <- download_counter_output_file02()==0 && count_general02()==0
-  #       the_cons02 <- download_counter_output_file02()>=1 && count_general02()==0
-  #       the_cons03 <- download_counter_output_file02()==0 && count_general02()==1
-  #       the_cons04 <- download_counter_output_file02()>=1 && count_general02()==1
-  #
-  #       #print(the_cons)
-  #       if(the_cons01 | the_cons02) {
-  #         shinyjs::disable("download_button_output_file02")
-  #         runjs(sprintf('$("#%s").css({"background-color": "grey", "color": "white", "border": "none", "padding": "10px 20px", "text-align": "center", "text-decoration": "none", "display": "inline-block", "font-size": "16px", "margin": "4px 2px", "cursor": "pointer", "border-radius": "12px"});', ns("download_button_output_file02")))
-  #         print("HOLA1 o 2")
-  #       } else
-  #         if(the_cons03){
-  #           shinyjs::enable("download_button_output_file02")
-  #           runjs(sprintf('$("#%s").css({"background-color": "orange", "color": "white", "border": "none", "padding": "10px 20px", "text-align": "center", "text-decoration": "none", "display": "inline-block", "font-size": "16px", "margin": "4px 2px", "cursor": "pointer", "border-radius": "12px"});', ns("download_button_output_file02")))
-  #           print("HOLA3")
-  #         } else
-  #           if(the_cons04){
-  #             shinyjs::enable("download_button_output_file02")
-  #             runjs(sprintf('$("#%s").css({"background-color": "green", "color": "white", "border": "none", "padding": "10px 20px", "text-align": "center", "text-decoration": "none", "display": "inline-block", "font-size": "16px", "margin": "4px 2px", "cursor": "pointer", "border-radius": "12px"});', ns("download_button_output_file02")))
-  #             print("HOLA4")
-  #           }
-  #     })
-  #
-  #
-  #
-  #     output$htmlviewer_temporal02 <- renderText({
-  #
-  #       req(control_03(), special_path_output_folder(), output_file01_html_code(), render_button_status())
-  #
-  #       # # # Definimos como un "alias" o un "bindeo".
-  #       # A la carpeta temporal le damos como un "alias".
-  #       # Esto es por que los HTML no pueden ser tomados de cualquier lado.
-  #       #print(special_path_output_folder())
-  #       my_path <- special_path_output_folder()
-  #       addResourcePath(prefix = "output_temp_folder", directoryPath = my_path)
-  #
-  #       #print(spo_file01_rmd_s02_html())
-  #
-  #       # Armamos ahora un path con el "alias" como folder.
-  #       my_file <- basename(output_file02_html_code())
-  #       my_local_file <- file.path("output_temp_folder", my_file)
-  #
-  #       # Levantamos el html
-  #       armado_v <- paste('<div style="height: 100%; width: 100%; overflow: auto;"><iframe style="height: 2000vh; width:100%; border: none;" src="', my_local_file, '"></iframe></div>', sep = "")
-  #
-  #       # armado_v <- paste(
-  #       #   '<div style="height: calc(100vh - 50px);">',
-  #       #   '<iframe style="height: 100%; width:100%; border: none;" src="', my_local_file, '"></iframe>',
-  #       #   '</div>',
-  #       #   sep = ""
-  #       # )
-  #
-  #       #spo_file01_rmd_s02_html(NULL)
-  #       return(armado_v)
-  #     })
-  #
-  #     # # # Input Paths - Master Files
-  #
-  #
-  #
-  #     ##################################################################
-  #     # observeEvent(check_reset_render_opts(), {
-  #     #
-  #     #   if(check_reset_render_opts()){
-  #     #
-  #     #
-  #     #     count_general01(0)
-  #     #     count_general02(0)
-  #     #
-  #     #   }
-  #     #
-  #     #
-  #     # })
-  #
-  #     ##################################################################
-  #
-  #
-  #
-  #
-  #
-  #
-  #     output$report_view <- renderUI({
-  #
-  #       req(control_01(), control_02(), control_03())
-  #
-  #       ns <- NS(id)
-  #
-  #
-  #       div(
-  #         tabsetPanel(
-  #           selected = 1,
-  #           tabPanel(title = "R Code and Outputs", value = 1,
-  #                    fluidRow(
-  #                      column(12,
-  #                             shinycssloaders::withSpinner(htmlOutput(ns("htmlviewer_temporal01"))))
-  #                    )
-  #           ),
-  #           tabPanel(title = "Special Report", value = 2,
-  #                    fluidRow(
-  #                      column(12,
-  #                             shinycssloaders::withSpinner(htmlOutput(ns("htmlviewer_temporal02"))))
-  #                    )
-  #           )
-  #         )
-  #       )
-  #
-  #     })
-  #
-  #
-  #
-  #
      }
   )
 }
@@ -1180,7 +434,7 @@ module_sp001_s001_server_p02 <- function(id, database, output_list_01){
               need(!is.null(df_new_info()),   'Categories and colors must be selected 02.'),
               errorClass = "WARNING"
             )
-            print(df_new_info())
+            # print(df_new_info())
 
             amount_ok_01 <- max(table(df_new_info()$"vector_new_level")) == 1
             validate(
@@ -1451,7 +705,7 @@ module_sp001_s001_server_p04 <- function(id, database, output_list_01, output_li
 
       # Output list 03
       control_03 <- reactive({output_list_03()$"control_03"})
-
+      render_button_status <- reactive({output_list_03()$"render_button_status"})
 
 
 
@@ -1628,6 +882,7 @@ module_sp001_s001_server_p04 <- function(id, database, output_list_01, output_li
 
         # Crear el entorno de renderizado
         my_env <- list()
+        my_env$the_time <- the_time()
         my_env$database <- database()
         #env$selected_name_var01 <- "mpg"
         my_env$str_selected_name_var01 <- paste0( "\"", selected_var(), "\"")
@@ -1650,6 +905,7 @@ module_sp001_s001_server_p04 <- function(id, database, output_list_01, output_li
 
 
 
+      ###############################################################################################
 
 
       # Segunda parte: Manejar la generación de los informes usando render_env y change_name_path
@@ -1676,6 +932,8 @@ module_sp001_s001_server_p04 <- function(id, database, output_list_01, output_li
       # 6) Substituir elementos de los archivos qmd file01
       observeEvent(step_chain(), {
         req(step_chain() == 6, special_path_output_folder(),  render_env())
+
+        print(step_chain())
 
 
         # Define la ruta del archivo
@@ -1720,7 +978,7 @@ module_sp001_s001_server_p04 <- function(id, database, output_list_01, output_li
         on.exit(setwd(old_wd))
 
         # Renderizar y manejar errores
-        print(render_env())
+        # print(render_env())
 
 
         tryCatch({
@@ -1764,7 +1022,6 @@ module_sp001_s001_server_p04 <- function(id, database, output_list_01, output_li
         my_path <- special_path_output_folder()
         addResourcePath(prefix = "output_temp_folder", directoryPath = my_path)
 
-        #print(spo_file01_rmd_s02_html())
 
         # Armamos ahora un path con el "alias" como folder.
         my_file <- basename(output_file01_html_code())
@@ -1785,47 +1042,63 @@ module_sp001_s001_server_p04 <- function(id, database, output_list_01, output_li
 
 
 
-      observeEvent(list(count_general01(), download_counter_output_file01(), step_chain()),{
+      observeEvent(list(count_general01(), download_counter_output_file01(), step_chain(), input$"download_button_output_file01"),{
         #req(download_counter_file01_rmd_s04_rcode())
+        #req(step_chain()>= 7)
+        req(input$"download_button_output_file01")
 
         the_cons01 <- download_counter_output_file01()==0 && count_general01()==0
         the_cons02 <- download_counter_output_file01()>=1 && count_general01()==0
         the_cons03 <- download_counter_output_file01()==0 && count_general01()==1
         the_cons04 <- download_counter_output_file01()>=1 && count_general01()==1
 
-        #print(the_cons)
+        print(paste0("download_counter_output_file01(): ", download_counter_output_file01()))
+        print(paste0("count_general01(): ", count_general01()))
+
         if(the_cons01 | the_cons02) {
           shinyjs::disable("download_button_output_file01")
           runjs(sprintf('$("#%s").css({"background-color": "grey", "color": "white", "border": "none", "padding": "10px 20px", "text-align": "center", "text-decoration": "none", "display": "inline-block", "font-size": "16px", "margin": "4px 2px", "cursor": "pointer", "border-radius": "12px"});', ns("download_button_output_file01")))
-          print("HOLA1 o 2")
+          print("HOLA1 o 2 - A")
         } else
           if(the_cons03){
             shinyjs::enable("download_button_output_file01")
             runjs(sprintf('$("#%s").css({"background-color": "orange", "color": "white", "border": "none", "padding": "10px 20px", "text-align": "center", "text-decoration": "none", "display": "inline-block", "font-size": "16px", "margin": "4px 2px", "cursor": "pointer", "border-radius": "12px"});', ns("download_button_output_file01")))
-            print("HOLA3")
+            print("HOLA3 - A")
           } else
             if(the_cons04){
               shinyjs::enable("download_button_output_file01")
               runjs(sprintf('$("#%s").css({"background-color": "green", "color": "white", "border": "none", "padding": "10px 20px", "text-align": "center", "text-decoration": "none", "display": "inline-block", "font-size": "16px", "margin": "4px 2px", "cursor": "pointer", "border-radius": "12px"});', ns("download_button_output_file01")))
-              print("HOLA4")
+              print("HOLA4 - A")
             }
       })
 
 
 
+      # observe({
+      #
+      #   print(paste0("control_03(): ", control_03()))
+      #   #print(paste0("render_button_status(): ", render_button_status()))
+      #   print(paste0("output_file01_html_code(): ", output_file01_html_code()))
+      #   print(paste0("special_path_output_folder(): ", special_path_output_folder()))
+      #
+      # })
+
       output$htmlviewer_temporal01 <- renderText({
+        print("Ejecutando htmlviewer_temporal01")
 
-        req(control_03(), special_path_output_folder(), output_file01_html_code(), render_button_status())
-        #req(special_path_output_folder(), output_file01_html_code(), render_button_status())
+        print(paste0("control_03(): ", control_03()))
+        #print(paste0("render_button_status(): ", render_button_status()))
+        print(paste0("output_file01_html_code(): ", output_file01_html_code()))
+        print(paste0("special_path_output_folder(): ", special_path_output_folder()))
 
-        # # # Definimos como un "alias" o un "bindeo".
-        # A la carpeta temporal le damos como un "alias".
-        # Esto es por que los HTML no pueden ser tomados de cualquier lado.
-        #print(special_path_output_folder())
+        req(control_03(), special_path_output_folder(), output_file01_html_code())
+        # req(control_03(), special_path_output_folder(), output_file01_html_code(), render_button_status())
+
+        print("Todas las condiciones de req se cumplieron")
+
+        # Definimos como un "alias" o un "bindeo".
         my_path <- special_path_output_folder()
         addResourcePath(prefix = "output_temp_folder", directoryPath = my_path)
-
-        #print(spo_file01_rmd_s02_html())
 
         # Armamos ahora un path con el "alias" como folder.
         my_file <- basename(output_file01_html_code())
@@ -1834,20 +1107,12 @@ module_sp001_s001_server_p04 <- function(id, database, output_list_01, output_li
         # Levantamos el html
         armado_v <- paste('<div style="height: 100%; width: 100%; overflow: auto;"><iframe style="height: 2000vh; width:100%; border: none;" src="', my_local_file, '"></iframe></div>', sep = "")
 
-        # armado_v <- paste(
-        #   '<div style="height: calc(100vh - 50px);">',
-        #   '<iframe style="height: 100%; width:100%; border: none;" src="', my_local_file, '"></iframe>',
-        #   '</div>',
-        #   sep = ""
-        # )
-
-        #spo_file01_rmd_s02_html(NULL)
         return(armado_v)
       })
 
 
 
-      # # #############################################################################################
+      ###############################################################################################
 
 
       # 8) Path and files 02
@@ -1877,7 +1142,7 @@ module_sp001_s001_server_p04 <- function(id, database, output_list_01, output_li
         print(step_chain())
 
         # Directorios
-        count_general01(0)
+        count_general02(0)
         old_wd <- getwd()
         new_wd <- special_path_output_folder()
 
@@ -1889,7 +1154,7 @@ module_sp001_s001_server_p04 <- function(id, database, output_list_01, output_li
         on.exit(setwd(old_wd))
 
         # Renderizar y manejar errores
-        print(render_env())
+
 
 
         tryCatch({
@@ -1930,7 +1195,6 @@ module_sp001_s001_server_p04 <- function(id, database, output_list_01, output_li
         my_path <- special_path_output_folder()
         addResourcePath(prefix = "output_temp_folder", directoryPath = my_path)
 
-        #print(spo_file01_rmd_s02_html())
 
         # Armamos ahora un path con el "alias" como folder.
         my_file <- basename(output_file02_html_code())
@@ -1959,21 +1223,21 @@ module_sp001_s001_server_p04 <- function(id, database, output_list_01, output_li
         the_cons03 <- download_counter_output_file02()==0 && count_general02()==1
         the_cons04 <- download_counter_output_file02()>=1 && count_general02()==1
 
-        #print(the_cons)
+
         if(the_cons01 | the_cons02) {
           shinyjs::disable("download_button_output_file02")
           runjs(sprintf('$("#%s").css({"background-color": "grey", "color": "white", "border": "none", "padding": "10px 20px", "text-align": "center", "text-decoration": "none", "display": "inline-block", "font-size": "16px", "margin": "4px 2px", "cursor": "pointer", "border-radius": "12px"});', ns("download_button_output_file02")))
-          print("HOLA1 o 2")
+          print("HOLA1 o 2 - B")
         } else
           if(the_cons03){
             shinyjs::enable("download_button_output_file02")
             runjs(sprintf('$("#%s").css({"background-color": "orange", "color": "white", "border": "none", "padding": "10px 20px", "text-align": "center", "text-decoration": "none", "display": "inline-block", "font-size": "16px", "margin": "4px 2px", "cursor": "pointer", "border-radius": "12px"});', ns("download_button_output_file02")))
-            print("HOLA3")
+            print("HOLA3 - B")
           } else
             if(the_cons04){
               shinyjs::enable("download_button_output_file02")
               runjs(sprintf('$("#%s").css({"background-color": "green", "color": "white", "border": "none", "padding": "10px 20px", "text-align": "center", "text-decoration": "none", "display": "inline-block", "font-size": "16px", "margin": "4px 2px", "cursor": "pointer", "border-radius": "12px"});', ns("download_button_output_file02")))
-              print("HOLA4")
+              print("HOLA4 - B")
             }
       })
 
@@ -1981,7 +1245,8 @@ module_sp001_s001_server_p04 <- function(id, database, output_list_01, output_li
 
       output$htmlviewer_temporal02 <- renderText({
 
-        req(control_03(), special_path_output_folder(), output_file01_html_code(), render_button_status())
+        req(control_03(), special_path_output_folder(), output_file01_html_code())
+        #req(control_03(), special_path_output_folder(), output_file01_html_code(), render_button_status())
         #req(special_path_output_folder(), output_file01_html_code(), render_button_status())
 
         # # # Definimos como un "alias" o un "bindeo".
@@ -2011,25 +1276,7 @@ module_sp001_s001_server_p04 <- function(id, database, output_list_01, output_li
         return(armado_v)
       })
 
-      # # # Input Paths - Master Files
-
-
-
-      ##################################################################
-      # observeEvent(check_reset_render_opts(), {
-      #
-      #   if(check_reset_render_opts()){
-      #
-      #
-      #     count_general01(0)
-      #     count_general02(0)
-      #
-      #   }
-      #
-      #
-      # })
-
-      ##################################################################
+      ###############################################################################################
 
 
 
@@ -2038,7 +1285,9 @@ module_sp001_s001_server_p04 <- function(id, database, output_list_01, output_li
 
       output$report_view <- renderUI({
 
-        req(control_01(), control_02(), control_03())
+        req(control_01())
+        req(control_02())
+        req(control_03())
 
         ns <- NS(id)
 
