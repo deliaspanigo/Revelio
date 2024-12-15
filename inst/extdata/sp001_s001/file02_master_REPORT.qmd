@@ -3,7 +3,7 @@ title: "Summary - 1Q"
 
 knitr:
   opts_chunk:
-    dpi: 100
+    dpi: 400
     message: FALSE
     warning: FALSE
     echo: FALSE
@@ -31,6 +31,9 @@ format:
     smooth-scroll: true 
 ---
 
+
+
+
 Written by David Elías Panigo [`r fontawesome::fa(name = "link")`](https://jeremy-selva.netlify.app/){target="_blank"} [`r fontawesome::fa(name = "linkedin")`](https://www.linkedin.com/in/deliaspanigo/){target="_blank"} [`r fontawesome::fa(name = "github")`](https://github.com/deliaspanigo/){target="_blank"} [`r fontawesome::fa(name = "fab fa-x-twitter")`](https://twitter.com/JauntyJJS){target="_blank"}
 
 
@@ -50,14 +53,14 @@ library("dplyr")
 library("knitr")
 library("kableExtra")
 
-entorno <- readRDS("entorno_completo.rds")
+entorno <- readRDS("full_enviroment.rds")
 # 
 # # Restaurar los objetos en el entorno actual
 list2env(entorno, envir = .GlobalEnv)
 
 ```
 
-
+# Frequency Table
 ```{r, class.source="bg-success"}
 my_table <- df_freq_table01
 
@@ -73,6 +76,7 @@ remove(my_table)
 
 ```
 
+# Acumulative Frequency Table
 
 ```{r, class.source="bg-success"}
 
@@ -91,7 +95,7 @@ remove(my_table)
 ```
 
 
-
+# Plots
 ```{r, class.source="bg-success"}
 
 plot001

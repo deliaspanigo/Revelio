@@ -1,0 +1,54 @@
+---
+title: "Summary - 1Q"
+
+knitr:
+  opts_chunk:
+    dpi: 400
+    message: FALSE
+    warning: FALSE
+    echo: FALSE
+    eval: TRUE
+    include: TRUE
+    cache: TRUE
+    comment: ">"
+    tidyverse-quiet: TRUE
+format:
+  html:
+    page-layout: full
+    theme: 
+      light: cerulean 
+      dark: cyborg
+    toc: true
+    toc-depth: 3
+    toc-location: left
+    number-sections: true
+    code-fold: show
+    code-overflow: scroll
+    code-line-numbers: false
+    code-link: true
+    code-copy: true
+    code-tools: true
+    self-contained: true
+    smooth-scroll: true 
+---
+
+Written by David Elías Panigo [`r fontawesome::fa(name = "link")`](https://jeremy-selva.netlify.app/){target="_blank"} [`r fontawesome::fa(name = "linkedin")`](https://www.linkedin.com/in/deliaspanigo/){target="_blank"} [`r fontawesome::fa(name = "github")`](https://github.com/deliaspanigo/){target="_blank"} [`r fontawesome::fa(name = "fab fa-x-twitter")`](https://twitter.com/JauntyJJS){target="_blank"}
+
+
+<br>
+<br>
+![Elephant01](logo_01_unc_master.png){width=150}
+![Elephant02](logo_02_fcefyn_master.png){width=150}
+![Elephant03](logo_03_efadoc_master.png){width=150}
+![Elephant04](logo_04_rscience_master.png){width=140}
+
+
+
+
+```{r, echo = TRUE, include = TRUE, eval = FALSE, class.source="bg-success"}
+
+_all_code_
+
+
+```
+

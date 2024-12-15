@@ -9,7 +9,7 @@ params:
 
 knitr:
   opts_chunk:
-    dpi: 100
+    dpi: 400
     message: FALSE
     warning: FALSE
     echo: TRUE
@@ -25,7 +25,7 @@ format:
     toc: true
     toc-depth: 3
     toc-location: left
-    number-sections: true
+    number-sections: false
     code-fold: show
     code-overflow: scroll
     code-line-numbers: false
@@ -36,9 +36,10 @@ format:
     smooth-scroll: true 
 ---
 
-#### Hora de ejecución: `r format(Sys.time(), "%Y-%m-%d %H:%M:%S")`
-#### Sistema operativo: `r Sys.info()["sysname"]`
-#### Versión de R: `r R.version.string`
+
+#### Time: `r format(Sys.time(), "%Y-%m-%d %H:%M:%S")`
+#### Operative System: `r Sys.info()["sysname"]`
+#### R: `r R.version.string`
 
 Written by David Elías Panigo [`r fontawesome::fa(name = "link")`](https://jeremy-selva.netlify.app/){target="_blank"} [`r fontawesome::fa(name = "linkedin")`](https://www.linkedin.com/in/deliaspanigo/){target="_blank"} [`r fontawesome::fa(name = "github")`](https://github.com/deliaspanigo/){target="_blank"} [`r fontawesome::fa(name = "fab fa-x-twitter")`](https://twitter.com/JauntyJJS){target="_blank"}
 
@@ -53,10 +54,10 @@ Written by David Elías Panigo [`r fontawesome::fa(name = "link")`](https://jere
 
 
 
-## Section 01 of 15 - Libraries
+# Section 01 of 09 - Libraries
 ```{r , include =T, eval = T, class.source="bg-success"}
 
-### Section 01 of 15 - Libraries
+# # # Section 01 of 09 - Libraries -------------------------------------------------------
 library("stats")      # General Linear Models, Shapiro test and Bartlett test.
 library("agricolae")  # Tukey test
 library("gplots")     # Graphics 
@@ -67,10 +68,10 @@ library("openxlsx")
 <br>
 <br>
 
-## Section 02 of 15 - Import database - Input 01 of 04
+# Section 02 of 09 - Import database
 ```{r , include =T, eval = T, class.source="bg-success"}
 
-### Section 02 of 15 - Import database - Input 01 of 04 ------------------------
+# # # Section 02 of 09 - Import database -------------------------------------------------
 # Import database
 database <- mtcars
 
@@ -81,10 +82,10 @@ head(x=database, n=5)
 <br>
 <br>
 
-## Section  03 de 15 - Var selection - Input 02 of 03
+# Section  03 de 09 - Var selection
 ```{r , include =T, eval = T, class.source="bg-success"}
 
-### Section  03 de 15 - Var selection - Input 02 of 03 -------------------------
+# # # Section  03 de 09 - Var selection ------------------------------------------------------
 # Selected qualitative var name
 selected_name_var01 <- _str_selected_name_var01_
 selected_name_var01
@@ -93,7 +94,7 @@ vector_all_var_names <- colnames(database)
 vector_rol_vars <- c("Qualitative")
 
 
-# # # Selected vars info as dataframe
+# Selected vars info as dataframe
 df_selected_vars <- data.frame(
   "order" = 1,
   "var_name" = selected_name_var01,
@@ -109,33 +110,38 @@ df_selected_vars
 <br>
 <br>
 
-## Section  03 de 15 - Var categories order - Input 03 of 04
+# Section  04 de 09 - Categories new order and colors
 ```{r , include =T, eval = T, class.source="bg-success"}
 
-
-
-### Section  03 de 15 - Var categories order - Input 03 of 04 ------------------
+# # # Section  04 de 09 - Categories new order and colors --------------------------------
+# Old categories
 database[,selected_name_var01] <- as.factor(database[,selected_name_var01])
 vector_old_order_categories <- levels(database[,selected_name_var01])
 vector_old_order_categories
 
+# New categories
 vector_new_order_categories <- _str_vector_order_categories_
 vector_new_order_categories
 
 
-# Cambiar el orden de los niveles del factor
+# New levels
 database[,selected_name_var01] <- factor(x = database[,selected_name_var01], 
                                          levels = vector_new_order_categories)
 levels(database[,selected_name_var01])
 
 
-### Section  04 de 15 - Categories color - Input 04 of 04 --------------------------------
+# Colors
 vector_colors <- _str_vector_colors_
 vector_colors
 
+```
 
 
-### Section  05 de 15 - minibase -----------------------------------------------
+
+# Section  05 de 09 - minibase
+```{r , include =T, eval = T, class.source="bg-success"}
+
+# Section  05 de 09 - minibase -----------------------------------------------------------
 
 # Selected vars with full data on rows only
 minibase <- na.omit(database[selected_name_var01])
@@ -152,9 +158,14 @@ df_show_n <- data.frame(
 )
 df_show_n
 
+```
 
 
-### Section  05 de 15 - Frequencies --------------------------------------------
+
+# Section  06 de 09 - Frequencies Table
+```{r , include =T, eval = T, class.source="bg-success"}
+
+# # # Section  06 de 09 - Frequencies Table ---------------------------------------------
 original_table <- table(minibase[,selected_name_var01])
 original_table
 
@@ -180,7 +191,7 @@ vector_porc02 <- paste0(vector_porc01, "%")
 names(vector_porc02) <- names(vector_porc01)
 vector_porc02
 
-# Combinar los resultados en una tabla
+# Frequency Table 01 
 df_freq_table01 <- data.frame(
   Category = names(original_table),
   Absolute_Freq = vector_frec_abs,
@@ -196,15 +207,21 @@ df_freq_table01 <- data.frame(
 df_freq_table01[,"Category"] <- factor(df_freq_table01[,"Category"], levels = df_freq_table01[,"Category"])
 df_freq_table01
 
+```
 
-### Section  05 de 15 - Acumulative Frequencies --------------------------------
+
+
+# Section  07 de 09 - Acumulative Frequencies Table
+```{r , include =T, eval = T, class.source="bg-success"}
+
+# # # Section  07 de 09 - Acumulative Frequencies Table ---------------------------------
 vector_frec_abs_acum <- cumsum(vector_frec_abs)
 vector_frec_quotient_acum <- paste0(vector_frec_abs_acum, "/", vector_n)
 vector_frec_rel_acum <- vector_frec_abs_acum / vector_n
 vector_porc01_acum <- vector_frec_rel_acum * 100
 vector_porc02_acum <- paste0(vector_porc01_acum, "%")
 
-# Combinar los resultados en una tabla
+# Frequency Table 02
 df_freq_table02 <- data.frame(
   Category = names(original_table),
   Absolute_Freq_Acum = vector_frec_abs_acum,
@@ -219,9 +236,14 @@ df_freq_table02 <- data.frame(
 df_freq_table02[,"Category"] <- factor(df_freq_table02[,"Category"], levels = df_freq_table02[,"Category"])
 df_freq_table02
 
+```
 
 
-### Section  05 de 15 - Plots Frequencies --------------------------------------------
+# Section  08 de 09 - Plots
+```{r , include =T, eval = T, class.source="bg-success"}
+
+# # # Section  08 de 09 - Plots ----------------------------------------------------------
+
 # Plot001 
 selected_col01 <- 2
 plot001 <- plot_ly(
@@ -238,8 +260,12 @@ plot001 <- plot_ly(
     yaxis = list(title = colnames(df_freq_table01)[selected_col01])
   )
 
-# Mostrar el gráfico
 plot001
+
+```
+
+
+```{r , include =T, eval = T, class.source="bg-success"}
 
 # Plot002 
 selected_col02 <- 5
@@ -257,8 +283,13 @@ plot002 <- plot_ly(
     yaxis = list(title = colnames(df_freq_table01)[selected_col02])
   )
 
-# Mostrar el gráfico
+
 plot002
+
+```
+
+
+```{r , include =T, eval = T, class.source="bg-success"}
 
 # Plot003 
 selected_col03 <- 6
@@ -279,9 +310,11 @@ plot003 <- plot_ly(
 # Mostrar el gráfico
 plot003
 
+```
 
 
 
+```{r , include =T, eval = T, class.source="bg-success"}
 
 # Crear un gráfico de tortas con plotly
 plot004 <- plot_ly(
@@ -298,8 +331,13 @@ plot004 <- plot_ly(
     yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE)
   )
 
-# Mostrar el gráfico
+
 plot004
+
+```
+
+
+```{r , include =T, eval = T, class.source="bg-success"}
 
 # Crear un gráfico de donut con plotly
 plot005 <- plot_ly(
@@ -316,18 +354,19 @@ plot005 <- plot_ly(
     showlegend = TRUE
   )
 
-# Mostrar el gráfico
+
 plot005
+
 ```
 
 
 
-
+# Section 09 o 09 - Save All
 ```{r,  include =FALSE}
-# Empaquetar todos los objetos en una lista
-entorno <- mget(ls())
+# My enviroment
+my_full_enviroment <- mget(ls())
 
-# Guardar la lista como un archivo RDS
-saveRDS(entorno, file = "entorno_completo.rds")
+# Save all as RDS
+saveRDS(my_full_enviroment, file = "full_enviroment.rds")
 ```
 
