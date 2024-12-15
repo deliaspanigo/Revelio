@@ -8,12 +8,12 @@ params:
 
 knitr:
   opts_chunk:
-    dpi: 600
+    dpi: 100
     message: FALSE
     warning: FALSE
     echo: TRUE
     eval: TRUE
-    cache: FALSE
+    cache: TRUE
     comment: ">"
     tidyverse-quiet: TRUE
 format:
