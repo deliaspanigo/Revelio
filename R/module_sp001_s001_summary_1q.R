@@ -595,16 +595,17 @@ module_sp001_s001_server_p03 <- function(id, database, output_list_01, output_li
 
 
             if(the_way01){
-              runjs(sprintf('$("#%s").css({"background-color": "grey", "color": "white", "border": "none", "padding": "10px 20px", "text-align": "center", "text-decoration": "none", "display": "inline-block", "font-size": "16px", "margin": "4px 2px", "cursor": "pointer", "border-radius": "12px"});', ns("render_report_button")))
               shinyjs::disable("render_report_button")
+              runjs(sprintf('$("#%s").css({"background-color": "grey", "color": "white", "border": "none", "padding": "10px 20px", "text-align": "center", "text-decoration": "none", "display": "inline-block", "font-size": "16px", "margin": "4px 2px", "cursor": "pointer", "border-radius": "12px"});', ns("render_report_button")))
+
 
             } else
 
 
               # Todo lo anterior tiene que estar OK.
               if(the_way02){
-                runjs(sprintf('$("#%s").css({"background-color": "orange", "color": "white", "border": "none", "padding": "10px 20px", "text-align": "center", "text-decoration": "none", "display": "inline-block", "font-size": "16px", "margin": "4px 2px", "cursor": "pointer", "border-radius": "12px"});', ns("render_report_button")))
                 shinyjs::enable("render_report_button")
+                runjs(sprintf('$("#%s").css({"background-color": "orange", "color": "white", "border": "none", "padding": "10px 20px", "text-align": "center", "text-decoration": "none", "display": "inline-block", "font-size": "16px", "margin": "4px 2px", "cursor": "pointer", "border-radius": "12px"});', ns("render_report_button")))
 
               } else
 
@@ -677,8 +678,26 @@ module_sp001_s001_ui_p04 <- function(id){
 
   div(
     uiOutput(ns("section04_download")),
-    shinycssloaders::withSpinner(uiOutput(ns("report_view")))
-  )
+    tabsetPanel(id = ns("averaver"),
+                selected = 1,
+                tabPanel(title = "R Code and Outputs",
+                         value = 1,
+                         fluidRow(
+                           column(12, shinycssloaders::withSpinner(htmlOutput(ns("htmlviewer_temporal01"))))
+                           )),
+                tabPanel(title = "Report",
+                         value = 2,
+                         fluidRow(
+                           column(12, shinycssloaders::withSpinner(htmlOutput(ns("htmlviewer_temporal02"))))
+                         ))
+                )
+    )
+
+
+
+    #shinycssloaders::withSpinner(htmlOutput(ns("htmlviewer_temporal02")))
+    #uiOutput(ns("report_view"))
+
 
 
 
@@ -715,9 +734,9 @@ module_sp001_s001_server_p04 <- function(id, database, output_list_01, output_li
       # # # Step 04 - Download buttons ---------------------------------------
 
       output$section04_download <- renderUI({
-        req(control_01())
-        req(control_02())
-        req(control_03())
+        # req(control_01())
+        # req(control_02())
+        # req(control_03())
 
         div(
           fluidRow(
@@ -750,6 +769,7 @@ module_sp001_s001_server_p04 <- function(id, database, output_list_01, output_li
           )
         )
       })
+
 
 
 
@@ -852,10 +872,16 @@ module_sp001_s001_server_p04 <- function(id, database, output_list_01, output_li
         # The new folder
         special_path_output_folder(output_folder_temp)
 
+        my_path <- special_path_output_folder()
+        addResourcePath(prefix = "output_temp_folder", directoryPath = my_path)
+
         step_chain(step_chain() + 1)
 
 
       })
+
+
+
 
 
       # 3) Copiamos los archivos originales a la carpeta temporal nueva
@@ -1019,33 +1045,36 @@ module_sp001_s001_server_p04 <- function(id, database, output_list_01, output_li
 
       # Evento para abrir el archivo HTML en una nueva pestaña
       observeEvent(input$open_html01, {
-        my_path <- special_path_output_folder()
-        addResourcePath(prefix = "output_temp_folder", directoryPath = my_path)
+        req(step_chain() >= 7)
+        #my_path <- special_path_output_folder()
+        #addResourcePath(prefix = "output_temp_folder", directoryPath = my_path)
 
 
         # Armamos ahora un path con el "alias" como folder.
-        my_file <- basename(output_file01_html_code())
+       # my_file <- basename(output_file01_html_code())
+        my_file <- output_file01_html_code()
         my_local_file <- file.path("output_temp_folder", my_file)
+        session$sendCustomMessage(type = "openHtml", message = my_local_file)
 
-
-        if (!is.null(my_path) && file.exists(my_path)) {
-          # Abre el archivo HTML en la nueva pestaña usando la ruta pública
-          # Asegúrate de usar el prefijo 'output'
-          #url_to_open <- paste0("output/", basename(html_path))
-          browseURL(my_local_file)
-          # Si 'browseURL()' no funciona, vale la pena intentar el siguiente enfoque
-          session$sendCustomMessage(type = "openHtml", message = my_local_file)
-        }
+        # if (!is.null(my_path) && file.exists(my_path)) {
+        #   # Abre el archivo HTML en la nueva pestaña usando la ruta pública
+        #   # Asegúrate de usar el prefijo 'output'
+        #   #url_to_open <- paste0("output/", basename(html_path))
+        #   # browseURL(my_local_file)
+        #   # Si 'browseURL()' no funciona, vale la pena intentar el siguiente enfoque
+        #
+        # }
       })
 
 
 
 
 
-      observeEvent(list(count_general01(), download_counter_output_file01(), step_chain(), input$"download_button_output_file01"),{
+      observeEvent(list(count_general01(), download_counter_output_file01(), step_chain()),{
+
         #req(download_counter_file01_rmd_s04_rcode())
-        #req(step_chain()>= 7)
-        req(input$"download_button_output_file01")
+        req(step_chain() > 7)
+        #req(input$"download_button_output_file01")
 
         the_cons01 <- download_counter_output_file01()==0 && count_general01()==0
         the_cons02 <- download_counter_output_file01()>=1 && count_general01()==0
@@ -1074,41 +1103,27 @@ module_sp001_s001_server_p04 <- function(id, database, output_list_01, output_li
 
 
 
-      # observe({
-      #
-      #   print(paste0("control_03(): ", control_03()))
-      #   #print(paste0("render_button_status(): ", render_button_status()))
-      #   print(paste0("output_file01_html_code(): ", output_file01_html_code()))
-      #   print(paste0("special_path_output_folder(): ", special_path_output_folder()))
-      #
-      # })
+
+      observe({
+
+        print(paste0("special_path_output_folder(): ", special_path_output_folder()))
+        print(paste0("output_file01_html_code(): ", output_file01_html_code()))
+
+      })
 
       output$htmlviewer_temporal01 <- renderText({
-        print("Ejecutando htmlviewer_temporal01")
+        req(step_chain() >= 7)
 
-        print(paste0("control_03(): ", control_03()))
-        #print(paste0("render_button_status(): ", render_button_status()))
-        print(paste0("output_file01_html_code(): ", output_file01_html_code()))
-        print(paste0("special_path_output_folder(): ", special_path_output_folder()))
-
-        req(control_03(), special_path_output_folder(), output_file01_html_code())
-        # req(control_03(), special_path_output_folder(), output_file01_html_code(), render_button_status())
-
-        print("Todas las condiciones de req se cumplieron")
-
-        # Definimos como un "alias" o un "bindeo".
-        my_path <- special_path_output_folder()
-        addResourcePath(prefix = "output_temp_folder", directoryPath = my_path)
-
-        # Armamos ahora un path con el "alias" como folder.
-        my_file <- basename(output_file01_html_code())
+        my_file <- output_file01_html_code()
         my_local_file <- file.path("output_temp_folder", my_file)
 
         # Levantamos el html
         armado_v <- paste('<div style="height: 100%; width: 100%; overflow: auto;"><iframe style="height: 2000vh; width:100%; border: none;" src="', my_local_file, '"></iframe></div>', sep = "")
+        armado_v
 
-        return(armado_v)
       })
+
+
 
 
 
@@ -1280,31 +1295,41 @@ module_sp001_s001_server_p04 <- function(id, database, output_list_01, output_li
 
 
 
+      ###############################################################################################
+
+
+
 
 
 
       output$report_view <- renderUI({
 
-        req(control_01())
-        req(control_02())
-        req(control_03())
+        req(step_chain() >= 10)
+
+        # req(control_01())
+        # req(control_02())
+        # req(control_03())
 
         ns <- NS(id)
 
 
         div(
-          tabsetPanel(
+          tabsetPanel(id = ns("averaver"),
             selected = 1,
-            tabPanel(title = "R Code and Outputs", value = 1,
+            tabPanel(title = "R Code and Outputs",
+                     value = 1,
                      fluidRow(
                        column(12,
-                              shinycssloaders::withSpinner(htmlOutput(ns("htmlviewer_temporal01"))))
+                              shinycssloaders::withSpinner(htmlOutput(ns("htmlviewer_temporal01")))
+                              )
                      )
             ),
-            tabPanel(title = "Special Report", value = 2,
+            tabPanel(title = "Special Report",
+                     value = 2,
                      fluidRow(
                        column(12,
-                              shinycssloaders::withSpinner(htmlOutput(ns("htmlviewer_temporal02"))))
+                              shinycssloaders::withSpinner(htmlOutput(ns("htmlviewer_temporal02")))
+                              )
                      )
             )
           )
