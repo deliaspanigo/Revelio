@@ -184,12 +184,15 @@ app_001_revelio <- function(){
 
     # Pack 002) Import Database
     sui_data_source <- module_pack002_import_s00_general_p01_server(id = "space02_database_00")
-    database        <- module_pack002_import_s00_general_p02_server(id = "space02_database_00", sui_data_source)
+    output_list_database        <- module_pack002_import_s00_general_p02_server(id = "space02_database_00", sui_data_source)
 
-    vector_all_colnames_database <- reactive({
-      req(database())
-      colnames(database())
-    })
+    # observe({
+    #   print(output_list_database())
+    # })
+    temporal_file_path <- reactive({output_list_database()$"temporal_file_path"})
+    str_import_local <- reactive({output_list_database()$"str_import_local"})
+    database <- reactive({output_list_database()$"database"})
+
 
     #----------------------------------------------------------
 
@@ -226,7 +229,7 @@ app_001_revelio <- function(){
     module_ui_list$fallback <- fallback_ui
     module_server_list$fallback <- fallback_server
 
-    #----------------------------------------------------------
+    #-----------------------------------------------------------------------------------------------------------
 
     sui_super01_summary <- module_super01_module_selection_server("super01", menu_yml = menu01_summary)
 
@@ -234,7 +237,7 @@ app_001_revelio <- function(){
       selected_module_server <- module_server_list[[sui_super01_summary()]]
 
       if (!is.null(selected_module_server)) {
-        selected_module_server(id = sui_super01_summary(), vector_all_colnames_database, database)
+        selected_module_server(id = sui_super01_summary(), output_list_database)
       } else {
         warning("Módulo no encontrado para: ", sui_super01_summary())
       }
@@ -250,7 +253,7 @@ app_001_revelio <- function(){
       }
     })
 
-    #----------------------------------------------------------
+    #------------------------------------------------------------------------------------------------------------
 
     sui_fms <- module_super01_module_selection_server("super", menu_yml = menu02_standard_proc)
 
@@ -258,7 +261,7 @@ app_001_revelio <- function(){
       selected_module_server <- module_server_list[[sui_fms()]]
 
       if (!is.null(selected_module_server)) {
-        selected_module_server(id = sui_fms(), vector_all_colnames_database, database)
+        selected_module_server(id = sui_fms(), database)
       } else {
         warning("Módulo no encontrado para: ", sui_fms())
       }

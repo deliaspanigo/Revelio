@@ -73,7 +73,7 @@ library("openxlsx")
 
 # # # Section 02 of 09 - Import database -------------------------------------------------
 # Import database
-database <- mtcars
+database <- _str_import_database_
 
 # First 5 rows from database
 head(x=database, n=5)

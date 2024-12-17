@@ -90,7 +90,7 @@ module_sp001_s001_ui <- function(id){
 
 
 # Var selection - Render - Show Results
-module_sp001_s001_server <- function(id, vector_all_colnames_database, database){
+module_sp001_s001_server <- function(id, output_list_database){
 
   moduleServer(
     id,
@@ -99,10 +99,18 @@ module_sp001_s001_server <- function(id, vector_all_colnames_database, database)
       # ns para el server!
       ns <- session$ns
 
+      #################################################################################
+      temporal_file_path <- reactive({output_list_database()$"temporal_file_path"})
+      original_file_name <- reactive({output_list_database()$"original_file_name"})
+      str_import_local <- reactive({output_list_database()$"str_import_local"})
+      database <- reactive({output_list_database()$"database"})
+      #################################################################################
+
+
       output_list_01 <- module_sp001_s001_server_p01(id, database)
       output_list_02 <- module_sp001_s001_server_p02(id, database, output_list_01)
       output_list_03 <- module_sp001_s001_server_p03(id, database, output_list_01, output_list_02)
-      module_sp001_s001_server_p04(id, database, output_list_01, output_list_02, output_list_03)
+      module_sp001_s001_server_p04(id, database, output_list_01, output_list_02, output_list_03, temporal_file_path, str_import_local, original_file_name)
 
 
      }
@@ -708,7 +716,7 @@ module_sp001_s001_ui_p04 <- function(id){
 
 
 
-module_sp001_s001_server_p04 <- function(id, database, output_list_01, output_list_02, output_list_03){
+module_sp001_s001_server_p04 <- function(id, database, output_list_01, output_list_02, output_list_03, temporal_file_path, str_import_local, original_file_name){
 
   moduleServer(
     id,
@@ -911,6 +919,29 @@ module_sp001_s001_server_p04 <- function(id, database, output_list_01, output_li
         original_files <- list.files(input_folder_master(), full.names = TRUE)
         file.copy(original_files, special_path_output_folder(), overwrite = TRUE)
 
+        #
+        if(!is.null(temporal_file_path())){
+
+          print(paste0("temporal_file_path: ", temporal_file_path()))
+          print(paste0("original_file_name: ",  original_file_name()))
+
+          # Definir la nueva ruta del archivo
+          #
+
+          new_file_path <- file.path(special_path_output_folder(), original_file_name())
+          print(paste0("new_file_path: ",  new_file_path))
+
+
+          #print("new_file_path: ", new_file_path)
+
+          #print(temporal_file_path())
+          # Copiar el archivo a la nueva carpeta temporal
+          file.copy(temporal_file_path(), new_file_path)
+
+          #file.copy(temporal_file_path(), special_path_output_folder(), overwrite = TRUE)
+          print(list.files(special_path_output_folder()))
+        }
+        #
         step_chain(step_chain() + 1)
 
       })
@@ -928,6 +959,7 @@ module_sp001_s001_server_p04 <- function(id, database, output_list_01, output_li
         my_env$the_time <- the_time()
         my_env$database <- database()
         #env$selected_name_var01 <- "mpg"
+        my_env$str_import_database <- str_import_local()
         my_env$str_selected_name_var01 <- paste0( "\"", selected_var(), "\"")
         my_env$str_vector_order_categories <-  paste0("c(", paste(shQuote(df_new_info()$vector_new_level), collapse = ", "), ")")
         my_env$str_vector_colors <- paste0("c(", paste(shQuote(df_new_info()$vector_new_color), collapse = ", "), ")")
@@ -987,6 +1019,7 @@ module_sp001_s001_server_p04 <- function(id, database, output_list_01, output_li
 
 
         # Realiza el reemplazo (por ejemplo, reemplazar "antiguo" por "nuevo")
+        file_content <- gsub("_str_import_database_",  render_env()$str_import_database, file_content)
         file_content <- gsub("_str_selected_name_var01_",  render_env()$str_selected_name_var01, file_content)
         file_content <- gsub("_str_vector_order_categories_",  render_env()$str_vector_order_categories, file_content)
         file_content <- gsub("_str_vector_colors_",  render_env()$str_vector_colors, file_content)
@@ -1029,7 +1062,7 @@ module_sp001_s001_server_p04 <- function(id, database, output_list_01, output_li
             input = input_file01_rmd_code(),
             output_format = "html",
             output_file = output_file01_html_code(),
-            execute_params = render_env()
+            execute_params = NULL #render_env()
           )
           count_general01(1)  # Incrementar solo si tiene éxito
         }, error = function(e) {

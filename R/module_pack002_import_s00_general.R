@@ -115,9 +115,6 @@ module_pack002_import_s00_general_p02_server <- function(id, sui_data_source){
       ns <- session$ns
 
 
-      database <- reactiveVal(NULL)
-
-
       # Pack 002) Import database
 
       # Reactive values to store the database from each module
@@ -138,14 +135,6 @@ module_pack002_import_s00_general_p02_server <- function(id, sui_data_source){
 
       })
 
-      database <- reactive({
-        req(sui_data_source())
-        switch(sui_data_source(),
-               "source_xlsx" = rv$xlsx(),
-               "source_csv" = rv$csv(),
-               "source_revelio" = rv$revelio(),
-               "source_rdata" = rv$r())
-      })
 
       output$salida_general <- renderUI({
         req(sui_data_source())
@@ -157,6 +146,50 @@ module_pack002_import_s00_general_p02_server <- function(id, sui_data_source){
                "source_rdata" = module_pack002_import_s04_rdata_ui(ns("space02_database_04")))
 
       })
+
+
+      # # -----------------------------------------------------------------------------------------------
+
+
+      temporal_file_path <- reactive({
+        req(sui_data_source())
+        switch(sui_data_source(),
+               "source_xlsx" = rv$xlsx()$temporal_file_path,
+               "source_csv" = rv$csv(),
+               "source_revelio" = rv$revelio(),
+               "source_rdata" = rv$r())
+      })
+
+      original_file_name <- reactive({
+        req(sui_data_source())
+        switch(sui_data_source(),
+               "source_xlsx" = rv$xlsx()$original_file_name,
+               "source_csv" = rv$csv(),
+               "source_revelio" = rv$revelio(),
+               "source_rdata" = rv$r())
+      })
+
+
+      str_import_local <- reactive({
+        req(sui_data_source())
+        switch(sui_data_source(),
+               "source_xlsx" = rv$xlsx()$str_import_local,
+               "source_csv" = rv$csv(),
+               "source_revelio" = rv$revelio(),
+               "source_rdata" = rv$r())
+      })
+
+      database <- reactive({
+        req(sui_data_source())
+        switch(sui_data_source(),
+               "source_xlsx" = rv$xlsx()$database,
+               "source_csv" = rv$csv(),
+               "source_revelio" = rv$revelio(),
+               "source_rdata" = rv$r())
+      })
+
+
+      # # -----------------------------------------------------------------------------------------------
 
 
       output$df_database <- renderDT({
@@ -204,7 +237,20 @@ module_pack002_import_s00_general_p02_server <- function(id, sui_data_source){
 
       })
 
-      return(database)
+      output_list <- reactive({
+        armado <- list(
+        "temporal_file_path" = temporal_file_path(),
+        "original_file_name" = original_file_name(),
+        "str_import_local" = str_import_local(),
+        "database" = database())
+
+        #print(armado)
+        armado
+
+      })
+
+      return(output_list)
+
     }
   )
 }
